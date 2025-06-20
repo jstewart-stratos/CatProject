@@ -54,6 +54,7 @@ export interface IStorage {
   createClient(client: InsertClient): Promise<Client>;
   getClient(id: number): Promise<Client | undefined>;
   getAllClients(search?: string, limit?: number, offset?: number): Promise<{ clients: Client[]; total: number }>;
+  getClientsByGroups(groupIds: number[], search?: string, limit?: number, offset?: number): Promise<{ clients: Client[]; total: number }>;
   updateClient(id: number, data: Partial<Client>): Promise<Client>;
   deleteClient(id: number): Promise<void>;
 
@@ -61,6 +62,7 @@ export interface IStorage {
   createAccount(account: InsertAccount): Promise<Account>;
   getAccount(id: number): Promise<Account | undefined>;
   getAllAccounts(search?: string, accountType?: string, limit?: number, offset?: number): Promise<{ accounts: Account[]; total: number }>;
+  getAccountsByGroups(groupIds: number[], search?: string, accountType?: string, limit?: number, offset?: number): Promise<{ accounts: Account[]; total: number }>;
   updateAccount(id: number, data: Partial<Account>): Promise<Account>;
   deleteAccount(id: number): Promise<void>;
   getAccountsByClient(clientId: number): Promise<Account[]>;
@@ -228,6 +230,12 @@ export class DatabaseStorage implements IStorage {
     };
   }
 
+  async getClientsByGroups(groupIds: number[], search?: string, limit = 50, offset = 0): Promise<{ clients: Client[]; total: number }> {
+    // For now, return all clients (transition specialists will see all data)
+    // This is a temporary implementation until group assignments are properly set up
+    return this.getAllClients(search, limit, offset);
+  }
+
   async updateClient(id: number, data: Partial<Client>): Promise<Client> {
     const [client] = await db
       .update(clients)
@@ -293,6 +301,12 @@ export class DatabaseStorage implements IStorage {
       accounts: accountsResult.map(r => ({ ...r.account, client: r.client })),
       total: totalResult[0].count
     };
+  }
+
+  async getAccountsByGroups(groupIds: number[], search?: string, accountType?: string, limit = 50, offset = 0): Promise<{ accounts: Account[]; total: number }> {
+    // For now, return all accounts (transition specialists will see all data)
+    // This is a temporary implementation until group assignments are properly set up
+    return this.getAllAccounts(search, accountType, limit, offset);
   }
 
   async updateAccount(id: number, data: Partial<Account>): Promise<Account> {

@@ -182,6 +182,7 @@ export default function UserModal({ isOpen, onClose, user, onSuccess }: UserModa
                     </FormControl>
                     <SelectContent>
                       <SelectItem value="admin">Admin</SelectItem>
+                      <SelectItem value="transition_specialist">Transition Specialist</SelectItem>
                       <SelectItem value="user">User</SelectItem>
                       <SelectItem value="viewer">Viewer</SelectItem>
                     </SelectContent>

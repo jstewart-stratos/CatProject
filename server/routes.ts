@@ -34,6 +34,54 @@ const upload = multer({
   }
 });
 
+// Permission checking middleware
+const checkPermission = (requiredPermissions: string[]) => {
+  return async (req: any, res: any, next: any) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(401).json({ message: "User not found" });
+      }
+
+      // Admin has access to everything
+      if (user.role === 'admin') {
+        req.userRole = user.role;
+        req.userGroups = await storage.getUserGroups(userId);
+        return next();
+      }
+
+      // Check if user role has required permissions
+      const rolePermissions: Record<string, string[]> = {
+        admin: ['*'], // Admin has all permissions
+        transition_specialist: [
+          'manage_users', 'manage_groups', 
+          'view_dashboard', 'view_clients', 'view_accounts'
+        ],
+        user: ['view_dashboard', 'view_clients', 'view_accounts'],
+        viewer: ['view_clients', 'view_accounts']
+      };
+
+      const userPermissions = rolePermissions[user.role] || [];
+      const hasPermission = requiredPermissions.some(perm => 
+        userPermissions.includes(perm) || userPermissions.includes('*')
+      );
+
+      if (!hasPermission) {
+        return res.status(403).json({ message: "Insufficient permissions" });
+      }
+
+      req.userRole = user.role;
+      req.userGroups = await storage.getUserGroups(userId);
+      next();
+    } catch (error) {
+      console.error("Permission check error:", error);
+      res.status(500).json({ message: "Permission check failed" });
+    }
+  };
+};
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
@@ -91,7 +139,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // User management routes
-  app.get('/api/users', isAuthenticated, async (req, res) => {
+  app.get('/api/users', isAuthenticated, checkPermission(['manage_users']), async (req, res) => {
     try {
       const users = await storage.getAllUsers();
       res.json(users);
@@ -101,7 +149,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/users/:id', isAuthenticated, async (req, res) => {
+  app.put('/api/users/:id', isAuthenticated, checkPermission(['manage_users']), async (req, res) => {
     try {
       const { id } = req.params;
       const updateData = insertClientSchema.partial().parse(req.body);
@@ -114,7 +162,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Group management routes
-  app.get('/api/groups', isAuthenticated, async (req, res) => {
+  app.get('/api/groups', isAuthenticated, checkPermission(['manage_groups', 'view_dashboard']), async (req, res) => {
     try {
       const groups = await storage.getAllGroups();
       res.json(groups);
@@ -124,7 +172,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/groups', isAuthenticated, async (req: any, res) => {
+  app.post('/api/groups', isAuthenticated, checkPermission(['manage_groups']), async (req: any, res) => {
     try {
       const groupData = insertGroupSchema.parse(req.body);
       const group = await storage.createGroup(groupData);
@@ -135,7 +183,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/groups/:id', isAuthenticated, async (req, res) => {
+  app.put('/api/groups/:id', isAuthenticated, checkPermission(['manage_groups']), async (req, res) => {
     try {
       const { id } = req.params;
       const updateData = insertGroupSchema.partial().parse(req.body);
@@ -147,7 +195,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/groups/:id', isAuthenticated, async (req, res) => {
+  app.delete('/api/groups/:id', isAuthenticated, checkPermission(['manage_groups']), async (req, res) => {
     try {
       const { id } = req.params;
       await storage.deleteGroup(parseInt(id));
@@ -158,7 +206,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/groups/:groupId/users/:userId', isAuthenticated, async (req, res) => {
+  app.post('/api/groups/:groupId/users/:userId', isAuthenticated, checkPermission(['manage_groups']), async (req, res) => {
     try {
       const { groupId, userId } = req.params;
       await storage.addUserToGroup(userId, parseInt(groupId));
@@ -181,15 +229,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Client management routes
-  app.get('/api/clients', isAuthenticated, async (req, res) => {
+  app.get('/api/clients', isAuthenticated, checkPermission(['view_clients']), async (req: any, res) => {
     try {
       const { search, limit = '50', offset = '0' } = req.query;
-      const result = await storage.getAllClients(
-        search as string,
-        parseInt(limit as string),
-        parseInt(offset as string)
-      );
-      res.json(result);
+      
+      // For transition specialists, filter by their assigned groups
+      if (req.userRole === 'transition_specialist') {
+        const groupIds = req.userGroups.map((g: any) => g.id);
+        const result = await storage.getClientsByGroups(
+          groupIds,
+          search as string,
+          parseInt(limit as string),
+          parseInt(offset as string)
+        );
+        res.json(result);
+      } else {
+        // Admin and other roles see all clients
+        const result = await storage.getAllClients(
+          search as string,
+          parseInt(limit as string),
+          parseInt(offset as string)
+        );
+        res.json(result);
+      }
     } catch (error) {
       console.error("Error fetching clients:", error);
       res.status(500).json({ message: "Failed to fetch clients" });
@@ -248,16 +310,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Account management routes
-  app.get('/api/accounts', isAuthenticated, async (req, res) => {
+  app.get('/api/accounts', isAuthenticated, checkPermission(['view_accounts']), async (req: any, res) => {
     try {
       const { search, accountType, limit = '50', offset = '0' } = req.query;
-      const result = await storage.getAllAccounts(
-        search as string,
-        accountType as string,
-        parseInt(limit as string),
-        parseInt(offset as string)
-      );
-      res.json(result);
+      
+      // For transition specialists, filter by their assigned groups
+      if (req.userRole === 'transition_specialist') {
+        const groupIds = req.userGroups.map((g: any) => g.id);
+        const result = await storage.getAccountsByGroups(
+          groupIds,
+          search as string,
+          accountType as string,
+          parseInt(limit as string),
+          parseInt(offset as string)
+        );
+        res.json(result);
+      } else {
+        // Admin and other roles see all accounts
+        const result = await storage.getAllAccounts(
+          search as string,
+          accountType as string,
+          parseInt(limit as string),
+          parseInt(offset as string)
+        );
+        res.json(result);
+      }
     } catch (error) {
       console.error("Error fetching accounts:", error);
       res.status(500).json({ message: "Failed to fetch accounts" });
