@@ -1,0 +1,138 @@
+# DataFlow - Client Data Management System
+
+## Overview
+
+DataFlow is a full-stack client data management system built with React, Express.js, and PostgreSQL. The application provides user authentication via Replit Auth, role-based access control, and comprehensive CRUD operations for managing clients, accounts, beneficiaries, and related financial data. The system includes file upload capabilities, audit logging, and import/export functionality.
+
+## System Architecture
+
+### Frontend Architecture
+- **Framework**: React 18 with TypeScript
+- **Routing**: Wouter for client-side routing
+- **State Management**: TanStack React Query for server state management
+- **UI Framework**: shadcn/ui components built on Radix UI primitives
+- **Styling**: Tailwind CSS with CSS variables for theming
+- **Build Tool**: Vite with hot module replacement
+
+### Backend Architecture
+- **Framework**: Express.js with TypeScript
+- **Authentication**: Replit Auth with OpenID Connect
+- **Session Management**: Express sessions with PostgreSQL store
+- **Database ORM**: Drizzle ORM with Neon serverless PostgreSQL
+- **File Handling**: Multer for file uploads with validation
+- **API Design**: RESTful endpoints with consistent error handling
+
+### Database Design
+- **Primary Database**: PostgreSQL (Neon serverless)
+- **Schema Management**: Drizzle Kit for migrations
+- **Key Tables**: 
+  - Users (authentication and profile data)
+  - Groups (role-based permissions)
+  - Clients, Accounts, Beneficiaries (business data)
+  - Audit logs and file uploads (compliance and tracking)
+
+## Key Components
+
+### Authentication & Authorization
+- **Provider**: Replit Auth integration with OpenID Connect
+- **Session Storage**: PostgreSQL-backed sessions with 7-day TTL
+- **Role System**: Admin, user, and viewer roles with group-based permissions
+- **Route Protection**: Authentication middleware on all protected routes
+
+### Data Management
+- **Clients**: Core customer records with contact information
+- **Accounts**: Financial account data linked to clients
+- **Beneficiaries**: Account beneficiary information
+- **ACH Information**: Banking details for electronic transfers
+- **Direct Business**: Business relationship data
+
+### User Interface
+- **Design System**: Consistent UI using shadcn/ui components
+- **Responsive Design**: Mobile-first approach with sidebar navigation
+- **Data Tables**: Sortable, filterable tables for data management
+- **Modal Forms**: Overlay forms for create/edit operations
+- **Toast Notifications**: User feedback for actions and errors
+
+### File Management
+- **Upload System**: Multer-based file handling with type validation
+- **Supported Formats**: CSV and Excel files for data import
+- **File Storage**: Local filesystem with configurable limits
+- **Import Processing**: CSV/Excel parsing for bulk data operations
+
+## Data Flow
+
+### Authentication Flow
+1. User accesses protected route
+2. Middleware checks session validity
+3. Redirects to Replit Auth if unauthenticated
+4. OpenID Connect handles authentication
+5. User session created and stored in PostgreSQL
+6. Access granted based on user role and permissions
+
+### Data Operations Flow
+1. Frontend forms submit data via React Query mutations
+2. Express routes validate request data using Zod schemas
+3. Drizzle ORM executes database operations
+4. Audit logs created for non-GET operations
+5. Response sent back to frontend
+6. UI updates via optimistic updates and cache invalidation
+
+### File Import Flow
+1. User uploads CSV/Excel file via drag-and-drop interface
+2. Multer validates file type and size
+3. File stored temporarily on server
+4. Background processing parses file content
+5. Data validation against schema definitions
+6. Bulk insert operations with transaction safety
+7. Import results reported back to user
+
+## External Dependencies
+
+### Core Dependencies
+- **@neondatabase/serverless**: Neon PostgreSQL database connection
+- **drizzle-orm**: Type-safe database operations and queries
+- **@tanstack/react-query**: Server state management and caching
+- **@radix-ui/***: Accessible UI component primitives
+- **wouter**: Lightweight client-side routing
+
+### Authentication Dependencies
+- **passport**: Authentication middleware framework
+- **openid-client**: OpenID Connect client implementation
+- **express-session**: Session management middleware
+- **connect-pg-simple**: PostgreSQL session store
+
+### Development Dependencies
+- **vite**: Fast build tool and development server
+- **typescript**: Type safety across the application
+- **tailwindcss**: Utility-first CSS framework
+- **esbuild**: Fast JavaScript bundler for production
+
+## Deployment Strategy
+
+### Development Environment
+- **Platform**: Replit with auto-configured modules
+- **Database**: Neon PostgreSQL with auto-provisioning
+- **Hot Reload**: Vite development server with HMR
+- **Port Configuration**: Port 5000 for development server
+
+### Production Build
+- **Build Process**: 
+  1. Frontend build via Vite to `dist/public`
+  2. Backend build via esbuild to `dist/index.js`
+  3. Static file serving from build output
+- **Deployment Target**: Replit autoscale deployment
+- **Environment Variables**: Database URL and session secrets
+
+### Database Management
+- **Migrations**: Drizzle Kit push for schema updates
+- **Connection Pooling**: Neon serverless connection management
+- **Backup Strategy**: Neon automated backups and point-in-time recovery
+
+## User Preferences
+
+Preferred communication style: Simple, everyday language.
+
+## Changelog
+
+Changelog:
+- June 20, 2025. Initial setup
