@@ -500,6 +500,101 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Lists endpoint for dropdown data
+  app.get('/api/lists', async (req, res) => {
+    try {
+      const lists = {
+        'Account Type': [
+          'Individual',
+          'Joint',
+          'Corporate',
+          'Trust',
+          'IRA',
+          'Roth IRA',
+          'SEP IRA',
+          'Simple IRA',
+          '401k',
+          '403b',
+          'Entity'
+        ],
+        'Program Type': [
+          'Brokerage',
+          'Direct Business',
+          'Manager Access Network',
+          'Manager Access Select',
+          'Manager Select',
+          'Unified Managed Account',
+          'Advisory',
+          'Wrap Fee Program'
+        ],
+        'Investment Objective': [
+          'Growth',
+          'Income',
+          'Growth and Income',
+          'Aggressive Growth',
+          'Conservative',
+          'Speculation',
+          'Capital Preservation'
+        ],
+        'Investment Time Horizon': [
+          'Less than 1 year',
+          '1-3 years',
+          '3-5 years',
+          '5-10 years',
+          'More than 10 years'
+        ],
+        'Liquidity Needs Timeframe': [
+          'Immediate',
+          '3 months',
+          '6 months',
+          '1 year',
+          '2-3 years',
+          'More than 3 years'
+        ],
+        'Employment Status': [
+          'Employed',
+          'Unemployed',
+          'Retired',
+          'Student',
+          'Homemaker',
+          'Minor'
+        ],
+        'Industry': [
+          'Agriculture',
+          'Automotive',
+          'Banking',
+          'Construction',
+          'Education',
+          'Energy',
+          'Financial Services',
+          'Government',
+          'Healthcare',
+          'Insurance',
+          'Legal',
+          'Manufacturing',
+          'Real Estate',
+          'Retail',
+          'Technology',
+          'Transportation',
+          'Other'
+        ],
+        'Affiliation Type': [
+          'Employee',
+          'Director/Officer',
+          'Shareholder',
+          'Partner',
+          'Owner',
+          'Contractor',
+          'None'
+        ]
+      };
+      res.json(lists);
+    } catch (error) {
+      console.error("Error fetching lists:", error);
+      res.status(500).json({ message: "Failed to fetch lists" });
+    }
+  });
+
   // Audit log routes
   app.get('/api/audit-logs', isAuthenticated, async (req, res) => {
     try {

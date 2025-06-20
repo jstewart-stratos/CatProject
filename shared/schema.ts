@@ -429,3 +429,102 @@ export type InsertAuditLog = z.infer<typeof insertAuditLogSchema>;
 export type AuditLog = typeof auditLogs.$inferSelect;
 export type InsertFileUpload = z.infer<typeof insertFileUploadSchema>;
 export type FileUpload = typeof fileUploads.$inferSelect;
+
+// Additional Account Holder Information
+export const additionalHolders = pgTable("additional_holders", {
+  id: serial("id").primaryKey(),
+  accountId: integer("account_id").references(() => accounts.id),
+  firstName: varchar("first_name"),
+  middleName: varchar("middle_name"),
+  lastName: varchar("last_name"),
+  suffix: varchar("suffix"),
+  dateOfBirth: date("date_of_birth"),
+  socialSecurityNumber: varchar("social_security_number"),
+  employmentStatus: varchar("employment_status"),
+  industry: varchar("industry"),
+  occupation: varchar("occupation"),
+  employerName: varchar("employer_name"),
+  homePhone: varchar("home_phone"),
+  mobilePhone: varchar("mobile_phone"),
+  businessPhone: varchar("business_phone"),
+  email: varchar("email"),
+  legalAddressLine1: varchar("legal_address_line_1"),
+  legalAddressLine2: varchar("legal_address_line_2"),
+  legalCity: varchar("legal_city"),
+  legalState: varchar("legal_state"),
+  legalZipCode: varchar("legal_zip_code"),
+  useSameAddress: boolean("use_same_address").default(false),
+  affiliationType: varchar("affiliation_type"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Trading Authority Information
+export const tradingAuthority = pgTable("trading_authority", {
+  id: serial("id").primaryKey(),
+  accountId: integer("account_id").references(() => accounts.id),
+  authorizedPersonName: varchar("authorized_person_name"),
+  relationship: varchar("relationship"),
+  phoneNumber: varchar("phone_number"),
+  email: varchar("email"),
+  limitedTradingAuthority: boolean("limited_trading_authority").default(false),
+  fullTradingAuthority: boolean("full_trading_authority").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Power of Attorney Information
+export const powerOfAttorney = pgTable("power_of_attorney", {
+  id: serial("id").primaryKey(),
+  accountId: integer("account_id").references(() => accounts.id),
+  attorneyName: varchar("attorney_name"),
+  relationship: varchar("relationship"),
+  phoneNumber: varchar("phone_number"),
+  email: varchar("email"),
+  powerType: varchar("power_type"),
+  documentDate: date("document_date"),
+  notarized: boolean("notarized").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Trust Account Information
+export const trustAccountInfo = pgTable("trust_account_info", {
+  id: serial("id").primaryKey(),
+  accountId: integer("account_id").references(() => accounts.id),
+  trustName: varchar("trust_name"),
+  trusteeNames: text("trustee_names"),
+  trustDate: date("trust_date"),
+  taxIdNumber: varchar("tax_id_number"),
+  trustType: varchar("trust_type"),
+  beneficiaryInformation: text("beneficiary_information"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// 529 Plan Disclosure Checklist
+export const plan529Checklist = pgTable("plan_529_checklist", {
+  id: serial("id").primaryKey(),
+  accountId: integer("account_id").references(() => accounts.id),
+  planState: varchar("plan_state"),
+  beneficiaryName: varchar("beneficiary_name"),
+  beneficiaryDateOfBirth: date("beneficiary_date_of_birth"),
+  beneficiarySSN: varchar("beneficiary_ssn"),
+  relationshipToBeneficiary: varchar("relationship_to_beneficiary"),
+  investmentOptions: text("investment_options"),
+  ageBased: boolean("age_based").default(false),
+  staticPortfolio: boolean("static_portfolio").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export type InsertAdditionalHolder = typeof additionalHolders.$inferInsert;
+export type AdditionalHolder = typeof additionalHolders.$inferSelect;
+export type InsertTradingAuthority = typeof tradingAuthority.$inferInsert;
+export type TradingAuthority = typeof tradingAuthority.$inferSelect;
+export type InsertPowerOfAttorney = typeof powerOfAttorney.$inferInsert;
+export type PowerOfAttorney = typeof powerOfAttorney.$inferSelect;
+export type InsertTrustAccountInfo = typeof trustAccountInfo.$inferInsert;
+export type TrustAccountInfo = typeof trustAccountInfo.$inferSelect;
+export type InsertPlan529Checklist = typeof plan529Checklist.$inferInsert;
+export type Plan529Checklist = typeof plan529Checklist.$inferSelect;
