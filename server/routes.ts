@@ -149,10 +149,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post('/api/users', isAuthenticated, checkPermission(['manage_users']), async (req, res) => {
+    try {
+      const userCreateSchema = z.object({
+        firstName: z.string().min(1),
+        lastName: z.string().min(1),
+        email: z.string().email(),
+        role: z.string(),
+        isActive: z.boolean().default(true),
+      });
+      const userData = userCreateSchema.parse(req.body);
+      
+      // For creating users via admin, we need to generate an ID
+      const newUser = {
+        id: `admin_created_${Date.now()}`,
+        ...userData,
+      };
+      
+      const user = await storage.upsertUser(newUser);
+      res.status(201).json(user);
+    } catch (error) {
+      console.error("Error creating user:", error);
+      res.status(500).json({ message: "Failed to create user" });
+    }
+  });
+
   app.put('/api/users/:id', isAuthenticated, checkPermission(['manage_users']), async (req, res) => {
     try {
       const { id } = req.params;
-      const updateData = insertClientSchema.partial().parse(req.body);
+      // Create a user update schema that excludes ID and timestamps
+      const userUpdateSchema = z.object({
+        firstName: z.string().optional(),
+        lastName: z.string().optional(),
+        email: z.string().email().optional(),
+        role: z.string().optional(),
+        isActive: z.boolean().optional(),
+      });
+      const updateData = userUpdateSchema.parse(req.body);
       const user = await storage.updateUser(id, updateData);
       res.json(user);
     } catch (error) {
