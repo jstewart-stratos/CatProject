@@ -313,7 +313,32 @@ export default function AccountFormEnhanced() {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {lists?.["Registration Type"]?.map((type: string) => (
+                  {/* Filter registration types based on account type */}
+                  {lists?.["Registration Type"]?.filter((type: string) => {
+                    if (!accountType) return true;
+                    
+                    // IRA account types should only show IRA registrations
+                    if (accountType.toLowerCase().includes('ira')) {
+                      return type.toLowerCase().includes('ira');
+                    }
+                    
+                    // Corporate accounts should show corporate registrations
+                    if (accountType === 'Corporate') {
+                      return ['Corporate', 'LLC', 'Partnership', 'Trust'].some(corp => 
+                        type.toLowerCase().includes(corp.toLowerCase())
+                      );
+                    }
+                    
+                    // Individual accounts should show individual/joint registrations
+                    if (accountType === 'Individual') {
+                      return !type.toLowerCase().includes('ira') && 
+                             !['Corporate', 'LLC', 'Partnership'].some(corp => 
+                               type.toLowerCase().includes(corp.toLowerCase())
+                             );
+                    }
+                    
+                    return true;
+                  }).map((type: string) => (
                     <SelectItem key={type} value={type}>{type}</SelectItem>
                   ))}
                 </SelectContent>
@@ -448,7 +473,20 @@ export default function AccountFormEnhanced() {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {lists?.["Suitability"]?.map((value: string) => (
+                    {/* Provide numerical value ranges for account values */}
+                    {[
+                      "Under $10,000",
+                      "$10,000 - $25,000",
+                      "$25,000 - $50,000",
+                      "$50,000 - $100,000",
+                      "$100,000 - $250,000",
+                      "$250,000 - $500,000",
+                      "$500,000 - $1,000,000",
+                      "$1,000,000 - $2,500,000",
+                      "$2,500,000 - $5,000,000",
+                      "$5,000,000 - $10,000,000",
+                      "Over $10,000,000"
+                    ].map((value: string) => (
                       <SelectItem key={value} value={value}>{value}</SelectItem>
                     ))}
                   </SelectContent>
