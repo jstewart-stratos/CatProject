@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Database, BarChart3, Users, Wallet, ArrowLeftRight, UserCog, UsersIcon, LogOut } from "lucide-react";
+import { Database, BarChart3, Users, Wallet, ArrowLeftRight, UserCog, UsersIcon, LogOut, UserPlus } from "lucide-react";
 
 interface SidebarProps {
   currentView: string;
@@ -16,6 +16,7 @@ export default function Sidebar({ currentView }: SidebarProps) {
   const menuItems = [
     { id: "dashboard", path: "/", label: "Dashboard", icon: BarChart3 },
     { id: "clients", path: "/clients", label: "Clients", icon: Users },
+    { id: "client-onboarding", path: "/client-onboarding", label: "Client Onboarding", icon: UserPlus },
     { id: "accounts", path: "/accounts", label: "Accounts", icon: Wallet },
     { id: "import-export", path: "/import-export", label: "Import/Export", icon: ArrowLeftRight },
     { id: "users", path: "/users", label: "User Management", icon: UserCog },
