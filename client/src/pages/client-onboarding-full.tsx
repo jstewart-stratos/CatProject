@@ -2156,7 +2156,15 @@ export default function ClientOnboardingFull() {
                     <ChevronRight className="h-4 w-4 ml-2" />
                   </Button>
                 ) : (
-                  <Button type="submit" disabled={mutation.isPending}>
+                  <Button 
+                    type="submit" 
+                    disabled={mutation.isPending}
+                    onClick={(e) => {
+                      console.log("Submit button clicked");
+                      console.log("Form errors:", form.formState.errors);
+                      console.log("Form is valid:", form.formState.isValid);
+                    }}
+                  >
                     {mutation.isPending ? "Submitting..." : "Submit"}
                   </Button>
                 )}
