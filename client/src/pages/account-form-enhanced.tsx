@@ -359,9 +359,10 @@ export default function AccountFormEnhanced() {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {filteredProgramTypes.map((type: string) => (
-                    <SelectItem key={type} value={type}>{type}</SelectItem>
-                  ))}
+                  {filteredProgramTypes.map((type: string) => {
+                    console.log('Rendering Program Type option:', type);
+                    return <SelectItem key={type} value={type}>{type}</SelectItem>
+                  })}
                 </SelectContent>
               </Select>
               <FormMessage />
