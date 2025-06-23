@@ -106,6 +106,7 @@ function ClientOnboarding() {
       state: "",
       zipCode: "",
     },
+    mode: "onChange",
   });
 
   const employmentForm = useForm<EmploymentInfo>({
@@ -308,7 +309,12 @@ function ClientOnboarding() {
               <FormItem>
                 <FormLabel>Email Address</FormLabel>
                 <FormControl>
-                  <Input {...field} type="email" />
+                  <Input 
+                    {...field} 
+                    type="email" 
+                    value={field.value || ""} 
+                    onChange={field.onChange}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -322,7 +328,12 @@ function ClientOnboarding() {
               <FormItem>
                 <FormLabel>Phone Number</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="(XXX) XXX-XXXX" />
+                  <Input 
+                    {...field} 
+                    placeholder="(XXX) XXX-XXXX" 
+                    value={field.value || ""} 
+                    onChange={field.onChange}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -336,7 +347,11 @@ function ClientOnboarding() {
               <FormItem className="md:col-span-2">
                 <FormLabel>Address</FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input 
+                    {...field} 
+                    value={field.value || ""} 
+                    onChange={field.onChange}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -350,7 +365,11 @@ function ClientOnboarding() {
               <FormItem>
                 <FormLabel>City</FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input 
+                    {...field} 
+                    value={field.value || ""} 
+                    onChange={field.onChange}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -363,7 +382,7 @@ function ClientOnboarding() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>State</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value || ""}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select state" />
@@ -391,7 +410,11 @@ function ClientOnboarding() {
               <FormItem>
                 <FormLabel>ZIP Code</FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input 
+                    {...field} 
+                    value={field.value || ""} 
+                    onChange={field.onChange}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
