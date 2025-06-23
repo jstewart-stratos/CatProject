@@ -120,6 +120,7 @@ export default function AccountFormEnhanced() {
   // Watch form values for conditional logic
   const watchedValues = form.watch();
   const accountType = watchedValues.accountType;
+  const programType = watchedValues.programType;
   const registrationType = watchedValues.registrationType;
   const transferOnDeath = watchedValues.transferOnDeath;
 
