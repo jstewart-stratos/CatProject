@@ -13,7 +13,7 @@ import ImportExport from "@/pages/import-export";
 import Users from "@/pages/users";
 import Groups from "@/pages/groups";
 import AccountForm from "@/pages/account-form";
-import ClientOnboarding from "@/pages/client-onboarding";
+import ClientOnboarding from "@/pages/client-onboarding-simple";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();

@@ -16,7 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { ArrowLeft, ArrowRight, Save, User, Phone, Briefcase, DollarSign, Shield, TrendingUp, Building } from "lucide-react";
-import { useEmploymentLogic, useInvestmentLogic, useClientTypeLogic } from "@/hooks/useFormLogic";
+// Remove problematic hooks import
 
 const stepIcons = {
   1: User,
@@ -146,11 +146,6 @@ function ClientOnboarding() {
   const queryClient = useQueryClient();
   const [currentStep, setCurrentStep] = useState(1);
   const [onboardingData, setOnboardingData] = useState<Partial<OnboardingData>>({});
-  
-  // Initialize conditional logic hooks at the top level to avoid conditional calls
-  const employmentLogic = useEmploymentLogic();
-  const investmentLogic = useInvestmentLogic();
-  const clientTypeLogic = useClientTypeLogic();
 
   const personalForm = useForm<PersonalInfo>({
     resolver: zodResolver(personalInfoSchema),
