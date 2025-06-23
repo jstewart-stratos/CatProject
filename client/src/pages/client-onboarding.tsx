@@ -147,44 +147,119 @@ function ClientOnboarding() {
   const [currentStep, setCurrentStep] = useState(1);
   const [onboardingData, setOnboardingData] = useState<Partial<OnboardingData>>({});
   
-  // Initialize conditional logic hooks
+  // Initialize conditional logic hooks at the top level to avoid conditional calls
   const employmentLogic = useEmploymentLogic();
   const investmentLogic = useInvestmentLogic();
   const clientTypeLogic = useClientTypeLogic();
 
   const personalForm = useForm<PersonalInfo>({
     resolver: zodResolver(personalInfoSchema),
-    defaultValues: onboardingData.personalInfo || {},
+    defaultValues: {
+      clientType: "",
+      ssn: "",
+      firstName: "",
+      middleName: "",
+      lastName: "",
+      alias: "",
+      citizenship: "",
+      residencyStatus: "",
+      dateOfBirth: "",
+      signingMethod: "",
+      ...onboardingData.personalInfo
+    },
   });
 
   const contactForm = useForm<ContactInfo>({
     resolver: zodResolver(contactInfoSchema),
-    defaultValues: onboardingData.contactInfo || {},
+    defaultValues: {
+      emailAddress: "",
+      legalAddress1: "",
+      legalAddress2: "",
+      city: "",
+      state: "",
+      zipCode: "",
+      country: "",
+      phoneNumber: "",
+      sameAsLegal: false,
+      mailingAddress1: "",
+      mailingAddress2: "",
+      mailingCity: "",
+      mailingState: "",
+      mailingZipCode: "",
+      mailingCountry: "",
+      ...onboardingData.contactInfo
+    },
   });
 
   const employmentForm = useForm<EmploymentInfo>({
     resolver: zodResolver(employmentInfoSchema),
-    defaultValues: onboardingData.employmentInfo || {},
+    defaultValues: {
+      employmentStatus: "",
+      occupation: "",
+      industry: "",
+      employer: "",
+      workPhone: "",
+      businessAddress: "",
+      yearsWithEmployer: "",
+      ...onboardingData.employmentInfo
+    },
   });
 
   const suitabilityForm = useForm<SuitabilityInfo>({
     resolver: zodResolver(suitabilityInfoSchema),
-    defaultValues: onboardingData.suitabilityInfo || {},
+    defaultValues: {
+      annualIncome: "",
+      liquidNetWorth: "",
+      totalNetWorth: "",
+      investmentObjective: "",
+      riskTolerance: "",
+      timeHorizon: "",
+      investmentExperience: "",
+      ...onboardingData.suitabilityInfo
+    },
   });
 
   const trustedContactForm = useForm<TrustedContact>({
     resolver: zodResolver(trustedContactSchema),
-    defaultValues: onboardingData.trustedContact || {},
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      relationship: "",
+      phoneNumber: "",
+      emailAddress: "",
+      address: "",
+      city: "",
+      state: "",
+      zipCode: "",
+      ...onboardingData.trustedContact
+    },
   });
 
   const investmentForm = useForm<InvestmentExperience>({
     resolver: zodResolver(investmentExperienceSchema),
-    defaultValues: onboardingData.investmentExperience || {},
+    defaultValues: {
+      hasInvestmentExperience: "",
+      stocksExperienceYears: "",
+      bondsExperienceYears: "",
+      mutualFundsExperienceYears: "",
+      optionsExperienceYears: "",
+      ...onboardingData.investmentExperience
+    },
   });
 
   const financialForm = useForm<FinancialInfo>({
     resolver: zodResolver(financialInfoSchema),
-    defaultValues: onboardingData.financialInfo || {},
+    defaultValues: {
+      hasOtherInvestments: "",
+      altInvestmentsPercent: "",
+      annuitiesPercent: "",
+      bondsPercent: "",
+      cashPercent: "",
+      mutualFundsPercent: "",
+      stocksPercent: "",
+      otherPercent: "",
+      ...onboardingData.financialInfo
+    },
   });
 
   const getCurrentForm = () => {
