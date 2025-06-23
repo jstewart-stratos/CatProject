@@ -139,11 +139,13 @@ export default function AccountFormEnhanced() {
     const programTypeMap: { [key: string]: string[] } = {
       'Individual': [
         'Brokerage',
+        'Direct Business',
         'Advisory',
         'Wrap Fee Program'
       ],
       'Joint': [
         'Brokerage',
+        'Direct Business',
         'Advisory', 
         'Wrap Fee Program'
       ],
