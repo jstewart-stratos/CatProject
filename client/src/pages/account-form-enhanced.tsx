@@ -251,11 +251,13 @@ export default function AccountFormEnhanced() {
     let showDeliveringFirm = true;
     let showContraAccount = true;
     let showIraType = false;
+    let showTransferOnDeath = true;
 
-    // Hide ACAT instructions for Joint accounts
+    // Hide ACAT instructions and Transfer on Death for Joint accounts
     if (accountType === 'Joint') {
       showDeliveringFirm = false;
       showContraAccount = false;
+      showTransferOnDeath = false;
     }
 
     // Show IRA Type for IRA accounts
@@ -267,7 +269,7 @@ export default function AccountFormEnhanced() {
       showDeliveringFirm,
       showContraAccount,
       showIraType,
-      showTransferOnDeath: true,
+      showTransferOnDeath,
       showBeneficiaries: regTypesRequireBenef.includes(registrationType || '') || transferOnDeath === 'Yes',
       showAdditionalHolder: regTypesRequireHolder.includes(registrationType || '') || accountType?.toLowerCase().includes('joint'),
       showInvestmentObjective: true,
@@ -542,35 +544,37 @@ export default function AccountFormEnhanced() {
         </div>
       )}
 
-      {/* Transfer on Death */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Transfer on Death</h3>
-        <p className="font-medium">Include Transfer on Death (TOD)?</p>
-        <div className="inline-flex border rounded-lg overflow-hidden">
-          <button
-            type="button"
-            className={`px-4 py-2 ${
-              transferOnDeath === "No" 
-                ? "bg-blue-100 text-blue-800" 
-                : "text-gray-600 hover:bg-blue-100 hover:text-blue-800"
-            }`}
-            onClick={() => toggleTOD("No")}
-          >
-            No
-          </button>
-          <button
-            type="button"
-            className={`px-4 py-2 ${
-              transferOnDeath === "Yes" 
-                ? "bg-blue-100 text-blue-800" 
-                : "text-gray-600 hover:bg-blue-100 hover:text-blue-800"
-            }`}
-            onClick={() => toggleTOD("Yes")}
-          >
-            Yes
-          </button>
+      {/* Transfer on Death - Conditionally shown based on account type */}
+      {showTransferOnDeath && (
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Transfer on Death</h3>
+          <p className="font-medium">Include Transfer on Death (TOD)?</p>
+          <div className="inline-flex border rounded-lg overflow-hidden">
+            <button
+              type="button"
+              className={`px-4 py-2 ${
+                transferOnDeath === "No" 
+                  ? "bg-blue-100 text-blue-800" 
+                  : "text-gray-600 hover:bg-blue-100 hover:text-blue-800"
+              }`}
+              onClick={() => toggleTOD("No")}
+            >
+              No
+            </button>
+            <button
+              type="button"
+              className={`px-4 py-2 ${
+                transferOnDeath === "Yes" 
+                  ? "bg-blue-100 text-blue-800" 
+                  : "text-gray-600 hover:bg-blue-100 hover:text-blue-800"
+              }`}
+              onClick={() => toggleTOD("Yes")}
+            >
+              Yes
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Suitability */}
       <div className="space-y-4">
