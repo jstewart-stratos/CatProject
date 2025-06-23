@@ -998,11 +998,14 @@ export default function ClientOnboardingFull() {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="under_100k">Under $100,000</SelectItem>
-                              <SelectItem value="100k_500k">$100,000 - $500,000</SelectItem>
-                              <SelectItem value="500k_1m">$500,000 - $1,000,000</SelectItem>
-                              <SelectItem value="1m_5m">$1,000,000 - $5,000,000</SelectItem>
-                              <SelectItem value="over_5m">Over $5,000,000</SelectItem>
+                              <SelectItem value="1_24999">A) $1 - $24,999</SelectItem>
+                              <SelectItem value="25000_49999">B) $25,000 - $49,999</SelectItem>
+                              <SelectItem value="50000_99999">C) $50,000 - $99,999</SelectItem>
+                              <SelectItem value="100000_249999">D) $100,000 - $249,999</SelectItem>
+                              <SelectItem value="250000_499999">E) $250,000 - $499,999</SelectItem>
+                              <SelectItem value="500000_749999">F) $500,000 - $749,999</SelectItem>
+                              <SelectItem value="750000_999999">G) $750,000 - $999,999</SelectItem>
+                              <SelectItem value="1000000_over">H) $1,000,000 and over</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />
