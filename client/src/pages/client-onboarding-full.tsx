@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,10 +11,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
-import { ChevronLeft, ChevronRight, CheckCircle, InfoIcon } from "lucide-react";
+import { ChevronLeft, ChevronRight, CheckCircle, InfoIcon, Save, FileText } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import Sidebar from "@/components/sidebar";
 
 // Step schemas
@@ -157,6 +158,10 @@ const steps = [
 export default function ClientOnboardingFull() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [currentDraftId, setCurrentDraftId] = useState<number | null>(null);
+  const [showDraftDialog, setShowDraftDialog] = useState(false);
+  const [showLoadDialog, setShowLoadDialog] = useState(false);
+  const [draftName, setDraftName] = useState("");
   const { toast } = useToast();
 
   const form = useForm<FormData>({
@@ -229,12 +234,79 @@ export default function ClientOnboardingFull() {
     },
   });
 
+  // Query for user's draft onboardings
+  const { data: userDrafts, refetch: refetchDrafts } = useQuery({
+    queryKey: ["/api/draft-onboarding"],
+    retry: false,
+  });
+
+  // Mutation for creating/updating draft onboarding
+  const saveDraftMutation = useMutation({
+    mutationFn: async ({ name, data }: { name: string; data: Partial<FormData> }) => {
+      const draftData = {
+        title: name,
+        formData: data,
+        currentStep,
+        completedSteps: Array.from({ length: currentStep - 1 }, (_, i) => i + 1),
+      };
+
+      if (currentDraftId) {
+        return apiRequest("PUT", `/api/draft-onboarding/${currentDraftId}`, draftData);
+      } else {
+        return apiRequest("POST", "/api/draft-onboarding", draftData);
+      }
+    },
+    onSuccess: (data) => {
+      setCurrentDraftId(data.id);
+      refetchDrafts();
+      toast({
+        title: "Draft Saved",
+        description: "Your progress has been saved successfully.",
+      });
+      setShowDraftDialog(false);
+    },
+    onError: (error) => {
+      console.error("Save draft error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save draft. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Mutation for deleting draft onboarding
+  const deleteDraftMutation = useMutation({
+    mutationFn: async (draftId: number) => {
+      return apiRequest("DELETE", `/api/draft-onboarding/${draftId}`);
+    },
+    onSuccess: () => {
+      refetchDrafts();
+      toast({
+        title: "Draft Deleted",
+        description: "Draft has been deleted successfully.",
+      });
+    },
+    onError: (error) => {
+      console.error("Delete draft error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete draft. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const mutation = useMutation({
     mutationFn: async (data: FormData) => {
       console.log("Submitting client data:", data);
       return await apiRequest("POST", "/api/onboarding/client", data);
     },
     onSuccess: () => {
+      // Delete the draft if it was loaded from a draft
+      if (currentDraftId) {
+        deleteDraftMutation.mutate(currentDraftId);
+      }
       setIsCompleted(true);
       toast({
         title: "Success!",
@@ -274,6 +346,32 @@ export default function ClientOnboardingFull() {
       form.setValue("employerName", "Homemaker");
     }
   }, [employmentStatus, form]);
+
+  // Functions for handling draft operations
+  const handleSaveDraft = () => {
+    const currentFormData = form.getValues();
+    saveDraftMutation.mutate({ 
+      name: draftName || `Draft ${new Date().toLocaleDateString()}`, 
+      data: currentFormData 
+    });
+  };
+
+  const handleLoadDraft = (draft: any) => {
+    if (draft.formData) {
+      Object.keys(draft.formData).forEach((key) => {
+        if (draft.formData[key] !== undefined && draft.formData[key] !== null) {
+          form.setValue(key as any, draft.formData[key]);
+        }
+      });
+    }
+    setCurrentStep(draft.currentStep || 1);
+    setCurrentDraftId(draft.id);
+    setShowLoadDialog(false);
+    toast({
+      title: "Draft Loaded",
+      description: `Successfully loaded "${draft.title}".`,
+    });
+  };
 
   const nextStep = () => {
     if (currentStep < steps.length) {
@@ -371,8 +469,93 @@ export default function ClientOnboardingFull() {
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="mb-6">
-            <h1 className="text-3xl font-bold text-slate-900 mb-2">Full Client Onboarding</h1>
-            <p className="text-slate-600">Complete 7-step client information collection process</p>
+            <div className="flex justify-between items-start">
+              <div>
+                <h1 className="text-3xl font-bold text-slate-900 mb-2">Full Client Onboarding</h1>
+                <p className="text-slate-600">Complete 7-step client information collection process</p>
+              </div>
+              <div className="flex gap-2">
+                <Dialog open={showDraftDialog} onOpenChange={setShowDraftDialog}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <Save className="w-4 h-4 mr-2" />
+                      Save Draft
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Save Draft</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="text-sm font-medium">Draft Name</label>
+                        <Input
+                          placeholder="Enter a name for this draft"
+                          value={draftName}
+                          onChange={(e) => setDraftName(e.target.value)}
+                        />
+                      </div>
+                      <div className="flex justify-end gap-2">
+                        <Button variant="outline" onClick={() => setShowDraftDialog(false)}>
+                          Cancel
+                        </Button>
+                        <Button onClick={handleSaveDraft} disabled={saveDraftMutation.isPending}>
+                          {saveDraftMutation.isPending ? "Saving..." : "Save Draft"}
+                        </Button>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+
+                <Dialog open={showLoadDialog} onOpenChange={setShowLoadDialog}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <FileText className="w-4 h-4 mr-2" />
+                      Load Draft
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-md">
+                    <DialogHeader>
+                      <DialogTitle>Load Draft</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      {userDrafts && userDrafts.length > 0 ? (
+                        <div className="space-y-2">
+                          {userDrafts.map((draft: any) => (
+                            <div key={draft.id} className="flex items-center justify-between p-3 border rounded-lg">
+                              <div>
+                                <p className="font-medium">{draft.title}</p>
+                                <p className="text-sm text-gray-500">
+                                  Step {draft.currentStep || 1} • {new Date(draft.createdAt).toLocaleDateString()}
+                                </p>
+                              </div>
+                              <div className="flex gap-1">
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleLoadDraft(draft)}
+                                >
+                                  Load
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => deleteDraftMutation.mutate(draft.id)}
+                                  disabled={deleteDraftMutation.isPending}
+                                >
+                                  Delete
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-gray-500 text-center py-4">No saved drafts found</p>
+                      )}
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
+            </div>
           </div>
           
       <Card>

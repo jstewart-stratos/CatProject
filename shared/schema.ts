@@ -528,3 +528,17 @@ export type InsertTrustAccountInfo = typeof trustAccountInfo.$inferInsert;
 export type TrustAccountInfo = typeof trustAccountInfo.$inferSelect;
 export type InsertPlan529Checklist = typeof plan529Checklist.$inferInsert;
 export type Plan529Checklist = typeof plan529Checklist.$inferSelect;
+
+// Draft onboarding records for incomplete submissions
+export const draftOnboarding = pgTable("draft_onboarding", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }),
+  draftName: varchar("draft_name", { length: 255 }),
+  currentStep: integer("current_step").default(1),
+  formData: jsonb("form_data"),
+  lastModified: timestamp("last_modified").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type InsertDraftOnboarding = typeof draftOnboarding.$inferInsert;
+export type DraftOnboarding = typeof draftOnboarding.$inferSelect;

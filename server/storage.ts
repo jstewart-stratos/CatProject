@@ -27,6 +27,9 @@ import {
   type AuditLog,
   type InsertFileUpload,
   type FileUpload,
+  draftOnboarding,
+  type InsertDraftOnboarding,
+  type DraftOnboarding,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, like, desc, asc, sql, ilike, or } from "drizzle-orm";
@@ -102,6 +105,13 @@ export interface IStorage {
     totalPortfolioValue: string;
     todayUpdates: number;
   }>;
+
+  // Draft onboarding operations
+  createDraftOnboarding(draft: InsertDraftOnboarding): Promise<DraftOnboarding>;
+  getDraftOnboarding(id: number): Promise<DraftOnboarding | undefined>;
+  getUserDraftOnboardings(userId: string): Promise<DraftOnboarding[]>;
+  updateDraftOnboarding(id: number, data: Partial<DraftOnboarding>): Promise<DraftOnboarding>;
+  deleteDraftOnboarding(id: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -485,6 +495,46 @@ export class DatabaseStorage implements IStorage {
       totalPortfolioValue: portfolioValue[0].total,
       todayUpdates: todayUpdates[0].count
     };
+  }
+
+  // Draft onboarding operations
+  async createDraftOnboarding(draft: InsertDraftOnboarding): Promise<DraftOnboarding> {
+    const [newDraft] = await db
+      .insert(draftOnboarding)
+      .values(draft)
+      .returning();
+    return newDraft;
+  }
+
+  async getDraftOnboarding(id: number): Promise<DraftOnboarding | undefined> {
+    const [draft] = await db
+      .select()
+      .from(draftOnboarding)
+      .where(eq(draftOnboarding.id, id));
+    return draft;
+  }
+
+  async getUserDraftOnboardings(userId: string): Promise<DraftOnboarding[]> {
+    return await db
+      .select()
+      .from(draftOnboarding)
+      .where(eq(draftOnboarding.userId, userId))
+      .orderBy(desc(draftOnboarding.lastModified));
+  }
+
+  async updateDraftOnboarding(id: number, data: Partial<DraftOnboarding>): Promise<DraftOnboarding> {
+    const [updatedDraft] = await db
+      .update(draftOnboarding)
+      .set({ ...data, lastModified: new Date() })
+      .where(eq(draftOnboarding.id, id))
+      .returning();
+    return updatedDraft;
+  }
+
+  async deleteDraftOnboarding(id: number): Promise<void> {
+    await db
+      .delete(draftOnboarding)
+      .where(eq(draftOnboarding.id, id));
   }
 }
 

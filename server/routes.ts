@@ -534,6 +534,99 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Draft onboarding routes
+  app.post('/api/draft-onboarding', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const draftData = {
+        ...req.body,
+        userId,
+      };
+
+      const draft = await storage.createDraftOnboarding(draftData);
+      res.json(draft);
+    } catch (error) {
+      console.error('Error creating draft onboarding:', error);
+      res.status(500).json({ message: 'Failed to create draft onboarding' });
+    }
+  });
+
+  app.get('/api/draft-onboarding', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const drafts = await storage.getUserDraftOnboardings(userId);
+      res.json(drafts);
+    } catch (error) {
+      console.error('Error fetching draft onboardings:', error);
+      res.status(500).json({ message: 'Failed to fetch draft onboardings' });
+    }
+  });
+
+  app.get('/api/draft-onboarding/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const draft = await storage.getDraftOnboarding(id);
+      
+      if (!draft) {
+        return res.status(404).json({ message: 'Draft onboarding not found' });
+      }
+
+      // Ensure user can only access their own drafts
+      if (draft.userId !== req.user?.claims?.sub) {
+        return res.status(403).json({ message: 'Access denied' });
+      }
+
+      res.json(draft);
+    } catch (error) {
+      console.error('Error fetching draft onboarding:', error);
+      res.status(500).json({ message: 'Failed to fetch draft onboarding' });
+    }
+  });
+
+  app.put('/api/draft-onboarding/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const existingDraft = await storage.getDraftOnboarding(id);
+      
+      if (!existingDraft) {
+        return res.status(404).json({ message: 'Draft onboarding not found' });
+      }
+
+      // Ensure user can only update their own drafts
+      if (existingDraft.userId !== req.user?.claims?.sub) {
+        return res.status(403).json({ message: 'Access denied' });
+      }
+
+      const updatedDraft = await storage.updateDraftOnboarding(id, req.body);
+      res.json(updatedDraft);
+    } catch (error) {
+      console.error('Error updating draft onboarding:', error);
+      res.status(500).json({ message: 'Failed to update draft onboarding' });
+    }
+  });
+
+  app.delete('/api/draft-onboarding/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const existingDraft = await storage.getDraftOnboarding(id);
+      
+      if (!existingDraft) {
+        return res.status(404).json({ message: 'Draft onboarding not found' });
+      }
+
+      // Ensure user can only delete their own drafts
+      if (existingDraft.userId !== req.user?.claims?.sub) {
+        return res.status(403).json({ message: 'Access denied' });
+      }
+
+      await storage.deleteDraftOnboarding(id);
+      res.json({ message: 'Draft onboarding deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting draft onboarding:', error);
+      res.status(500).json({ message: 'Failed to delete draft onboarding' });
+    }
+  });
+
   // Lists endpoint for dropdown data
   app.get('/api/lists', async (req, res) => {
     try {
