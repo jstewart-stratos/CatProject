@@ -1026,11 +1026,14 @@ export default function ClientOnboardingFull() {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="under_50k">Under $50,000</SelectItem>
-                              <SelectItem value="50k_250k">$50,000 - $250,000</SelectItem>
-                              <SelectItem value="250k_500k">$250,000 - $500,000</SelectItem>
-                              <SelectItem value="500k_1m">$500,000 - $1,000,000</SelectItem>
-                              <SelectItem value="over_1m">Over $1,000,000</SelectItem>
+                              <SelectItem value="1_24999">A) $1 - $24,999</SelectItem>
+                              <SelectItem value="25000_49999">B) $25,000 - $49,999</SelectItem>
+                              <SelectItem value="50000_99999">C) $50,000 - $99,999</SelectItem>
+                              <SelectItem value="100000_249999">D) $100,000 - $249,999</SelectItem>
+                              <SelectItem value="250000_499999">E) $250,000 - $499,999</SelectItem>
+                              <SelectItem value="500000_749999">F) $500,000 - $749,999</SelectItem>
+                              <SelectItem value="750000_999999">G) $750,000 - $999,999</SelectItem>
+                              <SelectItem value="1000000_over">H) $1,000,000 and over</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -1051,12 +1054,13 @@ export default function ClientOnboardingFull() {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="employment">Employment</SelectItem>
-                              <SelectItem value="business">Business</SelectItem>
+                              <SelectItem value="employment_income">Employment Income</SelectItem>
+                              <SelectItem value="gift">Gift</SelectItem>
                               <SelectItem value="inheritance">Inheritance</SelectItem>
-                              <SelectItem value="investments">Investments</SelectItem>
-                              <SelectItem value="real_estate">Real Estate</SelectItem>
+                              <SelectItem value="investment_income">Investment Income</SelectItem>
                               <SelectItem value="other">Other</SelectItem>
+                              <SelectItem value="retirement_assets">Retirement Assets</SelectItem>
+                              <SelectItem value="sale_of_home_business">Sale of Home/Business</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />
