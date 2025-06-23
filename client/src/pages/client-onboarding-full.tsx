@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -220,6 +220,16 @@ export default function ClientOnboardingFull() {
   });
 
   const watchedValues = form.watch();
+  const employmentStatus = form.watch("employmentStatus");
+
+  // Auto-populate fields when "Minor" is selected
+  useEffect(() => {
+    if (employmentStatus === "minor") {
+      form.setValue("industry", "minor");
+      form.setValue("occupation", "Minor");
+      form.setValue("employerName", "Minor");
+    }
+  }, [employmentStatus, form]);
 
   const nextStep = () => {
     if (currentStep < steps.length) {
@@ -806,6 +816,7 @@ export default function ClientOnboardingFull() {
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
+                                <SelectItem value="minor">Minor</SelectItem>
                                 <SelectItem value="accounting">Accounting</SelectItem>
                                 <SelectItem value="advertising">Advertising</SelectItem>
                                 <SelectItem value="aerospace">Aerospace</SelectItem>
