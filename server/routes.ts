@@ -755,13 +755,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           'Education Savings Account'
         ],
         'Investment Objective': [
+          'Income with Capital Preservation',
+          'Income with Moderate Growth',
+          'Growth with Income',
           'Growth',
-          'Income',
-          'Growth and Income',
           'Aggressive Growth',
-          'Conservative',
-          'Speculation',
-          'Capital Preservation'
+          'Trading'
         ],
         'Investment Time Horizon': [
           'Less than 1 year',
