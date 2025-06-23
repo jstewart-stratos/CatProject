@@ -547,21 +547,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const existingDrafts = await storage.getUserDraftOnboardings(userId);
       const formData = draftData.formData || {};
       
-      // Look for existing draft with matching name data
+      console.log('Checking for existing drafts for user:', userId);
+      console.log('Current form data:', { 
+        firstName: formData.firstName, 
+        lastName: formData.lastName, 
+        emailAddress: formData.emailAddress 
+      });
+      console.log('Existing drafts count:', existingDrafts.length);
+      
+      // Look for existing draft with matching name data (more flexible matching)
       const existingDraft = existingDrafts.find((draft: any) => {
         const existingFormData = draft.formData || {};
-        return (
-          existingFormData.firstName === formData.firstName &&
-          existingFormData.lastName === formData.lastName &&
-          existingFormData.emailAddress === formData.emailAddress
-        );
+        
+        // Normalize values for comparison (handle undefined, null, empty strings)
+        const normalizeValue = (val: any) => val?.trim() || '';
+        
+        const currentFirstName = normalizeValue(formData.firstName);
+        const currentLastName = normalizeValue(formData.lastName);
+        const currentEmail = normalizeValue(formData.emailAddress);
+        
+        const existingFirstName = normalizeValue(existingFormData.firstName);
+        const existingLastName = normalizeValue(existingFormData.lastName);
+        const existingEmail = normalizeValue(existingFormData.emailAddress);
+        
+        console.log('Comparing:', {
+          current: { firstName: currentFirstName, lastName: currentLastName, email: currentEmail },
+          existing: { firstName: existingFirstName, lastName: existingLastName, email: existingEmail, draftId: draft.id }
+        });
+        
+        // Match if at least firstName and lastName are the same and not empty
+        const hasValidName = currentFirstName && currentLastName;
+        const nameMatches = currentFirstName === existingFirstName && currentLastName === existingLastName;
+        
+        // If email is provided, it should also match
+        const emailMatches = !currentEmail || !existingEmail || currentEmail === existingEmail;
+        
+        return hasValidName && nameMatches && emailMatches;
       });
 
       if (existingDraft) {
+        console.log('Found existing draft, updating:', existingDraft.id);
         // Update existing draft instead of creating new one
         const updatedDraft = await storage.updateDraftOnboarding(existingDraft.id, draftData);
         res.json(updatedDraft);
       } else {
+        console.log('No existing draft found, creating new one');
         // Create new draft only if no match found
         const draft = await storage.createDraftOnboarding(draftData);
         res.json(draft);
