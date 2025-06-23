@@ -19,33 +19,64 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 // Step schemas
 const step1Schema = z.object({
   clientType: z.enum(["individual", "entity"]),
-  ssn: z.string().min(1, "SSN is required"),
-  firstName: z.string().min(1, "First name is required"),
-  middleName: z.string().optional(),
-  lastName: z.string().min(1, "Last name is required"),
-  alias: z.string().optional(),
+  ssn: z.string()
+    .min(1, "SSN is required")
+    .regex(/^\d{3}-?\d{2}-?\d{4}$/, "SSN must be in format XXX-XX-XXXX"),
+  firstName: z.string()
+    .min(1, "First name is required")
+    .max(50, "First name too long"),
+  middleName: z.string().max(50, "Middle name too long").optional(),
+  lastName: z.string()
+    .min(1, "Last name is required")
+    .max(50, "Last name too long"),
+  alias: z.string().max(50, "Alias too long").optional(),
   citizenship: z.string().min(1, "Citizenship is required"),
   residencyStatus: z.string().optional(),
-  dateOfBirth: z.string().min(1, "Date of birth is required"),
+  dateOfBirth: z.string()
+    .min(1, "Date of birth is required")
+    .refine((date) => {
+      const birthDate = new Date(date);
+      const today = new Date();
+      const age = today.getFullYear() - birthDate.getFullYear();
+      return age >= 0 && age <= 120;
+    }, "Please enter a valid date of birth"),
   signingMethod: z.string().optional(),
 });
 
 const step2Schema = z.object({
   emailAddress: z.string().email("Valid email is required"),
-  legalAddress1: z.string().min(1, "Legal address is required"),
-  legalAddress2: z.string().optional(),
-  city: z.string().min(1, "City is required"),
+  legalAddress1: z.string()
+    .min(1, "Legal address is required")
+    .max(100, "Address too long"),
+  legalAddress2: z.string().max(100, "Address too long").optional(),
+  city: z.string()
+    .min(1, "City is required")
+    .max(50, "City name too long"),
   state: z.string().min(1, "State is required"),
-  zipCode: z.string().min(1, "Zip code is required"),
-  homePhone: z.string().optional(),
-  mobilePhone: z.string().optional(),
-  businessPhone: z.string().optional(),
+  zipCode: z.string()
+    .min(1, "Zip code is required")
+    .regex(/^\d{5}(-\d{4})?$/, "Zip code must be in format 12345 or 12345-6789"),
+  homePhone: z.string()
+    .regex(/^\(\d{3}\) \d{3}-\d{4}$/, "Phone must be in format (000) 000-0000")
+    .optional()
+    .or(z.literal("")),
+  mobilePhone: z.string()
+    .regex(/^\(\d{3}\) \d{3}-\d{4}$/, "Phone must be in format (000) 000-0000")
+    .optional()
+    .or(z.literal("")),
+  businessPhone: z.string()
+    .regex(/^\(\d{3}\) \d{3}-\d{4}$/, "Phone must be in format (000) 000-0000")
+    .optional()
+    .or(z.literal("")),
   mailingAddressSameAsAbove: z.boolean(),
-  mailingAddress1: z.string().optional(),
-  mailingAddress2: z.string().optional(),
-  mailingCity: z.string().optional(),
+  mailingAddress1: z.string().max(100, "Address too long").optional(),
+  mailingAddress2: z.string().max(100, "Address too long").optional(),
+  mailingCity: z.string().max(50, "City name too long").optional(),
   mailingState: z.string().optional(),
-  mailingZipCode: z.string().optional(),
+  mailingZipCode: z.string()
+    .regex(/^\d{5}(-\d{4})?$/, "Zip code must be in format 12345 or 12345-6789")
+    .optional()
+    .or(z.literal("")),
 });
 
 const step3Schema = z.object({
@@ -378,7 +409,31 @@ export default function ClientOnboardingFull() {
                         <FormItem>
                           <FormLabel>SSN</FormLabel>
                           <FormControl>
-                            <Input placeholder="123456789" {...field} />
+                            <Input 
+                              placeholder="000-00-0000" 
+                              maxLength={11}
+                              value={field.value}
+                              onChange={(e) => {
+                                // Remove all non-digit characters
+                                const digits = e.target.value.replace(/\D/g, '');
+                                
+                                // Format as XXX-XX-XXXX
+                                let formatted = '';
+                                if (digits.length > 0) {
+                                  formatted = digits.substring(0, 3);
+                                  if (digits.length > 3) {
+                                    formatted += '-' + digits.substring(3, 5);
+                                    if (digits.length > 5) {
+                                      formatted += '-' + digits.substring(5, 9);
+                                    }
+                                  }
+                                }
+                                
+                                field.onChange(formatted);
+                              }}
+                              onBlur={field.onBlur}
+                              name={field.name}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -392,7 +447,21 @@ export default function ClientOnboardingFull() {
                         <FormItem>
                           <FormLabel>First Name</FormLabel>
                           <FormControl>
-                            <Input placeholder="John" {...field} />
+                            <Input 
+                              placeholder="John" 
+                              value={field.value}
+                              onChange={(e) => {
+                                // Capitalize first letter of each word
+                                const formatted = e.target.value
+                                  .toLowerCase()
+                                  .split(' ')
+                                  .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                  .join(' ');
+                                field.onChange(formatted);
+                              }}
+                              onBlur={field.onBlur}
+                              name={field.name}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -406,7 +475,20 @@ export default function ClientOnboardingFull() {
                         <FormItem>
                           <FormLabel>Middle Name</FormLabel>
                           <FormControl>
-                            <Input placeholder="A." {...field} />
+                            <Input 
+                              placeholder="A." 
+                              value={field.value}
+                              onChange={(e) => {
+                                const formatted = e.target.value
+                                  .toLowerCase()
+                                  .split(' ')
+                                  .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                  .join(' ');
+                                field.onChange(formatted);
+                              }}
+                              onBlur={field.onBlur}
+                              name={field.name}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -420,7 +502,20 @@ export default function ClientOnboardingFull() {
                         <FormItem>
                           <FormLabel>Last Name</FormLabel>
                           <FormControl>
-                            <Input placeholder="Doe" {...field} />
+                            <Input 
+                              placeholder="Doe" 
+                              value={field.value}
+                              onChange={(e) => {
+                                const formatted = e.target.value
+                                  .toLowerCase()
+                                  .split(' ')
+                                  .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                  .join(' ');
+                                field.onChange(formatted);
+                              }}
+                              onBlur={field.onBlur}
+                              name={field.name}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -621,7 +716,24 @@ export default function ClientOnboardingFull() {
                         <FormItem>
                           <FormLabel>Zip Code</FormLabel>
                           <FormControl>
-                            <Input placeholder="12345" {...field} />
+                            <Input 
+                              placeholder="12345-6789" 
+                              maxLength={10}
+                              value={field.value}
+                              onChange={(e) => {
+                                const digits = e.target.value.replace(/\D/g, '');
+                                let formatted = '';
+                                if (digits.length > 0) {
+                                  formatted = digits.substring(0, 5);
+                                  if (digits.length > 5) {
+                                    formatted += '-' + digits.substring(5, 9);
+                                  }
+                                }
+                                field.onChange(formatted);
+                              }}
+                              onBlur={field.onBlur}
+                              name={field.name}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -637,7 +749,27 @@ export default function ClientOnboardingFull() {
                         <FormItem>
                           <FormLabel>Home Phone</FormLabel>
                           <FormControl>
-                            <Input placeholder="1234567890" {...field} />
+                            <Input 
+                              placeholder="(000) 000-0000" 
+                              maxLength={14}
+                              value={field.value}
+                              onChange={(e) => {
+                                const digits = e.target.value.replace(/\D/g, '');
+                                let formatted = '';
+                                if (digits.length > 0) {
+                                  formatted = '(' + digits.substring(0, 3);
+                                  if (digits.length > 3) {
+                                    formatted += ') ' + digits.substring(3, 6);
+                                    if (digits.length > 6) {
+                                      formatted += '-' + digits.substring(6, 10);
+                                    }
+                                  }
+                                }
+                                field.onChange(formatted);
+                              }}
+                              onBlur={field.onBlur}
+                              name={field.name}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -651,7 +783,27 @@ export default function ClientOnboardingFull() {
                         <FormItem>
                           <FormLabel>Mobile Phone</FormLabel>
                           <FormControl>
-                            <Input placeholder="0987654321" {...field} />
+                            <Input 
+                              placeholder="(000) 000-0000" 
+                              maxLength={14}
+                              value={field.value}
+                              onChange={(e) => {
+                                const digits = e.target.value.replace(/\D/g, '');
+                                let formatted = '';
+                                if (digits.length > 0) {
+                                  formatted = '(' + digits.substring(0, 3);
+                                  if (digits.length > 3) {
+                                    formatted += ') ' + digits.substring(3, 6);
+                                    if (digits.length > 6) {
+                                      formatted += '-' + digits.substring(6, 10);
+                                    }
+                                  }
+                                }
+                                field.onChange(formatted);
+                              }}
+                              onBlur={field.onBlur}
+                              name={field.name}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -665,7 +817,27 @@ export default function ClientOnboardingFull() {
                         <FormItem>
                           <FormLabel>Business Phone</FormLabel>
                           <FormControl>
-                            <Input placeholder="5555555555" {...field} />
+                            <Input 
+                              placeholder="(000) 000-0000" 
+                              maxLength={14}
+                              value={field.value}
+                              onChange={(e) => {
+                                const digits = e.target.value.replace(/\D/g, '');
+                                let formatted = '';
+                                if (digits.length > 0) {
+                                  formatted = '(' + digits.substring(0, 3);
+                                  if (digits.length > 3) {
+                                    formatted += ') ' + digits.substring(3, 6);
+                                    if (digits.length > 6) {
+                                      formatted += '-' + digits.substring(6, 10);
+                                    }
+                                  }
+                                }
+                                field.onChange(formatted);
+                              }}
+                              onBlur={field.onBlur}
+                              name={field.name}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -770,7 +942,24 @@ export default function ClientOnboardingFull() {
                           <FormItem>
                             <FormLabel>Mailing Zip Code</FormLabel>
                             <FormControl>
-                              <Input placeholder="12345" {...field} />
+                              <Input 
+                                placeholder="12345-6789" 
+                                maxLength={10}
+                                value={field.value}
+                                onChange={(e) => {
+                                  const digits = e.target.value.replace(/\D/g, '');
+                                  let formatted = '';
+                                  if (digits.length > 0) {
+                                    formatted = digits.substring(0, 5);
+                                    if (digits.length > 5) {
+                                      formatted += '-' + digits.substring(5, 9);
+                                    }
+                                  }
+                                  field.onChange(formatted);
+                                }}
+                                onBlur={field.onBlur}
+                                name={field.name}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -1099,7 +1288,20 @@ export default function ClientOnboardingFull() {
                         <FormItem>
                           <FormLabel>First Name</FormLabel>
                           <FormControl>
-                            <Input placeholder="First Name" {...field} />
+                            <Input 
+                              placeholder="First Name" 
+                              value={field.value}
+                              onChange={(e) => {
+                                const formatted = e.target.value
+                                  .toLowerCase()
+                                  .split(' ')
+                                  .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                  .join(' ');
+                                field.onChange(formatted);
+                              }}
+                              onBlur={field.onBlur}
+                              name={field.name}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -1113,7 +1315,20 @@ export default function ClientOnboardingFull() {
                         <FormItem>
                           <FormLabel>Last Name</FormLabel>
                           <FormControl>
-                            <Input placeholder="Last Name" {...field} />
+                            <Input 
+                              placeholder="Last Name" 
+                              value={field.value}
+                              onChange={(e) => {
+                                const formatted = e.target.value
+                                  .toLowerCase()
+                                  .split(' ')
+                                  .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                  .join(' ');
+                                field.onChange(formatted);
+                              }}
+                              onBlur={field.onBlur}
+                              name={field.name}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -1221,7 +1436,24 @@ export default function ClientOnboardingFull() {
                         <FormItem>
                           <FormLabel>Zip Code</FormLabel>
                           <FormControl>
-                            <Input placeholder="12345" {...field} />
+                            <Input 
+                              placeholder="12345-6789" 
+                              maxLength={10}
+                              value={field.value}
+                              onChange={(e) => {
+                                const digits = e.target.value.replace(/\D/g, '');
+                                let formatted = '';
+                                if (digits.length > 0) {
+                                  formatted = digits.substring(0, 5);
+                                  if (digits.length > 5) {
+                                    formatted += '-' + digits.substring(5, 9);
+                                  }
+                                }
+                                field.onChange(formatted);
+                              }}
+                              onBlur={field.onBlur}
+                              name={field.name}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -1249,7 +1481,27 @@ export default function ClientOnboardingFull() {
                         <FormItem>
                           <FormLabel>Phone Number</FormLabel>
                           <FormControl>
-                            <Input placeholder="1234567890" {...field} />
+                            <Input 
+                              placeholder="(555) 123-4567" 
+                              maxLength={14}
+                              value={field.value}
+                              onChange={(e) => {
+                                const digits = e.target.value.replace(/\D/g, '');
+                                let formatted = '';
+                                if (digits.length > 0) {
+                                  if (digits.length <= 3) {
+                                    formatted = `(${digits}`;
+                                  } else if (digits.length <= 6) {
+                                    formatted = `(${digits.substring(0, 3)}) ${digits.substring(3)}`;
+                                  } else {
+                                    formatted = `(${digits.substring(0, 3)}) ${digits.substring(3, 6)}-${digits.substring(6, 10)}`;
+                                  }
+                                }
+                                field.onChange(formatted);
+                              }}
+                              onBlur={field.onBlur}
+                              name={field.name}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
