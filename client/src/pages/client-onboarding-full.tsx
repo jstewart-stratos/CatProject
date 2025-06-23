@@ -164,6 +164,36 @@ export default function ClientOnboardingFull() {
   const [draftName, setDraftName] = useState("");
   const { toast } = useToast();
 
+  // Check for draftId in URL parameters
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const draftId = urlParams.get('draftId');
+    if (draftId && !isNaN(Number(draftId))) {
+      setCurrentDraftId(Number(draftId));
+    }
+  }, []);
+
+  // Load draft data when specificDraft is fetched
+  useEffect(() => {
+    if (specificDraft && specificDraft.formData) {
+      const formData = specificDraft.formData;
+      
+      // Populate form with draft data
+      form.reset(formData);
+      
+      // Set current step to the saved step or calculate based on data
+      if (specificDraft.currentStep) {
+        setCurrentStep(specificDraft.currentStep);
+      }
+      
+      // Show toast to indicate draft was loaded
+      toast({
+        title: "Draft Loaded",
+        description: `Continuing from step ${specificDraft.currentStep || 1}`,
+      });
+    }
+  }, [specificDraft, form, toast]);
+
   const form = useForm<FormData>({
     resolver: zodResolver(fullSchema),
     defaultValues: {
@@ -237,6 +267,14 @@ export default function ClientOnboardingFull() {
   // Query for user's draft onboardings
   const { data: userDrafts, refetch: refetchDrafts } = useQuery({
     queryKey: ["/api/draft-onboarding"],
+    retry: false,
+  });
+
+  // Query for specific draft when draftId is provided
+  const { data: specificDraft, isLoading: isDraftLoading } = useQuery({
+    queryKey: ["/api/draft-onboarding", currentDraftId],
+    queryFn: () => currentDraftId ? apiRequest("GET", `/api/draft-onboarding/${currentDraftId}`) : null,
+    enabled: !!currentDraftId,
     retry: false,
   });
 

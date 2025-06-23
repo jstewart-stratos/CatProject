@@ -249,7 +249,7 @@ export default function Clients() {
                                   <Button 
                                     size="sm" 
                                     variant="default"
-                                    onClick={() => window.location.href = '/client-onboarding-full'}
+                                    onClick={() => window.location.href = `/client-onboarding-full?draftId=${draft.id}`}
                                     className="bg-amber-600 hover:bg-amber-700"
                                   >
                                     Continue
