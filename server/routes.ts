@@ -312,7 +312,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const clientData = insertClientSchema.parse({
         ...req.body,
-        createdBy: 'onboarding'
+        createdBy: null
       });
       console.log("Parsed onboarding client data:", clientData);
       
