@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { ArrowLeft, ArrowRight, Save, User, Phone, Briefcase, DollarSign, Shield, TrendingUp, Building } from "lucide-react";
+import { useEmploymentLogic, useInvestmentLogic, useClientTypeLogic } from "@/hooks/useFormLogic";
 
 const stepIcons = {
   1: User,
@@ -145,6 +146,11 @@ export default function ClientOnboarding() {
   const queryClient = useQueryClient();
   const [currentStep, setCurrentStep] = useState(1);
   const [onboardingData, setOnboardingData] = useState<Partial<OnboardingData>>({});
+  
+  // Initialize conditional logic hooks
+  const employmentLogic = useEmploymentLogic();
+  const investmentLogic = useInvestmentLogic();
+  const clientTypeLogic = useClientTypeLogic();
 
   const personalForm = useForm<PersonalInfo>({
     resolver: zodResolver(personalInfoSchema),
@@ -838,90 +844,130 @@ export default function ClientOnboarding() {
     </Form>
   );
 
-  const renderEmploymentInfo = () => (
-    <Form {...employmentForm}>
-      <div className="space-y-6">
-        <h3 className="text-lg font-medium mb-4">Employment Information</h3>
-        
-        <div className="space-y-4">
-          <FormField
-            control={employmentForm.control}
-            name="status"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Status</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="Employed">Employed</SelectItem>
-                    <SelectItem value="Self-Employed">Self-Employed</SelectItem>
-                    <SelectItem value="Unemployed">Unemployed</SelectItem>
-                    <SelectItem value="Retired">Retired</SelectItem>
-                    <SelectItem value="Student">Student</SelectItem>
-                    <SelectItem value="Homemaker">Homemaker</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+  const renderEmploymentInfo = () => {
+    const currentStatus = employmentForm.watch('status');
+    const industryRequired = employmentLogic.getIndustryRequirement(currentStatus || '');
+    
+    // Auto-set industry for certain statuses
+    useEffect(() => {
+      if (currentStatus) {
+        const defaultIndustry = employmentLogic.getDefaultIndustry(currentStatus);
+        if (defaultIndustry && defaultIndustry !== currentStatus) {
+          employmentForm.setValue('industry', '');
+        } else if (defaultIndustry === currentStatus) {
+          employmentForm.setValue('industry', currentStatus);
+        }
+      }
+    }, [currentStatus]);
 
-          <FormField
-            control={employmentForm.control}
-            name="industry"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Industry</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="Agriculture">Agriculture</SelectItem>
-                    <SelectItem value="Banking">Banking</SelectItem>
-                    <SelectItem value="Construction">Construction</SelectItem>
-                    <SelectItem value="Education">Education</SelectItem>
-                    <SelectItem value="Finance">Finance</SelectItem>
-                    <SelectItem value="Government">Government</SelectItem>
-                    <SelectItem value="Healthcare">Healthcare</SelectItem>
-                    <SelectItem value="Insurance">Insurance</SelectItem>
-                    <SelectItem value="Legal">Legal</SelectItem>
-                    <SelectItem value="Manufacturing">Manufacturing</SelectItem>
-                    <SelectItem value="Real Estate">Real Estate</SelectItem>
-                    <SelectItem value="Retail">Retail</SelectItem>
-                    <SelectItem value="Technology">Technology</SelectItem>
-                    <SelectItem value="Transportation">Transportation</SelectItem>
-                    <SelectItem value="Other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+    return (
+      <Form {...employmentForm}>
+        <div className="space-y-6">
+          <h3 className="text-lg font-medium mb-4">Employment Information</h3>
+          
+          <div className="space-y-4">
+            <FormField
+              control={employmentForm.control}
+              name="status"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Status</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="Employed">Employed</SelectItem>
+                      <SelectItem value="Self-Employed">Self-Employed</SelectItem>
+                      <SelectItem value="Unemployed">Unemployed</SelectItem>
+                      <SelectItem value="Retired">Retired</SelectItem>
+                      <SelectItem value="Student">Student</SelectItem>
+                      <SelectItem value="Homemaker">Homemaker</SelectItem>
+                      <SelectItem value="Minor">Minor</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <FormField
-            control={employmentForm.control}
-            name="occupation"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Occupation</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="Occupation" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            <FormField
+              control={employmentForm.control}
+              name="industry"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Industry {industryRequired && <span className="text-red-500">*</span>}
+                  </FormLabel>
+                  <Select 
+                    onValueChange={field.onChange} 
+                    value={field.value}
+                    disabled={!industryRequired}
+                  >
+                    <FormControl>
+                      <SelectTrigger className={!industryRequired ? 'opacity-50' : ''}>
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="Agriculture">Agriculture</SelectItem>
+                      <SelectItem value="Banking">Banking</SelectItem>
+                      <SelectItem value="Construction">Construction</SelectItem>
+                      <SelectItem value="Education">Education</SelectItem>
+                      <SelectItem value="Finance">Finance</SelectItem>
+                      <SelectItem value="Government">Government</SelectItem>
+                      <SelectItem value="Healthcare">Healthcare</SelectItem>
+                      <SelectItem value="Insurance">Insurance</SelectItem>
+                      <SelectItem value="Legal">Legal</SelectItem>
+                      <SelectItem value="Manufacturing">Manufacturing</SelectItem>
+                      <SelectItem value="Real Estate">Real Estate</SelectItem>
+                      <SelectItem value="Retail">Retail</SelectItem>
+                      <SelectItem value="Technology">Technology</SelectItem>
+                      <SelectItem value="Transportation">Transportation</SelectItem>
+                      <SelectItem value="Other">Other</SelectItem>
+                      {/* Auto-populated values for certain statuses */}
+                      <SelectItem value="Retired">Retired</SelectItem>
+                      <SelectItem value="Student">Student</SelectItem>
+                      <SelectItem value="Homemaker">Homemaker</SelectItem>
+                      <SelectItem value="Minor">Minor</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                  {!industryRequired && (
+                    <p className="text-sm text-gray-500">Industry not required for this employment status</p>
+                  )}
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={employmentForm.control}
+              name="occupation"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Occupation</FormLabel>
+                  <FormControl>
+                    <Input 
+                      {...field} 
+                      placeholder="Occupation"
+                      disabled={!industryRequired}
+                      className={!industryRequired ? 'opacity-50' : ''}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                  {!industryRequired && (
+                    <p className="text-sm text-gray-500">Occupation not required for this employment status</p>
+                  )}
+                </FormItem>
+              )}
+            />
+          </div>
         </div>
-      </div>
-    </Form>
-  );
+      </Form>
+    );
+  };
 
   const renderSuitabilityInfo = () => (
     <Form {...suitabilityForm}>
@@ -1473,48 +1519,67 @@ export default function ClientOnboarding() {
     </Form>
   );
 
-  const renderFinancialInfo = () => (
-    <Form {...financialForm}>
-      <div className="space-y-6">
-        <h3 className="text-lg font-medium mb-4">Financial Information</h3>
-        
-        <div className="space-y-4">
-          <FormField
-            control={financialForm.control}
-            name="hasOtherInvestments"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-base">Does your client have other investments (includes other assets held at LPL)?</FormLabel>
-                <FormControl>
-                  <div className="flex space-x-4 mt-2">
-                    <button
-                      type="button"
-                      onClick={() => field.onChange("No")}
-                      className={`px-4 py-2 rounded-lg border ${
-                        field.value === "No"
-                          ? "bg-blue-100 border-blue-300 text-blue-700"
-                          : "bg-gray-100 border-gray-300 text-gray-700"
-                      }`}
-                    >
-                      No
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => field.onChange("Yes")}
-                      className={`px-4 py-2 rounded-lg border ${
-                        field.value === "Yes"
-                          ? "bg-blue-100 border-blue-300 text-blue-700"
-                          : "bg-gray-100 border-gray-300 text-gray-700"
-                      }`}
-                    >
-                      Yes
-                    </button>
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+  const renderFinancialInfo = () => {
+    const hasOtherInvestments = financialForm.watch('hasOtherInvestments');
+    const showBreakdown = investmentLogic.shouldShowFinancialBreakdown(hasOtherInvestments || '');
+    
+    // Get all percentage values for validation
+    const percentageValues = {
+      altInvestmentsPercent: financialForm.watch('altInvestmentsPercent') || '0',
+      annuitiesPercent: financialForm.watch('annuitiesPercent') || '0',
+      bondsPercent: financialForm.watch('bondsPercent') || '0',
+      checkingSavingsPercent: financialForm.watch('checkingSavingsPercent') || '0',
+      equitiesPercent: financialForm.watch('equitiesPercent') || '0',
+      insurancePercent: financialForm.watch('insurancePercent') || '0',
+      mutualFundsPercent: financialForm.watch('mutualFundsPercent') || '0',
+      realEstatePercent: financialForm.watch('realEstatePercent') || '0',
+      otherPercent: financialForm.watch('otherPercent') || '0',
+    };
+    
+    const { isValid: percentageValid, total: percentageTotal } = investmentLogic.validatePercentageTotal(percentageValues);
+
+    return (
+      <Form {...financialForm}>
+        <div className="space-y-6">
+          <h3 className="text-lg font-medium mb-4">Financial Information</h3>
+          
+          <div className="space-y-4">
+            <FormField
+              control={financialForm.control}
+              name="hasOtherInvestments"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-base">Does your client have other investments (includes other assets held at LPL)?</FormLabel>
+                  <FormControl>
+                    <div className="flex space-x-4 mt-2">
+                      <button
+                        type="button"
+                        onClick={() => field.onChange("No")}
+                        className={`px-4 py-2 rounded-lg border ${
+                          field.value === "No"
+                            ? "bg-blue-100 border-blue-300 text-blue-700"
+                            : "bg-gray-100 border-gray-300 text-gray-700"
+                        }`}
+                      >
+                        No
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => field.onChange("Yes")}
+                        className={`px-4 py-2 rounded-lg border ${
+                          field.value === "Yes"
+                            ? "bg-blue-100 border-blue-300 text-blue-700"
+                            : "bg-gray-100 border-gray-300 text-gray-700"
+                        }`}
+                      >
+                        Yes
+                      </button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
           {financialForm.watch('hasOtherInvestments') === 'Yes' && (
             <div className="space-y-4 border-t pt-4">
@@ -1681,8 +1746,24 @@ export default function ClientOnboarding() {
                 />
               </div>
 
-              <div className="text-sm text-red-600 mt-2">
-                Total must equal 100 %
+              <div className={`text-sm mt-4 p-3 rounded-lg border ${
+                percentageValid 
+                  ? 'bg-green-50 border-green-200 text-green-700' 
+                  : 'bg-red-50 border-red-200 text-red-700'
+              }`}>
+                <div className="flex justify-between items-center">
+                  <span>Current Total: {percentageTotal.toFixed(1)}%</span>
+                  <span className="font-medium">
+                    {percentageValid ? '✓ Valid' : '⚠ Must equal 100%'}
+                  </span>
+                </div>
+                {!percentageValid && (
+                  <div className="text-xs mt-1">
+                    {percentageTotal < 100 
+                      ? `Need ${(100 - percentageTotal).toFixed(1)}% more` 
+                      : `Reduce by ${(percentageTotal - 100).toFixed(1)}%`}
+                  </div>
+                )}
               </div>
             </div>
           )}
