@@ -126,7 +126,7 @@ function ClientOnboarding() {
   const mutation = useMutation({
     mutationFn: async (data: any) => {
       console.log("Submitting client data:", data);
-      return await apiRequest("/api/clients", "POST", data);
+      return await apiRequest("/api/onboarding/client", "POST", data);
     },
     onSuccess: () => {
       toast({

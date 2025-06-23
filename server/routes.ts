@@ -305,6 +305,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Public onboarding endpoint (no authentication required)
+  app.post('/api/onboarding/client', async (req: any, res) => {
+    try {
+      console.log("Received onboarding client data:", req.body);
+      
+      const clientData = insertClientSchema.parse({
+        ...req.body,
+        createdBy: 'onboarding'
+      });
+      console.log("Parsed onboarding client data:", clientData);
+      
+      const client = await storage.createClient(clientData);
+      console.log("Created onboarding client:", client);
+      res.status(201).json(client);
+    } catch (error) {
+      console.error("Error creating onboarding client:", error);
+      if (error instanceof Error) {
+        console.error("Error message:", error.message);
+        console.error("Error stack:", error.stack);
+      }
+      res.status(500).json({ message: "Failed to create client", error: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
   app.post('/api/clients', isAuthenticated, async (req: any, res) => {
     try {
       console.log("Received client data:", req.body);
