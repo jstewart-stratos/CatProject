@@ -338,6 +338,12 @@ export default function ClientOnboardingFull() {
         <Sidebar currentView="client-onboarding-full" />
         <div className="flex-1 p-6">
           <div className="max-w-2xl mx-auto">
+            {/* Header */}
+            <div className="mb-6">
+              <h1 className="text-3xl font-bold text-slate-900 mb-2">Full Client Onboarding</h1>
+              <p className="text-slate-600">Complete 7-step client information collection process</p>
+            </div>
+            
             <Card>
               <CardContent className="pt-6">
                 <div className="text-center">
@@ -363,6 +369,12 @@ export default function ClientOnboardingFull() {
       <Sidebar currentView="client-onboarding-full" />
       <div className="flex-1 p-6">
         <div className="max-w-4xl mx-auto">
+          {/* Header */}
+          <div className="mb-6">
+            <h1 className="text-3xl font-bold text-slate-900 mb-2">Full Client Onboarding</h1>
+            <p className="text-slate-600">Complete 7-step client information collection process</p>
+          </div>
+          
       <Card>
         <CardHeader>
           <CardTitle>Client Information Form</CardTitle>
