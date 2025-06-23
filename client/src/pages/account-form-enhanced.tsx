@@ -717,7 +717,11 @@ export default function AccountFormEnhanced() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {lists?.["Funds Needed In"]?.map((period: string) => (
+                          {[
+                            "None",
+                            "0 - 3 years",
+                            "3+ years"
+                          ].map((period: string) => (
                             <SelectItem key={period} value={period}>{period}</SelectItem>
                           ))}
                         </SelectContent>
