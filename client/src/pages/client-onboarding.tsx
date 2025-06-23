@@ -27,18 +27,22 @@ const stepIcons = {
   7: Building,
 };
 
-// Schema for each step - will be updated based on your requirements
+// Schema for Step 1 - Client Information (based on screenshot)
 const personalInfoSchema = z.object({
   clientType: z.string().min(1, "Client type is required"),
+  ssn: z.string().min(1, "SSN is required"),
   firstName: z.string().min(1, "First name is required"),
   middleName: z.string().optional(),
   lastName: z.string().min(1, "Last name is required"),
+  alias: z.string().optional(),
+  citizenship: z.string().min(1, "Citizenship/Legal Establishment is required"),
+  residencyStatus: z.string().min(1, "Residency status is required"),
   dateOfBirth: z.string().min(1, "Date of birth is required"),
-  ssn: z.string().min(1, "SSN is required"),
-  citizenship: z.string().min(1, "Citizenship is required"),
+  signingMethod: z.string().min(1, "Signing method is required"),
 });
 
 const contactInfoSchema = z.object({
+  emailAddress: z.string().email("Valid email is required"),
   legalAddress1: z.string().min(1, "Legal address is required"),
   legalAddress2: z.string().optional(),
   city: z.string().min(1, "City is required"),
@@ -46,37 +50,65 @@ const contactInfoSchema = z.object({
   zipCode: z.string().min(1, "ZIP code is required"),
   homePhone: z.string().optional(),
   mobilePhone: z.string().optional(),
-  emailAddress: z.string().email("Valid email is required"),
+  businessPhone: z.string().optional(),
+  mailingAddressSameAsAbove: z.boolean().default(false),
+  mailingAddress1: z.string().optional(),
+  mailingAddress2: z.string().optional(),
+  mailingCity: z.string().optional(),
+  mailingState: z.string().optional(),
+  mailingZipCode: z.string().optional(),
 });
 
 const employmentInfoSchema = z.object({
-  employmentStatus: z.string().min(1, "Employment status is required"),
-  employerName: z.string().optional(),
-  industry: z.string().optional(),
-  occupation: z.string().optional(),
+  status: z.string().min(1, "Status is required"),
+  industry: z.string().min(1, "Industry is required"),
+  occupation: z.string().min(1, "Occupation is required"),
 });
 
 const suitabilityInfoSchema = z.object({
   annualIncome: z.string().min(1, "Annual income is required"),
+  taxBracket: z.string().min(1, "Tax bracket is required"),
   netWorth: z.string().min(1, "Net worth is required"),
   liquidNetWorth: z.string().min(1, "Liquid net worth is required"),
   sourceOfWealth: z.string().min(1, "Source of wealth is required"),
 });
 
 const trustedContactSchema = z.object({
-  trustedContactName: z.string().optional(),
-  trustedContactPhone: z.string().optional(),
-  trustedContactEmail: z.string().optional(),
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
+  relationship: z.string().optional(),
+  streetAddress1: z.string().optional(),
+  streetAddress2: z.string().optional(),
+  city: z.string().optional(),
+  state: z.string().optional(),
+  zipCode: z.string().optional(),
+  emailAddress: z.string().optional(),
+  phoneNumber: z.string().optional(),
 });
 
 const investmentExperienceSchema = z.object({
-  hasInvestmentExperience: z.boolean(),
-  // Additional fields based on your requirements
+  hasInvestmentExperience: z.string().min(1, "Please select an option"),
+  annuitiesYears: z.string().optional(),
+  bondsYears: z.string().optional(),
+  marginYears: z.string().optional(),
+  mutualFundsYears: z.string().optional(),
+  optionsYears: z.string().optional(),
+  partnershipsYears: z.string().optional(),
+  stocksYears: z.string().optional(),
+  otherYears: z.string().optional(),
 });
 
 const financialInfoSchema = z.object({
-  hasOtherInvestments: z.boolean(),
-  // Additional fields based on your requirements
+  hasOtherInvestments: z.string().min(1, "Please select an option"),
+  altInvestmentsPercent: z.string().optional(),
+  annuitiesPercent: z.string().optional(),
+  bondsPercent: z.string().optional(),
+  checkingSavingsPercent: z.string().optional(),
+  equitiesPercent: z.string().optional(),
+  insurancePercent: z.string().optional(),
+  mutualFundsPercent: z.string().optional(),
+  realEstatePercent: z.string().optional(),
+  otherPercent: z.string().optional(),
 });
 
 type PersonalInfo = z.infer<typeof personalInfoSchema>;
@@ -238,68 +270,40 @@ export default function ClientOnboarding() {
 
   const renderPersonalInfo = () => (
     <Form {...personalForm}>
-      <div className="space-y-4">
-        <FormField
-          control={personalForm.control}
-          name="clientType"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Client Type *</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select client type" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="Individual">Individual</SelectItem>
-                  <SelectItem value="Joint">Joint</SelectItem>
-                  <SelectItem value="Corporate">Corporate</SelectItem>
-                  <SelectItem value="Trust">Trust</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="space-y-6">
+        {/* Client Type Section */}
+        <div>
+          <h3 className="text-lg font-medium mb-4">Client Type</h3>
           <FormField
             control={personalForm.control}
-            name="firstName"
+            name="clientType"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>First Name *</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Enter first name" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={personalForm.control}
-            name="middleName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Middle Name</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="Enter middle name" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={personalForm.control}
-            name="lastName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Last Name *</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="Enter last name" />
+                  <div className="flex space-x-4">
+                    <button
+                      type="button"
+                      onClick={() => field.onChange("Individual")}
+                      className={`px-4 py-2 rounded-lg border ${
+                        field.value === "Individual"
+                          ? "bg-blue-100 border-blue-300 text-blue-700"
+                          : "bg-gray-100 border-gray-300 text-gray-700"
+                      }`}
+                    >
+                      Individual
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => field.onChange("Entity")}
+                      className={`px-4 py-2 rounded-lg border ${
+                        field.value === "Entity"
+                          ? "bg-blue-100 border-blue-300 text-blue-700"
+                          : "bg-gray-100 border-gray-300 text-gray-700"
+                      }`}
+                    >
+                      Entity
+                    </button>
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -307,51 +311,751 @@ export default function ClientOnboarding() {
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Personal Information Section */}
+        <div>
+          <h3 className="text-lg font-medium mb-4">Personal Information</h3>
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={personalForm.control}
+                name="ssn"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>SSN</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="123456789" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={personalForm.control}
+                name="firstName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>First Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="John" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={personalForm.control}
+                name="middleName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Middle Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="A." />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={personalForm.control}
+                name="lastName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Last Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Doe" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={personalForm.control}
+                name="alias"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Alias</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Nickname (optional)" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={personalForm.control}
+                name="citizenship"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Citizenship / Legal Establishment</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="US Citizen">US Citizen</SelectItem>
+                        <SelectItem value="Permanent Resident">Permanent Resident</SelectItem>
+                        <SelectItem value="Non-Resident Alien">Non-Resident Alien</SelectItem>
+                        <SelectItem value="Foreign Entity">Foreign Entity</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={personalForm.control}
+                name="residencyStatus"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Residency Status</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="US Resident">US Resident</SelectItem>
+                        <SelectItem value="Non-US Resident">Non-US Resident</SelectItem>
+                        <SelectItem value="Dual Resident">Dual Resident</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={personalForm.control}
+                name="dateOfBirth"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Date Of Birth</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="date" placeholder="mm/dd/yyyy" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={personalForm.control}
+                name="signingMethod"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Signing Method</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Electronic">Electronic</SelectItem>
+                        <SelectItem value="Physical">Physical</SelectItem>
+                        <SelectItem value="Wet Signature">Wet Signature</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </Form>
+  );
+
+  const renderContactInfo = () => (
+    <Form {...contactForm}>
+      <div className="space-y-6">
+        <h3 className="text-lg font-medium mb-4">Contact Information</h3>
+        
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={contactForm.control}
+              name="emailAddress"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email Address</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="email" placeholder="name@example.com" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={contactForm.control}
+              name="legalAddress1"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Legal Address Line 1</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="123 Main St" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={contactForm.control}
+              name="legalAddress2"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Legal Address Line 2</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Apt, Suite, etc." />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={contactForm.control}
+              name="city"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>City</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="City" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={contactForm.control}
+              name="state"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>State</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="AL">Alabama</SelectItem>
+                      <SelectItem value="AK">Alaska</SelectItem>
+                      <SelectItem value="AZ">Arizona</SelectItem>
+                      <SelectItem value="AR">Arkansas</SelectItem>
+                      <SelectItem value="CA">California</SelectItem>
+                      <SelectItem value="CO">Colorado</SelectItem>
+                      <SelectItem value="CT">Connecticut</SelectItem>
+                      <SelectItem value="DE">Delaware</SelectItem>
+                      <SelectItem value="FL">Florida</SelectItem>
+                      <SelectItem value="GA">Georgia</SelectItem>
+                      <SelectItem value="HI">Hawaii</SelectItem>
+                      <SelectItem value="ID">Idaho</SelectItem>
+                      <SelectItem value="IL">Illinois</SelectItem>
+                      <SelectItem value="IN">Indiana</SelectItem>
+                      <SelectItem value="IA">Iowa</SelectItem>
+                      <SelectItem value="KS">Kansas</SelectItem>
+                      <SelectItem value="KY">Kentucky</SelectItem>
+                      <SelectItem value="LA">Louisiana</SelectItem>
+                      <SelectItem value="ME">Maine</SelectItem>
+                      <SelectItem value="MD">Maryland</SelectItem>
+                      <SelectItem value="MA">Massachusetts</SelectItem>
+                      <SelectItem value="MI">Michigan</SelectItem>
+                      <SelectItem value="MN">Minnesota</SelectItem>
+                      <SelectItem value="MS">Mississippi</SelectItem>
+                      <SelectItem value="MO">Missouri</SelectItem>
+                      <SelectItem value="MT">Montana</SelectItem>
+                      <SelectItem value="NE">Nebraska</SelectItem>
+                      <SelectItem value="NV">Nevada</SelectItem>
+                      <SelectItem value="NH">New Hampshire</SelectItem>
+                      <SelectItem value="NJ">New Jersey</SelectItem>
+                      <SelectItem value="NM">New Mexico</SelectItem>
+                      <SelectItem value="NY">New York</SelectItem>
+                      <SelectItem value="NC">North Carolina</SelectItem>
+                      <SelectItem value="ND">North Dakota</SelectItem>
+                      <SelectItem value="OH">Ohio</SelectItem>
+                      <SelectItem value="OK">Oklahoma</SelectItem>
+                      <SelectItem value="OR">Oregon</SelectItem>
+                      <SelectItem value="PA">Pennsylvania</SelectItem>
+                      <SelectItem value="RI">Rhode Island</SelectItem>
+                      <SelectItem value="SC">South Carolina</SelectItem>
+                      <SelectItem value="SD">South Dakota</SelectItem>
+                      <SelectItem value="TN">Tennessee</SelectItem>
+                      <SelectItem value="TX">Texas</SelectItem>
+                      <SelectItem value="UT">Utah</SelectItem>
+                      <SelectItem value="VT">Vermont</SelectItem>
+                      <SelectItem value="VA">Virginia</SelectItem>
+                      <SelectItem value="WA">Washington</SelectItem>
+                      <SelectItem value="WV">West Virginia</SelectItem>
+                      <SelectItem value="WI">Wisconsin</SelectItem>
+                      <SelectItem value="WY">Wyoming</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={contactForm.control}
+              name="zipCode"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Zip Code</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="12345" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <FormField
+              control={contactForm.control}
+              name="homePhone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Home Phone</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="1234567890" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={contactForm.control}
+              name="mobilePhone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Mobile Phone</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="0987654321" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={contactForm.control}
+              name="businessPhone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Business Phone</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="5555555555" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
           <FormField
-            control={personalForm.control}
-            name="dateOfBirth"
+            control={contactForm.control}
+            name="mailingAddressSameAsAbove"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>Date of Birth *</FormLabel>
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                 <FormControl>
-                  <Input {...field} type="date" />
+                  <input
+                    type="checkbox"
+                    checked={field.value}
+                    onChange={field.onChange}
+                    className="mt-1"
+                  />
                 </FormControl>
-                <FormMessage />
+                <div className="space-y-1 leading-none">
+                  <FormLabel>Mailing address same as above</FormLabel>
+                </div>
               </FormItem>
             )}
           />
 
-          <FormField
-            control={personalForm.control}
-            name="ssn"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Social Security Number *</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="XXX-XX-XXXX" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {!contactForm.watch('mailingAddressSameAsAbove') && (
+            <div className="space-y-4 border-t pt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={contactForm.control}
+                  name="mailingAddress1"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Mailing Address Line 1</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="123 Main St" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
+                <FormField
+                  control={contactForm.control}
+                  name="mailingAddress2"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Mailing Address Line 2</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Apt, Suite, etc." />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <FormField
+                  control={contactForm.control}
+                  name="mailingCity"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Mailing City</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="City" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={contactForm.control}
+                  name="mailingState"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Mailing State</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="AL">Alabama</SelectItem>
+                          <SelectItem value="AK">Alaska</SelectItem>
+                          <SelectItem value="AZ">Arizona</SelectItem>
+                          <SelectItem value="AR">Arkansas</SelectItem>
+                          <SelectItem value="CA">California</SelectItem>
+                          <SelectItem value="CO">Colorado</SelectItem>
+                          <SelectItem value="CT">Connecticut</SelectItem>
+                          <SelectItem value="DE">Delaware</SelectItem>
+                          <SelectItem value="FL">Florida</SelectItem>
+                          <SelectItem value="GA">Georgia</SelectItem>
+                          <SelectItem value="HI">Hawaii</SelectItem>
+                          <SelectItem value="ID">Idaho</SelectItem>
+                          <SelectItem value="IL">Illinois</SelectItem>
+                          <SelectItem value="IN">Indiana</SelectItem>
+                          <SelectItem value="IA">Iowa</SelectItem>
+                          <SelectItem value="KS">Kansas</SelectItem>
+                          <SelectItem value="KY">Kentucky</SelectItem>
+                          <SelectItem value="LA">Louisiana</SelectItem>
+                          <SelectItem value="ME">Maine</SelectItem>
+                          <SelectItem value="MD">Maryland</SelectItem>
+                          <SelectItem value="MA">Massachusetts</SelectItem>
+                          <SelectItem value="MI">Michigan</SelectItem>
+                          <SelectItem value="MN">Minnesota</SelectItem>
+                          <SelectItem value="MS">Mississippi</SelectItem>
+                          <SelectItem value="MO">Missouri</SelectItem>
+                          <SelectItem value="MT">Montana</SelectItem>
+                          <SelectItem value="NE">Nebraska</SelectItem>
+                          <SelectItem value="NV">Nevada</SelectItem>
+                          <SelectItem value="NH">New Hampshire</SelectItem>
+                          <SelectItem value="NJ">New Jersey</SelectItem>
+                          <SelectItem value="NM">New Mexico</SelectItem>
+                          <SelectItem value="NY">New York</SelectItem>
+                          <SelectItem value="NC">North Carolina</SelectItem>
+                          <SelectItem value="ND">North Dakota</SelectItem>
+                          <SelectItem value="OH">Ohio</SelectItem>
+                          <SelectItem value="OK">Oklahoma</SelectItem>
+                          <SelectItem value="OR">Oregon</SelectItem>
+                          <SelectItem value="PA">Pennsylvania</SelectItem>
+                          <SelectItem value="RI">Rhode Island</SelectItem>
+                          <SelectItem value="SC">South Carolina</SelectItem>
+                          <SelectItem value="SD">South Dakota</SelectItem>
+                          <SelectItem value="TN">Tennessee</SelectItem>
+                          <SelectItem value="TX">Texas</SelectItem>
+                          <SelectItem value="UT">Utah</SelectItem>
+                          <SelectItem value="VT">Vermont</SelectItem>
+                          <SelectItem value="VA">Virginia</SelectItem>
+                          <SelectItem value="WA">Washington</SelectItem>
+                          <SelectItem value="WV">West Virginia</SelectItem>
+                          <SelectItem value="WI">Wisconsin</SelectItem>
+                          <SelectItem value="WY">Wyoming</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={contactForm.control}
+                  name="mailingZipCode"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Mailing Zip Code</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="12345" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </Form>
+  );
+
+  const renderEmploymentInfo = () => (
+    <Form {...employmentForm}>
+      <div className="space-y-6">
+        <h3 className="text-lg font-medium mb-4">Employment Information</h3>
+        
+        <div className="space-y-4">
           <FormField
-            control={personalForm.control}
-            name="citizenship"
+            control={employmentForm.control}
+            name="status"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Citizenship *</FormLabel>
+                <FormLabel>Status</FormLabel>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select citizenship" />
+                      <SelectValue placeholder="Select" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="US Citizen">US Citizen</SelectItem>
-                    <SelectItem value="Permanent Resident">Permanent Resident</SelectItem>
-                    <SelectItem value="Non-Resident Alien">Non-Resident Alien</SelectItem>
+                    <SelectItem value="Employed">Employed</SelectItem>
+                    <SelectItem value="Self-Employed">Self-Employed</SelectItem>
+                    <SelectItem value="Unemployed">Unemployed</SelectItem>
+                    <SelectItem value="Retired">Retired</SelectItem>
+                    <SelectItem value="Student">Student</SelectItem>
+                    <SelectItem value="Homemaker">Homemaker</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={employmentForm.control}
+            name="industry"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Industry</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="Agriculture">Agriculture</SelectItem>
+                    <SelectItem value="Banking">Banking</SelectItem>
+                    <SelectItem value="Construction">Construction</SelectItem>
+                    <SelectItem value="Education">Education</SelectItem>
+                    <SelectItem value="Finance">Finance</SelectItem>
+                    <SelectItem value="Government">Government</SelectItem>
+                    <SelectItem value="Healthcare">Healthcare</SelectItem>
+                    <SelectItem value="Insurance">Insurance</SelectItem>
+                    <SelectItem value="Legal">Legal</SelectItem>
+                    <SelectItem value="Manufacturing">Manufacturing</SelectItem>
+                    <SelectItem value="Real Estate">Real Estate</SelectItem>
+                    <SelectItem value="Retail">Retail</SelectItem>
+                    <SelectItem value="Technology">Technology</SelectItem>
+                    <SelectItem value="Transportation">Transportation</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={employmentForm.control}
+            name="occupation"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Occupation</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Occupation" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+      </div>
+    </Form>
+  );
+
+  const renderSuitabilityInfo = () => (
+    <Form {...suitabilityForm}>
+      <div className="space-y-6">
+        <h3 className="text-lg font-medium mb-4">Suitability</h3>
+        
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={suitabilityForm.control}
+              name="annualIncome"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Annual Income</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="Under $25,000">Under $25,000</SelectItem>
+                      <SelectItem value="$25,000 - $49,999">$25,000 - $49,999</SelectItem>
+                      <SelectItem value="$50,000 - $99,999">$50,000 - $99,999</SelectItem>
+                      <SelectItem value="$100,000 - $199,999">$100,000 - $199,999</SelectItem>
+                      <SelectItem value="$200,000 - $499,999">$200,000 - $499,999</SelectItem>
+                      <SelectItem value="$500,000+">$500,000+</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={suitabilityForm.control}
+              name="taxBracket"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tax Bracket</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="10%">10%</SelectItem>
+                      <SelectItem value="12%">12%</SelectItem>
+                      <SelectItem value="22%">22%</SelectItem>
+                      <SelectItem value="24%">24%</SelectItem>
+                      <SelectItem value="32%">32%</SelectItem>
+                      <SelectItem value="35%">35%</SelectItem>
+                      <SelectItem value="37%">37%</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={suitabilityForm.control}
+              name="netWorth"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Net Worth</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="Under $100,000">Under $100,000</SelectItem>
+                      <SelectItem value="$100,000 - $499,999">$100,000 - $499,999</SelectItem>
+                      <SelectItem value="$500,000 - $999,999">$500,000 - $999,999</SelectItem>
+                      <SelectItem value="$1,000,000 - $4,999,999">$1,000,000 - $4,999,999</SelectItem>
+                      <SelectItem value="$5,000,000+">$5,000,000+</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={suitabilityForm.control}
+              name="liquidNetWorth"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Liquid Net Worth</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="Under $50,000">Under $50,000</SelectItem>
+                      <SelectItem value="$50,000 - $199,999">$50,000 - $199,999</SelectItem>
+                      <SelectItem value="$200,000 - $499,999">$200,000 - $499,999</SelectItem>
+                      <SelectItem value="$500,000 - $999,999">$500,000 - $999,999</SelectItem>
+                      <SelectItem value="$1,000,000+">$1,000,000+</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <FormField
+            control={suitabilityForm.control}
+            name="sourceOfWealth"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Source of Wealth</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="Employment Income">Employment Income</SelectItem>
+                    <SelectItem value="Business Ownership">Business Ownership</SelectItem>
+                    <SelectItem value="Investment Income">Investment Income</SelectItem>
+                    <SelectItem value="Inheritance">Inheritance</SelectItem>
+                    <SelectItem value="Real Estate">Real Estate</SelectItem>
+                    <SelectItem value="Retirement Savings">Retirement Savings</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -363,125 +1067,625 @@ export default function ClientOnboarding() {
     </Form>
   );
 
-  const renderContactInfo = () => (
-    <Form {...contactForm}>
-      <div className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={contactForm.control}
-            name="legalAddress1"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Legal Address Line 1 *</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="Enter street address" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={contactForm.control}
-            name="legalAddress2"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Legal Address Line 2</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="Apartment, suite, etc." />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+  const renderTrustedContact = () => (
+    <Form {...trustedContactForm}>
+      <div className="space-y-6">
+        <div className="flex items-center space-x-2 mb-4">
+          <h3 className="text-lg font-medium">Trusted Contact</h3>
+          <div className="bg-blue-100 text-blue-600 rounded-full w-5 h-5 flex items-center justify-center text-xs font-medium">
+            i
+          </div>
         </div>
+        
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={trustedContactForm.control}
+              name="firstName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>First Name</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="First Name" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <FormField
-            control={contactForm.control}
-            name="city"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>City *</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="Enter city" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            <FormField
+              control={trustedContactForm.control}
+              name="lastName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Last Name</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Last Name" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
 
-          <FormField
-            control={contactForm.control}
-            name="state"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>State *</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="Enter state" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={trustedContactForm.control}
+              name="relationship"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Relationship</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="Spouse">Spouse</SelectItem>
+                      <SelectItem value="Child">Child</SelectItem>
+                      <SelectItem value="Parent">Parent</SelectItem>
+                      <SelectItem value="Sibling">Sibling</SelectItem>
+                      <SelectItem value="Friend">Friend</SelectItem>
+                      <SelectItem value="Attorney">Attorney</SelectItem>
+                      <SelectItem value="Accountant">Accountant</SelectItem>
+                      <SelectItem value="Other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <FormField
-            control={contactForm.control}
-            name="zipCode"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>ZIP Code *</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="Enter ZIP code" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            <FormField
+              control={trustedContactForm.control}
+              name="streetAddress1"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Street Address 1</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="123 Main St" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={trustedContactForm.control}
+              name="streetAddress2"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Street Address 2</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Apt, Suite, etc." />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={trustedContactForm.control}
+              name="city"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>City</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="City" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={trustedContactForm.control}
+              name="state"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>State</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="AL">Alabama</SelectItem>
+                      <SelectItem value="AK">Alaska</SelectItem>
+                      <SelectItem value="AZ">Arizona</SelectItem>
+                      <SelectItem value="AR">Arkansas</SelectItem>
+                      <SelectItem value="CA">California</SelectItem>
+                      <SelectItem value="CO">Colorado</SelectItem>
+                      <SelectItem value="CT">Connecticut</SelectItem>
+                      <SelectItem value="DE">Delaware</SelectItem>
+                      <SelectItem value="FL">Florida</SelectItem>
+                      <SelectItem value="GA">Georgia</SelectItem>
+                      <SelectItem value="HI">Hawaii</SelectItem>
+                      <SelectItem value="ID">Idaho</SelectItem>
+                      <SelectItem value="IL">Illinois</SelectItem>
+                      <SelectItem value="IN">Indiana</SelectItem>
+                      <SelectItem value="IA">Iowa</SelectItem>
+                      <SelectItem value="KS">Kansas</SelectItem>
+                      <SelectItem value="KY">Kentucky</SelectItem>
+                      <SelectItem value="LA">Louisiana</SelectItem>
+                      <SelectItem value="ME">Maine</SelectItem>
+                      <SelectItem value="MD">Maryland</SelectItem>
+                      <SelectItem value="MA">Massachusetts</SelectItem>
+                      <SelectItem value="MI">Michigan</SelectItem>
+                      <SelectItem value="MN">Minnesota</SelectItem>
+                      <SelectItem value="MS">Mississippi</SelectItem>
+                      <SelectItem value="MO">Missouri</SelectItem>
+                      <SelectItem value="MT">Montana</SelectItem>
+                      <SelectItem value="NE">Nebraska</SelectItem>
+                      <SelectItem value="NV">Nevada</SelectItem>
+                      <SelectItem value="NH">New Hampshire</SelectItem>
+                      <SelectItem value="NJ">New Jersey</SelectItem>
+                      <SelectItem value="NM">New Mexico</SelectItem>
+                      <SelectItem value="NY">New York</SelectItem>
+                      <SelectItem value="NC">North Carolina</SelectItem>
+                      <SelectItem value="ND">North Dakota</SelectItem>
+                      <SelectItem value="OH">Ohio</SelectItem>
+                      <SelectItem value="OK">Oklahoma</SelectItem>
+                      <SelectItem value="OR">Oregon</SelectItem>
+                      <SelectItem value="PA">Pennsylvania</SelectItem>
+                      <SelectItem value="RI">Rhode Island</SelectItem>
+                      <SelectItem value="SC">South Carolina</SelectItem>
+                      <SelectItem value="SD">South Dakota</SelectItem>
+                      <SelectItem value="TN">Tennessee</SelectItem>
+                      <SelectItem value="TX">Texas</SelectItem>
+                      <SelectItem value="UT">Utah</SelectItem>
+                      <SelectItem value="VT">Vermont</SelectItem>
+                      <SelectItem value="VA">Virginia</SelectItem>
+                      <SelectItem value="WA">Washington</SelectItem>
+                      <SelectItem value="WV">West Virginia</SelectItem>
+                      <SelectItem value="WI">Wisconsin</SelectItem>
+                      <SelectItem value="WY">Wyoming</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={trustedContactForm.control}
+              name="zipCode"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Zip Code</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="12345" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={trustedContactForm.control}
+              name="emailAddress"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email Address</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="email" placeholder="name@example.com" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={trustedContactForm.control}
+              name="phoneNumber"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Phone Number</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="1234567890" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
         </div>
+      </div>
+    </Form>
+  );
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+  const renderInvestmentExperience = () => (
+    <Form {...investmentForm}>
+      <div className="space-y-6">
+        <h3 className="text-lg font-medium mb-4">Investment Experience</h3>
+        
+        <div className="space-y-4">
           <FormField
-            control={contactForm.control}
-            name="homePhone"
+            control={investmentForm.control}
+            name="hasInvestmentExperience"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Home Phone</FormLabel>
+                <FormLabel className="text-base">Does the client have any other prior investment experience?</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="(555) 123-4567" />
+                  <div className="flex space-x-4 mt-2">
+                    <button
+                      type="button"
+                      onClick={() => field.onChange("No")}
+                      className={`px-4 py-2 rounded-lg border ${
+                        field.value === "No"
+                          ? "bg-blue-100 border-blue-300 text-blue-700"
+                          : "bg-gray-100 border-gray-300 text-gray-700"
+                      }`}
+                    >
+                      No
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => field.onChange("Yes")}
+                      className={`px-4 py-2 rounded-lg border ${
+                        field.value === "Yes"
+                          ? "bg-blue-100 border-blue-300 text-blue-700"
+                          : "bg-gray-100 border-gray-300 text-gray-700"
+                      }`}
+                    >
+                      Yes
+                    </button>
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
 
+          {investmentForm.watch('hasInvestmentExperience') === 'Yes' && (
+            <div className="space-y-4 border-t pt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={investmentForm.control}
+                  name="annuitiesYears"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Annuities (years)</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="0" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={investmentForm.control}
+                  name="bondsYears"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Bonds (years)</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="0" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={investmentForm.control}
+                  name="marginYears"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Margin (years)</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="0" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={investmentForm.control}
+                  name="mutualFundsYears"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Mutual Funds (years)</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="0" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={investmentForm.control}
+                  name="optionsYears"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Options (years)</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="0" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={investmentForm.control}
+                  name="partnershipsYears"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Partnerships (years)</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="0" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={investmentForm.control}
+                  name="stocksYears"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Stocks (years)</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="0" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={investmentForm.control}
+                  name="otherYears"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Other (years)</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="0" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </Form>
+  );
+
+  const renderFinancialInfo = () => (
+    <Form {...financialForm}>
+      <div className="space-y-6">
+        <h3 className="text-lg font-medium mb-4">Financial Information</h3>
+        
+        <div className="space-y-4">
           <FormField
-            control={contactForm.control}
-            name="mobilePhone"
+            control={financialForm.control}
+            name="hasOtherInvestments"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Mobile Phone</FormLabel>
+                <FormLabel className="text-base">Does your client have other investments (includes other assets held at LPL)?</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="(555) 123-4567" />
+                  <div className="flex space-x-4 mt-2">
+                    <button
+                      type="button"
+                      onClick={() => field.onChange("No")}
+                      className={`px-4 py-2 rounded-lg border ${
+                        field.value === "No"
+                          ? "bg-blue-100 border-blue-300 text-blue-700"
+                          : "bg-gray-100 border-gray-300 text-gray-700"
+                      }`}
+                    >
+                      No
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => field.onChange("Yes")}
+                      className={`px-4 py-2 rounded-lg border ${
+                        field.value === "Yes"
+                          ? "bg-blue-100 border-blue-300 text-blue-700"
+                          : "bg-gray-100 border-gray-300 text-gray-700"
+                      }`}
+                    >
+                      Yes
+                    </button>
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
 
-          <FormField
-            control={contactForm.control}
-            name="emailAddress"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email Address *</FormLabel>
-                <FormControl>
-                  <Input {...field} type="email" placeholder="user@example.com" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {financialForm.watch('hasOtherInvestments') === 'Yes' && (
+            <div className="space-y-4 border-t pt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={financialForm.control}
+                  name="altInvestmentsPercent"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Alt. Investments</FormLabel>
+                      <div className="relative">
+                        <FormControl>
+                          <Input {...field} placeholder="0" className="pr-8" />
+                        </FormControl>
+                        <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">%</span>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={financialForm.control}
+                  name="annuitiesPercent"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Annuities</FormLabel>
+                      <div className="relative">
+                        <FormControl>
+                          <Input {...field} placeholder="0" className="pr-8" />
+                        </FormControl>
+                        <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">%</span>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={financialForm.control}
+                  name="bondsPercent"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Bonds</FormLabel>
+                      <div className="relative">
+                        <FormControl>
+                          <Input {...field} placeholder="0" className="pr-8" />
+                        </FormControl>
+                        <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">%</span>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={financialForm.control}
+                  name="checkingSavingsPercent"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Checking – Savings</FormLabel>
+                      <div className="relative">
+                        <FormControl>
+                          <Input {...field} placeholder="0" className="pr-8" />
+                        </FormControl>
+                        <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">%</span>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={financialForm.control}
+                  name="equitiesPercent"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Equities</FormLabel>
+                      <div className="relative">
+                        <FormControl>
+                          <Input {...field} placeholder="0" className="pr-8" />
+                        </FormControl>
+                        <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">%</span>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={financialForm.control}
+                  name="insurancePercent"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Insurance</FormLabel>
+                      <div className="relative">
+                        <FormControl>
+                          <Input {...field} placeholder="0" className="pr-8" />
+                        </FormControl>
+                        <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">%</span>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={financialForm.control}
+                  name="mutualFundsPercent"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Mutual Funds</FormLabel>
+                      <div className="relative">
+                        <FormControl>
+                          <Input {...field} placeholder="0" className="pr-8" />
+                        </FormControl>
+                        <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">%</span>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={financialForm.control}
+                  name="realEstatePercent"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Real Estate</FormLabel>
+                      <div className="relative">
+                        <FormControl>
+                          <Input {...field} placeholder="0" className="pr-8" />
+                        </FormControl>
+                        <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">%</span>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+                <FormField
+                  control={financialForm.control}
+                  name="otherPercent"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Other</FormLabel>
+                      <div className="relative">
+                        <FormControl>
+                          <Input {...field} placeholder="0" className="pr-8" />
+                        </FormControl>
+                        <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">%</span>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="text-sm text-red-600 mt-2">
+                Total must equal 100 %
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </Form>
@@ -491,11 +1695,11 @@ export default function ClientOnboarding() {
     switch (currentStep) {
       case 1: return renderPersonalInfo();
       case 2: return renderContactInfo();
-      case 3: return <div className="text-center py-8">Employment Information form will be detailed based on your requirements</div>;
-      case 4: return <div className="text-center py-8">Suitability Information form will be detailed based on your requirements</div>;
-      case 5: return <div className="text-center py-8">Trusted Contact form will be detailed based on your requirements</div>;
-      case 6: return <div className="text-center py-8">Investment Experience form will be detailed based on your requirements</div>;
-      case 7: return <div className="text-center py-8">Financial Information form will be detailed based on your requirements</div>;
+      case 3: return renderEmploymentInfo();
+      case 4: return renderSuitabilityInfo();
+      case 5: return renderTrustedContact();
+      case 6: return renderInvestmentExperience();
+      case 7: return renderFinancialInfo();
       default: return null;
     }
   };
