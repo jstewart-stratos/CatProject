@@ -143,7 +143,7 @@ export default function Clients() {
                     className="pl-10 w-80"
                   />
                 </div>
-                <Button onClick={() => openModal()}>
+                <Button onClick={() => window.location.href = '/client-onboarding-full'}>
                   <Plus className="h-4 w-4 mr-2" />
                   Add Client
                 </Button>
