@@ -180,13 +180,34 @@ function ClientOnboarding() {
       if (currentStep < steps.length) {
         setCurrentStep(currentStep + 1);
       } else {
-        // Submit form
-        const formData: OnboardingData = {
-          personalInfo: personalForm.getValues(),
-          contactInfo: contactData,
-          employmentInfo: employmentForm.getValues(),
+        // Submit form - transform data to match client schema
+        const personalInfo = personalForm.getValues();
+        const employmentInfo = employmentForm.getValues();
+        
+        const clientData = {
+          // Personal Information
+          clientType: personalInfo.clientType,
+          ssn: personalInfo.ssn,
+          firstName: personalInfo.firstName,
+          middleName: personalInfo.middleName,
+          lastName: personalInfo.lastName,
+          dateOfBirth: personalInfo.dateOfBirth,
+          citizenship: personalInfo.citizenship,
+          
+          // Contact Information
+          emailAddress: contactData.emailAddress,
+          homePhone: contactData.phoneNumber,
+          legalAddress1: contactData.address,
+          city: contactData.city,
+          state: contactData.state,
+          zipCode: contactData.zipCode,
+          
+          // Employment Information
+          employmentStatus: employmentInfo.status,
+          industry: employmentInfo.industry,
         };
-        mutation.mutate(formData);
+        
+        mutation.mutate(clientData);
       }
     }
   };
