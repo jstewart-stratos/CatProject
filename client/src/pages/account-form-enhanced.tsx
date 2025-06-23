@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -132,8 +132,8 @@ export default function AccountFormEnhanced() {
     }
   }, [accountType, form]);
 
-  // Get filtered program types based on account type
-  const getFilteredProgramTypes = () => {
+  // Get filtered program types based on account type - use useMemo for proper re-rendering
+  const filteredProgramTypes = useMemo(() => {
     if (!accountType) return [];
     
     const programTypeMap: { [key: string]: string[] } = {
@@ -159,10 +159,10 @@ export default function AccountFormEnhanced() {
     console.log('Account Type:', accountType);
     console.log('Filtered Program Types:', programTypeMap[accountType] || []);
     return programTypeMap[accountType] || [];
-  };
+  }, [accountType]);
 
-  // Get filtered registration types based on account type
-  const getFilteredRegistrationTypes = () => {
+  // Get filtered registration types based on account type - use useMemo for proper re-rendering
+  const filteredRegistrationTypes = useMemo(() => {
     if (!accountType) return [];
     
     const registrationTypeMap: { [key: string]: string[] } = {
@@ -189,7 +189,7 @@ export default function AccountFormEnhanced() {
     console.log('Account Type:', accountType);
     console.log('Filtered Registration Types:', registrationTypeMap[accountType] || []);
     return registrationTypeMap[accountType] || [];
-  };
+  }, [accountType]);
 
   // Business rules for conditional sections
   const regTypesRequireBenef = [
@@ -359,7 +359,7 @@ export default function AccountFormEnhanced() {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {getFilteredProgramTypes().map((type: string) => (
+                  {filteredProgramTypes.map((type: string) => (
                     <SelectItem key={type} value={type}>{type}</SelectItem>
                   ))}
                 </SelectContent>
@@ -381,7 +381,7 @@ export default function AccountFormEnhanced() {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {getFilteredRegistrationTypes().map((type: string) => (
+                  {filteredRegistrationTypes.map((type: string) => (
                     <SelectItem key={type} value={type}>{type}</SelectItem>
                   ))}
                 </SelectContent>
