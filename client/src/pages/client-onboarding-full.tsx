@@ -15,6 +15,7 @@ import { ChevronLeft, ChevronRight, CheckCircle, InfoIcon } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import Sidebar from "@/components/sidebar";
 
 // Step schemas
 const step1Schema = z.object({
@@ -333,27 +334,35 @@ export default function ClientOnboardingFull() {
 
   if (isCompleted) {
     return (
-      <div className="max-w-2xl mx-auto p-6">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <CheckCircle className="mx-auto h-16 w-16 text-green-500 mb-4" />
-              <h2 className="text-2xl font-bold mb-2">Onboarding Complete!</h2>
-              <p className="text-gray-600 mb-4">
-                The client information has been successfully submitted.
-              </p>
-              <Button onClick={() => window.location.href = "/"}>
-                Return to Dashboard
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="flex min-h-screen bg-gray-50">
+        <Sidebar currentView="client-onboarding-full" />
+        <div className="flex-1 p-6">
+          <div className="max-w-2xl mx-auto">
+            <Card>
+              <CardContent className="pt-6">
+                <div className="text-center">
+                  <CheckCircle className="mx-auto h-16 w-16 text-green-500 mb-4" />
+                  <h2 className="text-2xl font-bold mb-2">Onboarding Complete!</h2>
+                  <p className="text-gray-600 mb-4">
+                    The client information has been successfully submitted.
+                  </p>
+                  <Button onClick={() => window.location.href = "/"}>
+                    Return to Dashboard
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="flex min-h-screen bg-gray-50">
+      <Sidebar currentView="client-onboarding-full" />
+      <div className="flex-1 p-6">
+        <div className="max-w-4xl mx-auto">
       <Card>
         <CardHeader>
           <CardTitle>Client Information Form</CardTitle>
@@ -1882,6 +1891,8 @@ export default function ClientOnboardingFull() {
           </Form>
         </CardContent>
       </Card>
+        </div>
+      </div>
     </div>
   );
 }
