@@ -247,17 +247,55 @@ export default function AccountFormEnhanced() {
       'Minor Custodial', '529 Plan', 'Guardian IRA', 'Guardian Roth IRA'
     ];
 
-    // Default visibility
-    let showDeliveringFirm = true;
-    let showContraAccount = true;
+    // Default visibility based on Account Type and Program Type combinations
+    let showDeliveringFirm = false;
+    let showContraAccount = false;
     let showIraType = false;
-    let showTransferOnDeath = true;
+    let showTransferOnDeath = false;
+    let showExpectedAccountValue = false;
+    let showApproximateAccountValue = false;
+    let showAdvisorFee = false;
 
-    // Hide ACAT instructions, Transfer on Death, and account value fields for Joint accounts
+    // Program types that show ACAT Instructions and Advisory sections
+    const advisoryProgramTypes = [
+      'Manager Select',
+      'Manager Access Network', 
+      'Manager Access Select',
+      'MWP',
+      'MWP RIA',
+      'OMP - Advisory',
+      'OMP RIA',
+      'PWP',
+      'PWP RIA',
+      'SAM',
+      'SWM'
+    ];
+
+    // Joint accounts have limited visibility regardless of program type
     if (accountType === 'Joint') {
       showDeliveringFirm = false;
       showContraAccount = false;
       showTransferOnDeath = false;
+      showExpectedAccountValue = false;
+      showApproximateAccountValue = false;
+      showAdvisorFee = false;
+    } else {
+      // For Individual and other account types, show fields based on program type
+      if (advisoryProgramTypes.includes(programType)) {
+        showDeliveringFirm = true;
+        showContraAccount = true;
+        showTransferOnDeath = true;
+        showExpectedAccountValue = true;
+        showApproximateAccountValue = false;
+        showAdvisorFee = true;
+      } else if (programType === 'Direct Business' || programType === 'Brokerage') {
+        showDeliveringFirm = false;
+        showContraAccount = false;
+        showTransferOnDeath = false;
+        showExpectedAccountValue = false;
+        showApproximateAccountValue = true;
+        showAdvisorFee = false;
+      }
     }
 
     // Show IRA Type for IRA accounts
@@ -270,28 +308,24 @@ export default function AccountFormEnhanced() {
       showContraAccount,
       showIraType,
       showTransferOnDeath,
-      showBeneficiaries: regTypesRequireBenef.includes(registrationType || '') || transferOnDeath === 'Yes',
-      showAdditionalHolder: regTypesRequireHolder.includes(registrationType || '') || accountType?.toLowerCase().includes('joint'),
-      showInvestmentObjective: true,
-      showInvestmentTimeHorizon: true,
-      showFundsNeededIn: true,
-      showApproximateAccountValue: accountType !== 'Joint',
-      showExpectedAccountValue: false
+      showExpectedAccountValue,
+      showApproximateAccountValue,
+      showAdvisorFee,
+      shouldShowBeneficiaries: regTypesRequireBenef.includes(registrationType),
+      shouldShowAdditionalHolder: regTypesRequireHolder.includes(registrationType)
     };
-  }, [accountType, programType, registrationType, transferOnDeath]);
+  }, [accountType, programType, registrationType]);
 
   const {
     showDeliveringFirm,
     showContraAccount,
     showIraType,
     showTransferOnDeath,
-    showBeneficiaries,
-    showAdditionalHolder,
-    showInvestmentObjective,
-    showInvestmentTimeHorizon,
-    showFundsNeededIn,
+    showExpectedAccountValue,
     showApproximateAccountValue,
-    showExpectedAccountValue
+    showAdvisorFee,
+    shouldShowBeneficiaries,
+    shouldShowAdditionalHolder
   } = fieldVisibility;
 
   // Submit mutation
@@ -669,747 +703,193 @@ export default function AccountFormEnhanced() {
           )}
         </div>
 
-        {/* Investment Horizon - Conditionally shown based on account type */}
-        {(showInvestmentTimeHorizon || showFundsNeededIn) && (
+        {/* Investment Horizon - Always shown for Individual accounts */}
+        {accountType === 'Individual' && (
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Investment Horizon & Liquidity Needs</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {showInvestmentTimeHorizon && (
-                <FormField
-                  control={form.control}
-                  name="investmentTimeHorizon"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Investment Time Horizon <span className="text-red-500">*</span></FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
-                            <SelectValue placeholder="Select" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {[
-                            "1 - 3 years",
-                            "3 - 5 years", 
-                            "5 - 10 years",
-                            "10+ years"
-                          ].map((horizon: string) => (
-                            <SelectItem key={horizon} value={horizon}>{horizon}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-              {showFundsNeededIn && (
-                <FormField
-                  control={form.control}
-                  name="fundsNeededIn"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Funds Needed In</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
-                            <SelectValue placeholder="Select" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {[
-                            "None",
-                            "0 - 3 years",
-                            "3+ years"
-                          ].map((period: string) => (
-                            <SelectItem key={period} value={period}>{period}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
+              <FormField
+                control={form.control}
+                name="investmentTimeHorizon"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Investment Time Horizon <span className="text-red-500">*</span></FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
+                          <SelectValue placeholder="Select" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {[
+                          "1 - 3 years",
+                          "3 - 5 years", 
+                          "5 - 10 years",
+                          "10+ years"
+                        ].map((horizon: string) => (
+                          <SelectItem key={horizon} value={horizon}>{horizon}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="fundsNeededIn"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Funds Needed In</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
+                          <SelectValue placeholder="Select" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {[
+                          "None",
+                          "0 - 3 years",
+                          "3+ years"
+                        ].map((timeframe: string) => (
+                          <SelectItem key={timeframe} value={timeframe}>{timeframe}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
           </div>
         )}
-      </div>
-    </section>
-  );
 
-  const renderAchInfoSection = () => (
-    <section className="space-y-6">
-      <h2 className="text-xl font-semibold border-b pb-2">ACH Information</h2>
-      
-      <div className="space-y-6">
-        {form.watch("achAccounts").map((_, index) => (
-          <Card key={index} className="relative">
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <CardTitle>ACH Account #{index + 1}</CardTitle>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => removeAchAccount(index)}
-                  className="text-red-600 hover:text-red-800"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
-                  control={form.control}
-                  name={`achAccounts.${index}.bankName`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Bank Name</FormLabel>
+        {/* Suitability Section - Show Investment Objective only for Joint accounts */}
+        {accountType === 'Joint' && (
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Suitability</h3>
+            <div className="grid grid-cols-1 gap-6">
+              <FormField
+                control={form.control}
+                name="investmentObjective"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Investment Objective <span className="text-red-500">*</span></FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <Input {...field} className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+                        <SelectTrigger className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
+                          <SelectValue placeholder="Select" />
+                        </SelectTrigger>
                       </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`achAccounts.${index}.accountType`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Account Type</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="Checking">Checking</SelectItem>
-                          <SelectItem value="Savings">Savings</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`achAccounts.${index}.routingNumber`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Routing Number</FormLabel>
-                      <FormControl>
-                        <Input 
-                          {...field} 
-                          pattern="\d{9}" 
-                          maxLength={9}
-                          placeholder="9 digits"
-                          className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`achAccounts.${index}.accountNumber`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Account Number</FormLabel>
-                      <FormControl>
-                        <Input {...field} className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-        
-        <Button
-          type="button"
-          onClick={addAchAccount}
-          className="text-blue-600 hover:underline"
-          variant="ghost"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Add ACH Account
-        </Button>
-      </div>
-    </section>
-  );
-
-  const renderBeneficiariesSection = () => {
-    if (!shouldShowBeneficiaries) {
-      return (
-        <section className="space-y-6">
-          <h2 className="text-xl font-semibold border-b pb-2">Beneficiaries</h2>
-          <p className="text-gray-600">Beneficiaries are not required for this account configuration.</p>
-        </section>
-      );
-    }
-
-    return (
-      <section className="space-y-6">
-        <h2 className="text-xl font-semibold border-b pb-2">Beneficiaries</h2>
-        
-        <div className="space-y-6">
-          {form.watch("beneficiaries").map((_, index) => (
-            <Card key={index} className="relative">
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <CardTitle>Beneficiary #{index + 1}</CardTitle>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeBeneficiary(index)}
-                    className="text-red-600 hover:text-red-800"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name={`beneficiaries.${index}.relationship`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Relationship</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {lists?.["Bene Relation"]?.map((rel: string) => (
-                              <SelectItem key={rel} value={rel}>{rel}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name={`beneficiaries.${index}.type`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Type</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {lists?.["Bene Type"]?.map((type: string) => (
-                              <SelectItem key={type} value={type}>{type}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <FormField
-                    control={form.control}
-                    name={`beneficiaries.${index}.firstName`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>First Name</FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder="First Name" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name={`beneficiaries.${index}.lastName`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Last Name</FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder="Last Name" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name={`beneficiaries.${index}.percentage`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Percentage</FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <Input 
-                              type="number"
-                              {...field}
-                              onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                              placeholder="%" 
-                              min="0" 
-                              max="100" 
-                              className="pr-10"
-                            />
-                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">%</span>
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-          
-          <Button
-            type="button"
-            onClick={addBeneficiary}
-            className="text-blue-600 hover:underline"
-            variant="ghost"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Add Beneficiary
-          </Button>
-        </div>
-      </section>
-    );
-  };
-
-  const renderAdditionalHolderSection = () => {
-    const registrationType = form.watch("registrationType");
-    const shouldShowAdditionalHolder = ["Joint Tenants with Rights of Survivorship", "Tenants in Common", "Joint Tenants in Common"].includes(registrationType);
-    
-    if (!shouldShowAdditionalHolder) {
-      return (
-        <section className="space-y-6">
-          <h2 className="text-xl font-semibold border-b pb-2">Additional Account Holders</h2>
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <p className="text-blue-800">Additional account holders are not required for the selected registration type: <strong>{registrationType || "None selected"}</strong></p>
+                      <SelectContent>
+                        {[
+                          "A) Income with Capital Preservation",
+                          "B) Income with Moderate Growth",
+                          "C) Growth with Income",
+                          "D) Growth",
+                          "E) Aggressive Growth",
+                          "F) Trading"
+                        ].map((objective: string) => (
+                          <SelectItem key={objective} value={objective}>{objective}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
           </div>
-        </section>
-      );
-    }
+        )}
 
-    return (
-      <section className="space-y-6">
-        <h2 className="text-xl font-semibold border-b pb-2">Additional Account Holders</h2>
-        
-        <Card>
-          <CardContent className="space-y-6 pt-6">
-            <h3 className="text-lg font-semibold">Personal Information</h3>
+        {/* ACAT Instructions Section - Only for advisory program types */}
+        {showDeliveringFirm && (
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">ACAT Instructions</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField
                 control={form.control}
-                name="additionalHolder.firstName"
+                name="deliveringFirm"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>First Name</FormLabel>
+                    <FormLabel>Delivering Firm</FormLabel>
                     <FormControl>
-                      <Input {...field} className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+                      <Input {...field} placeholder="Enter delivering firm name" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="additionalHolder.lastName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Last Name</FormLabel>
-                    <FormControl>
-                      <Input {...field} className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <h3 className="text-lg font-semibold">Contact Information</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <FormField
-                control={form.control}
-                name="additionalHolder.homePhone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Home Phone</FormLabel>
-                    <FormControl>
-                      <Input 
-                        {...field} 
-                        type="tel"
-                        placeholder="e.g. 5551234567"
-                        pattern="\d{10}"
-                        maxLength={10}
-                        className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="additionalHolder.mobilePhone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Mobile Phone</FormLabel>
-                    <FormControl>
-                      <Input 
-                        {...field} 
-                        type="tel"
-                        placeholder="e.g. 5552345678"
-                        pattern="\d{10}"
-                        maxLength={10}
-                        className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="additionalHolder.businessPhone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Business Phone</FormLabel>
-                    <FormControl>
-                      <Input 
-                        {...field} 
-                        type="tel"
-                        placeholder="e.g. 5553456789"
-                        pattern="\d{10}"
-                        maxLength={10}
-                        className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <h3 className="text-lg font-semibold">Employment Information</h3>
-            <div className="space-y-4">
-              <FormField
-                control={form.control}
-                name="additionalHolder.employmentStatus"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Employment Status</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+              {showContraAccount && (
+                <FormField
+                  control={form.control}
+                  name="contraAccount"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Contra Account #</FormLabel>
                       <FormControl>
-                        <SelectTrigger className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
-                          <SelectValue placeholder="Select" />
-                        </SelectTrigger>
+                        <Input {...field} placeholder="Enter contra account number" />
                       </FormControl>
-                      <SelectContent>
-                        {lists?.["Employment Status"]?.map((status: string) => (
-                          <SelectItem key={status} value={status}>{status}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="additionalHolder.industry"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Industry</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
-                          <SelectValue placeholder="Select" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {lists?.["Industry"]?.map((industry: string) => (
-                          <SelectItem key={industry} value={industry}>{industry}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="additionalHolder.occupation"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Occupation</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Occupation" className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </CardContent>
-        </Card>
-      </section>
-    );
-  };
-
-  const renderTradingAuthoritySection = () => (
-    <section className="space-y-6">
-      <h2 className="text-xl font-semibold border-b pb-2">Trading Authority</h2>
-      
-      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-        <p className="text-yellow-800">
-          <strong>Note:</strong> Trading authority allows designated individuals to make investment decisions on behalf of the account holder.
-        </p>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Authorized Person Information</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Authorized Person Name
-              </label>
-              <Input 
-                placeholder="Full name of authorized person"
-                className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Relationship to Account Holder
-              </label>
-              <Select>
-                <SelectTrigger className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
-                  <SelectValue placeholder="Select relationship" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="spouse">Spouse</SelectItem>
-                  <SelectItem value="child">Child</SelectItem>
-                  <SelectItem value="parent">Parent</SelectItem>
-                  <SelectItem value="sibling">Sibling</SelectItem>
-                  <SelectItem value="attorney">Attorney</SelectItem>
-                  <SelectItem value="financial-advisor">Financial Advisor</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
-                </SelectContent>
-              </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
             </div>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Phone Number
-              </label>
-              <Input 
-                type="tel"
-                placeholder="e.g. (555) 123-4567"
-                className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Email Address
-              </label>
-              <Input 
-                type="email"
-                placeholder="authorized@example.com"
-                className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Authority Level</h3>
-            <div className="space-y-3">
-              <div className="flex items-center space-x-3">
-                <Checkbox id="full-authority" />
-                <label htmlFor="full-authority" className="text-sm font-medium">
-                  Full Trading Authority (Buy, Sell, Transfer)
-                </label>
-              </div>
-              <div className="flex items-center space-x-3">
-                <Checkbox id="limited-authority" />
-                <label htmlFor="limited-authority" className="text-sm font-medium">
-                  Limited Authority (Sell Only)
-                </label>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </section>
-  );
-
-  const renderSpecialAccountsSection = () => {
-    const accountType = form.watch("accountType");
-    const showTrustInfo = accountType?.toLowerCase().includes("trust");
-    const show529Info = accountType?.toLowerCase().includes("529") || accountType?.toLowerCase().includes("education");
-
-    return (
-      <section className="space-y-6">
-        <h2 className="text-xl font-semibold border-b pb-2">Special Account Configuration</h2>
-        
-        {showTrustInfo && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Trust Account Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Trust Name
-                  </label>
-                  <Input 
-                    placeholder="Name of the trust"
-                    className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Trust Date
-                  </label>
-                  <Input 
-                    type="date"
-                    className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Trustee Name
-                  </label>
-                  <Input 
-                    placeholder="Name of the trustee"
-                    className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Successor Trustee
-                  </label>
-                  <Input 
-                    placeholder="Name of successor trustee"
-                    className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400"
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         )}
 
-        {show529Info && (
-          <Card>
-            <CardHeader>
-              <CardTitle>529 Education Plan Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Beneficiary Name
-                  </label>
-                  <Input 
-                    placeholder="Student beneficiary name"
-                    className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Beneficiary SSN
-                  </label>
-                  <Input 
-                    placeholder="XXX-XX-XXXX"
-                    maxLength={11}
-                    className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    State Plan
-                  </label>
-                  <Select>
-                    <SelectTrigger className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
-                      <SelectValue placeholder="Select state plan" />
-                    </SelectTrigger>
+        {/* Transfer on Death Section - Only for advisory program types */}
+        {showTransferOnDeath && (
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Transfer on Death</h3>
+            <FormField
+              control={form.control}
+              name="transferOnDeath"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Transfer on Death</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select option" />
+                      </SelectTrigger>
+                    </FormControl>
                     <SelectContent>
-                      <SelectItem value="california">California</SelectItem>
-                      <SelectItem value="new-york">New York</SelectItem>
-                      <SelectItem value="florida">Florida</SelectItem>
-                      <SelectItem value="texas">Texas</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
+                      <SelectItem value="Yes">Yes</SelectItem>
+                      <SelectItem value="No">No</SelectItem>
                     </SelectContent>
                   </Select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Initial Contribution
-                  </label>
-                  <div className="relative">
-                    <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">$</span>
-                    <Input 
-                      type="number"
-                      placeholder="0.00"
-                      className="w-full p-3 pl-8 border rounded-lg focus:ring-2 focus:ring-blue-400"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Automatic Investment</h3>
-                <div className="flex items-center space-x-3">
-                  <Checkbox id="auto-investment" />
-                  <label htmlFor="auto-investment" className="text-sm font-medium">
-                    Set up automatic monthly contributions
-                  </label>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {!showTrustInfo && !show529Info && (
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-            <p className="text-gray-600 text-center">
-              No special configuration required for the selected account type: <strong>{accountType || "None selected"}</strong>
-            </p>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
         )}
-      </section>
-    );
-  };
+
+        {/* Advisory Program Account Information - Only for advisory program types */}
+        {showAdvisorFee && (
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Advisory Program Account Information</h3>
+            <FormField
+              control={form.control}
+              name="advisorFee"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Advisor Fee (%)</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="number" step="0.01" placeholder="Enter fee percentage" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        )}
+      </div>
+    </section>
+  );
 
   return (
     <div className="min-h-screen bg-gray-50 py-10">
@@ -1421,7 +901,7 @@ export default function AccountFormEnhanced() {
             className={`nav-btn w-full text-left px-3 py-2 rounded-r ${
               currentSection === 'accountInfo'
                 ? 'bg-white border-l-4 border-blue-800 text-blue-800 font-medium'
-                : 'text-gray-700 hover:bg-white hover:border-l-4 hover:border-blue-800'
+                : 'text-gray-700 hover:bg-gray-200'
             }`}
             onClick={() => setCurrentSection('accountInfo')}
           >
@@ -1432,7 +912,7 @@ export default function AccountFormEnhanced() {
             className={`nav-btn w-full text-left px-3 py-2 rounded-r ${
               currentSection === 'achInfo'
                 ? 'bg-white border-l-4 border-blue-800 text-blue-800 font-medium'
-                : 'text-gray-700 hover:bg-white hover:border-l-4 hover:border-blue-800'
+                : 'text-gray-700 hover:bg-gray-200'
             }`}
             onClick={() => setCurrentSection('achInfo')}
           >
@@ -1443,7 +923,7 @@ export default function AccountFormEnhanced() {
             className={`nav-btn w-full text-left px-3 py-2 rounded-r ${
               currentSection === 'additionalHolders'
                 ? 'bg-white border-l-4 border-blue-800 text-blue-800 font-medium'
-                : 'text-gray-700 hover:bg-white hover:border-l-4 hover:border-blue-800'
+                : 'text-gray-700 hover:bg-gray-200'
             }`}
             onClick={() => setCurrentSection('additionalHolders')}
           >
@@ -1454,7 +934,7 @@ export default function AccountFormEnhanced() {
             className={`nav-btn w-full text-left px-3 py-2 rounded-r ${
               currentSection === 'beneficiaries'
                 ? 'bg-white border-l-4 border-blue-800 text-blue-800 font-medium'
-                : 'text-gray-700 hover:bg-white hover:border-l-4 hover:border-blue-800'
+                : 'text-gray-700 hover:bg-gray-200'
             }`}
             onClick={() => setCurrentSection('beneficiaries')}
           >
@@ -1465,7 +945,7 @@ export default function AccountFormEnhanced() {
             className={`nav-btn w-full text-left px-3 py-2 rounded-r ${
               currentSection === 'tradingAuthority'
                 ? 'bg-white border-l-4 border-blue-800 text-blue-800 font-medium'
-                : 'text-gray-700 hover:bg-white hover:border-l-4 hover:border-blue-800'
+                : 'text-gray-700 hover:bg-gray-200'
             }`}
             onClick={() => setCurrentSection('tradingAuthority')}
           >
@@ -1476,31 +956,15 @@ export default function AccountFormEnhanced() {
             className={`nav-btn w-full text-left px-3 py-2 rounded-r ${
               currentSection === 'specialAccounts'
                 ? 'bg-white border-l-4 border-blue-800 text-blue-800 font-medium'
-                : 'text-gray-700 hover:bg-white hover:border-l-4 hover:border-blue-800'
+                : 'text-gray-700 hover:bg-gray-200'
             }`}
             onClick={() => setCurrentSection('specialAccounts')}
           >
             Special Accounts
           </button>
-          
-          {/* Required Fields Summary */}
-          <div className="mb-4 p-4 bg-gray-50 border-l-4 border-orange-300 text-gray-800 rounded">
-            <div>
-              <strong>Required fields for this selection:</strong>
-              <ul className="list-disc ml-6 mt-1">
-                <li className={clientId ? "text-green-600" : "text-red-600 font-semibold"}>Client Selection</li>
-                <li className={watchedValues.repId ? "text-green-600" : "text-red-600 font-semibold"}>Rep ID</li>
-                <li className={watchedValues.accountType ? "text-green-600" : "text-red-600 font-semibold"}>Account Type</li>
-                <li className={watchedValues.programType ? "text-green-600" : "text-red-600 font-semibold"}>Program Type</li>
-                <li className={watchedValues.registrationType ? "text-green-600" : "text-red-600 font-semibold"}>Registration Type</li>
-                <li className={watchedValues.investmentObjective ? "text-green-600" : "text-red-600 font-semibold"}>Investment Objective</li>
-                <li className={watchedValues.investmentTimeHorizon ? "text-green-600" : "text-red-600 font-semibold"}>Investment Time Horizon</li>
-              </ul>
-            </div>
-          </div>
         </nav>
 
-        {/* Main Form Content */}
+        {/* Main Content */}
         <div className="w-3/4 p-8 space-y-12">
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
@@ -1523,11 +987,6 @@ export default function AccountFormEnhanced() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-12">
               {currentSection === 'accountInfo' && renderAccountInfoSection()}
-              {currentSection === 'achInfo' && renderAchInfoSection()}
-              {currentSection === 'additionalHolders' && renderAdditionalHolderSection()}
-              {currentSection === 'beneficiaries' && renderBeneficiariesSection()}
-              {currentSection === 'tradingAuthority' && renderTradingAuthoritySection()}
-              {currentSection === 'specialAccounts' && renderSpecialAccountsSection()}
 
               {/* Submit Button */}
               <div className="flex justify-end gap-4 pt-6 border-t">
