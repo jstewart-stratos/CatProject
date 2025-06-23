@@ -52,7 +52,7 @@ const contactInfoSchema = z.object({
 
 // Schema for Step 3 - Employment Information
 const employmentInfoSchema = z.object({
-  employmentStatus: z.string().min(1, "Employment status is required"),
+  status: z.string().min(1, "Employment status is required"),
   occupation: z.string().optional(),
   industry: z.string().optional(),
   employer: z.string().optional(),
@@ -114,7 +114,7 @@ function ClientOnboarding() {
   const employmentForm = useForm<EmploymentInfo>({
     resolver: zodResolver(employmentInfoSchema),
     defaultValues: {
-      employmentStatus: "",
+      status: "",
       occupation: "",
       industry: "",
       employer: "",
@@ -383,7 +383,7 @@ function ClientOnboarding() {
   );
 
   const renderEmploymentInfo = () => {
-    const employmentStatus = employmentForm.watch('employmentStatus');
+    const employmentStatus = employmentForm.watch('status');
     const isEmployed = employmentStatus === 'employed' || employmentStatus === 'self_employed';
 
     return (
@@ -392,7 +392,7 @@ function ClientOnboarding() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormField
               control={employmentForm.control}
-              name="employmentStatus"
+              name="status"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Employment Status</FormLabel>
