@@ -152,13 +152,13 @@ Preferred communication style: Simple, everyday language.
     * Applied to all relevant fields across all form steps
   - ✅ Added sidebar navigation to full onboarding page for consistent site navigation
   - ✅ Added professional header to Full Onboarding page with clear title and description
-  - ✅ **Implemented automatic draft saving system**:
-    * Automatic progress saving using client's first and last name as draft title
+  - ✅ **Implemented controlled draft saving system**:
+    * Manual progress saving via "Save Progress" button for user control
     * Visual completion percentage bars showing progress across all 7 steps
-    * Auto-save functionality when navigating between steps
+    * Server-side duplicate prevention ensuring only one draft per client
     * Intelligent completion calculation based on key required fields
-    * Removed manual draft naming requirement for smoother UX
     * Enhanced load draft dialog with progress visualization and "Continue" buttons
+    * Removed aggressive auto-save to prevent unwanted draft creation on every step navigation
 
 ## Onboarding Workflow
 

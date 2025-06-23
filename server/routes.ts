@@ -547,14 +547,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const existingDrafts = await storage.getUserDraftOnboardings(userId);
       const formData = draftData.formData || {};
       
-      console.log('Checking for existing drafts for user:', userId);
-      console.log('Current form data:', { 
-        firstName: formData.firstName, 
-        lastName: formData.lastName, 
-        emailAddress: formData.emailAddress 
-      });
-      console.log('Existing drafts count:', existingDrafts.length);
-      
       // Look for existing draft with matching name data (more flexible matching)
       const existingDraft = existingDrafts.find((draft: any) => {
         const existingFormData = draft.formData || {};
@@ -570,11 +562,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const existingLastName = normalizeValue(existingFormData.lastName);
         const existingEmail = normalizeValue(existingFormData.emailAddress);
         
-        console.log('Comparing:', {
-          current: { firstName: currentFirstName, lastName: currentLastName, email: currentEmail },
-          existing: { firstName: existingFirstName, lastName: existingLastName, email: existingEmail, draftId: draft.id }
-        });
-        
         // Match if at least firstName and lastName are the same and not empty
         const hasValidName = currentFirstName && currentLastName;
         const nameMatches = currentFirstName === existingFirstName && currentLastName === existingLastName;
@@ -586,12 +573,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       if (existingDraft) {
-        console.log('Found existing draft, updating:', existingDraft.id);
         // Update existing draft instead of creating new one
         const updatedDraft = await storage.updateDraftOnboarding(existingDraft.id, draftData);
         res.json(updatedDraft);
       } else {
-        console.log('No existing draft found, creating new one');
         // Create new draft only if no match found
         const draft = await storage.createDraftOnboarding(draftData);
         res.json(draft);

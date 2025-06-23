@@ -421,7 +421,6 @@ export default function ClientOnboardingFull() {
 
   const nextStep = () => {
     if (currentStep < steps.length) {
-      handleAutoSave(); // Auto-save when moving to next step
       setCurrentStep(currentStep + 1);
     }
   };
@@ -472,8 +471,7 @@ export default function ClientOnboardingFull() {
   };
 
   const handleNext = () => {
-    // For now, just advance to the next step
-    // We'll validate on final submit
+    // Just advance to the next step without auto-saving
     nextStep();
   };
 
