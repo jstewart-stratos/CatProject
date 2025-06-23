@@ -140,14 +140,32 @@ export default function AccountFormEnhanced() {
       'Individual': [
         'Brokerage',
         'Direct Business',
-        'Advisory',
-        'Wrap Fee Program'
+        'Manager Select',
+        'Manager Access Network',
+        'Manager Access Select',
+        'MWP',
+        'MWP RIA',
+        'OMP - Advisory',
+        'OMP RIA',
+        'PWP',
+        'PWP RIA',
+        'SAM',
+        'SWM'
       ],
       'Joint': [
         'Brokerage',
         'Direct Business',
-        'Advisory', 
-        'Wrap Fee Program'
+        'Manager Select',
+        'Manager Access Network',
+        'Manager Access Select',
+        'MWP',
+        'MWP RIA',
+        'OMP - Advisory',
+        'OMP RIA',
+        'PWP',
+        'PWP RIA',
+        'SAM',
+        'SWM'
       ],
       'IRA': [
         'Brokerage',
