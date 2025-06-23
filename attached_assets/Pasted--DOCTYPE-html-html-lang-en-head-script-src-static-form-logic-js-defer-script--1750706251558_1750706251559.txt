@@ -1,0 +1,2673 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<script src="/static/form-logic.js" defer></script>
+
+  <!-- Banner-style Logo (kept in <head> as you had it) -->
+  <img src="/static/Icons/logo.png" alt="Logo" class="w-full h-20 object-contain mb-6">
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- ─── Dynamic page title ─────────────────────────────────────────────── -->
+  <title>
+    Edit Account for
+    Brandybuck,
+    Pippin
+  </title>
+
+  <!-- ─── Server-side flags pushed to JS ─────────────────────────────────── -->
+  <script>
+    window.CLIENT_TYPE = 'Individual';
+    window.ENTITY_TYPE = '';
+    window.MODE        = 'edit';      // "new" | "edit"
+    window.INIT_ACCT   = {"ACH[0][Account Type]": "", "ACH[0][Bank Account Number]": "", "ACH[0][Bank Account Registration]": "", "ACH[0][Bank Name]": "", "ACH[0][On Demand]": "", "ACH[0][Periodic]": "", "ACH[0][Routing Number]": "", "ACH[1][Account Type]": "", "ACH[1][Bank Account Number]": "", "ACH[1][Bank Account Registration]": "", "ACH[1][Bank Name]": "", "ACH[1][On Demand]": "", "ACH[1][Periodic]": "", "ACH[1][Routing Number]": "", "Account Type": "Individual", "Add Margin": "", "Additional Holder - Affiliation Type": "", "Additional Holder - Alias": "", "Additional Holder - Business Phone": "", "Additional Holder - Citizenship / Legal Establishment": "", "Additional Holder - City": "", "Additional Holder - Date Of Birth": "", "Additional Holder - Email": "", "Additional Holder - Employer Address Line 1": "", "Additional Holder - Employer Address Line 2": "", "Additional Holder - Employer City": "", "Additional Holder - Employer Name": "", "Additional Holder - Employer State": "", "Additional Holder - Employer Zip": "", "Additional Holder - Employment Status": "", "Additional Holder - Exclude Employer Address": "", "Additional Holder - First Name": "", "Additional Holder - Home Phone": "", "Additional Holder - Industry": "", "Additional Holder - Last Name": "", "Additional Holder - Legal Address Line 1": "", "Additional Holder - Legal Address Line 2": "", "Additional Holder - Middle Name": "", "Additional Holder - Mobile Phone": "", "Additional Holder - Occupation": "", "Additional Holder - Other Industry": "", "Additional Holder - SSN": "", "Additional Holder - State": "", "Additional Holder - Use Same Address As Primary": "", "Additional Holder - Zip": "", "Advisor Fee": "", "Advisory Billing Cycle": "", "Approximate Account Value": "G) $750,000 - $999,999", "Authorized Agent Name": "", "Beneficiaries[0][Date Of Birth]": "", "Beneficiaries[0][Entity Name]": "", "Beneficiaries[0][First Name]": "", "Beneficiaries[0][Last Name]": "", "Beneficiaries[0][Middle Name]": "", "Beneficiaries[0][Percentage]": "", "Beneficiaries[0][Relationship]": "", "Beneficiaries[0][SSN]": "", "Beneficiaries[0][Type]": "", "Beneficiaries[1][Date Of Birth]": "", "Beneficiaries[1][Entity Name]": "", "Beneficiaries[1][First Name]": "", "Beneficiaries[1][Last Name]": "", "Beneficiaries[1][Middle Name]": "", "Beneficiaries[1][Percentage]": "", "Beneficiaries[1][Relationship]": "", "Beneficiaries[1][SSN]": "", "Beneficiaries[1][Type]": "", "Beneficiaries[2][Date Of Birth]": "", "Beneficiaries[2][First Name]": "", "Beneficiaries[2][Last Name]": "", "Beneficiaries[2][Middle Name]": "", "Beneficiaries[2][Percentage]": "", "Beneficiaries[2][Relationship]": "", "Beneficiaries[2][SSN]": "", "Beneficiaries[2][Type]": "", "Beneficiary IRA Details - Date Of Death": "", "Beneficiary IRA Details - Decedent Name": "", "Beneficiary IRA Details - Distribution Types": "", "Checkwriting": "", "Checkwriting Account Type": "", "Client Index": "8", "Complex ETP Trading": "", "Contra Account #": "", "Cost Basis Reporting": "", "Created By": "", "Debit Card": "", "Delivering Firm": "", "DirectBusiness[0][Account or Contract/Policy Number]": "", "DirectBusiness[0][Full Name of Sponsor]": "", "DirectBusiness[0][Product Name]": "", "DirectBusiness[0][Type of Account]": "", "DirectBusiness[1][Account or Contract/Policy Number]": "", "DirectBusiness[1][Full Name of Sponsor]": "", "DirectBusiness[1][Product Name]": "", "DirectBusiness[1][Type of Account]": "", "DirectBusiness[2][Account or Contract/Policy Number]": "", "DirectBusiness[2][Full Name of Sponsor]": "", "DirectBusiness[2][Product Name]": "", "DirectBusiness[2][Type of Account]": "", "Expected Account Value": "", "Full Discretionary Trading": "", "Funds Needed In": "0 - 3 years", "Grantor/Decedent Name(s)": "", "Has ACH": "", "IRA Type": "", "Investment Objective": "D) Growth", "Investment Portfolio / Option Chosen": "", "Investment Time Horizon": "3 - 5 years", "Locked": "", "Name of Product Sponsor \u0026 529 Plan": "", "Notes": "", "Options Level": "", "Options Trading": "", "Owner State of Residence": "", "POA Agent Existing Client": "", "POA Authorized Agent Name": "", "Plan Administrator": "", "Power Of Attorney": "", "Program Type": "Brokerage", "Registration Type": "Individual", "Rep ID": "AB12", "Share Class": "", "Source of Funds": "", "Structured Product Trading": "", "TA Authorized Agent Name": "", "Trading Agent Existing Client": "", "Trading Authority": "", "Trading Authorization Type": "", "Transfer on Death (TOD)": "No", "Trust Date": "", "Trust Formation State": "", "Trust Type": ""};
+    window.READ_ONLY   = false;
+  </script>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script>
+    window.primaryAddress = {
+      line1: "5465 ME Drive",
+      line2: "",
+      city:  "Anaheim",
+      state: "Indiana",
+      zip:   "56456"
+    };
+  </script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  if (window.READ_ONLY === true || window.READ_ONLY === "true") {
+    // 1. Disable all form controls (input, select, textarea)
+    document.querySelectorAll('form input, form select, form textarea').forEach(el => {
+      // If radio or checkbox, disable it
+      if (el.type === 'checkbox' || el.type === 'radio') {
+        el.disabled = true;
+      }
+      // Otherwise, make it readonly and disable (for selects)
+      else if (el.tagName === 'SELECT') {
+        el.disabled = true;
+      }
+      else {
+        el.readOnly = true;
+      }
+      el.required = false; // remove required so errors don't trigger
+    });
+
+    // 2. Hide ALL "add" and "remove" buttons for dynamic entries
+    document.querySelectorAll(
+      '.removeAch, .removeBeneficiary, .removeDirect, #addAchBtn, #addBeneficiary, #addDirect'
+    ).forEach(btn => btn.style.display = 'none');
+
+    // 3. Disable or hide all Yes/No, toggle, or stepper buttons
+    document.querySelectorAll(
+      // All nav sidebar buttons EXCEPT for tab navigation
+      '.inline-flex button, .inline-flex > button, .nav-btn'
+    ).forEach(btn => {
+      // Do not disable sidebar nav (just section toggles)
+      if (!btn.classList.contains('nav-btn')) {
+        btn.disabled = true;
+        btn.classList.add('opacity-60', 'pointer-events-none');
+      }
+    });
+
+    // 4. Hide the submit button(s)
+    document.querySelectorAll('button[type="submit"]').forEach(btn => btn.style.display = 'none');
+
+    // 5. Optionally, block any accidental form submission by keyboard
+    const form = document.querySelector('form');
+    if (form) {
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        return false;
+      });
+    }
+
+    // 6. Show a lock banner at the top
+    const lockBanner = document.createElement('div');
+    lockBanner.textContent = 'This account is locked and read-only.';
+    lockBanner.className = 'bg-yellow-200 text-yellow-800 p-4 rounded mb-6 font-semibold text-center';
+    const main = document.querySelector('.w-3/4 > .flex') || document.querySelector('.w-3/4');
+    if (main) main.prepend(lockBanner);
+    else document.body.prepend(lockBanner);
+  }
+});
+</script>
+ <script>
+// --- Business rules ---
+const regTypesRequireBenef = [
+  'Roth IRA','SARSEP','SEP IRA','SIMPLE IRA','Traditional IRA',
+  'Beneficiary IRA','Beneficiary Roth IRA','Beneficiary SIMPLE IRA',
+  'Guardian IRA','Guardian Roth IRA'
+];
+const regTypesRequireHolder = [
+  'Guardianship','Conservatorship','Education Savings',
+  'Minor Custodial','529 Plan','Guardian IRA','Guardian Roth IRA'
+];
+
+// Friendly label lookup
+function getFieldLabel(el) {
+  if (!el) return '(unnamed)';
+  if (el.id) {
+    const lbl = document.querySelector(`label[for="${el.id}"]`);
+    if (lbl) return lbl.innerText.trim();
+  }
+  const plbl = el.closest('div')?.querySelector('label');
+  if (plbl) return plbl.innerText.trim();
+  if (el.placeholder) return el.placeholder;
+  if (el.name) return el.name.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+  return '(unnamed)';
+}
+
+function showRequiredFieldsSummary() {
+  const summary = document.getElementById('requiredFieldsSummary');
+  if (!summary) return;
+
+  const acct = document.getElementById('account_type')?.value || '';
+  const prog = document.getElementById('program_type')?.value || '';
+  const reg  = document.getElementById('registration_type')?.value || '';
+  const tod  = document.getElementById('todChoice')?.value || '';
+
+  const required = [], missing = [];
+
+  // 1) Top-level selectors
+  ['account_type','program_type','registration_type'].forEach(id => {
+    const el = document.getElementById(id);
+    const lbl = getFieldLabel(el) || id;
+    if (!required.includes(lbl)) required.push(lbl);
+    if (!el || !el.value) missing.push(lbl);
+  });
+
+  // 2) All HTML5 required fields except those inside .beneficiary-entry
+  document.querySelectorAll('input,select,textarea').forEach(el => {
+    if (
+      el.required &&
+      !el.disabled &&
+      el.willValidate &&
+      !el.closest('.beneficiary-entry')   // <-- skip beneficiary internals
+    ) {
+      const lbl = getFieldLabel(el);
+      if (!required.includes(lbl)) required.push(lbl);
+      if (!el.checkValidity() && !missing.includes(lbl)) {
+        missing.push(lbl);
+      }
+    }
+  });
+
+// 3) Beneficiaries (#N prefixed)
+if (regTypesRequireBenef.includes(reg) || tod === 'Yes') {
+  const rows = document.querySelectorAll('.beneficiary-entry');
+
+  // no rows at all ⇒ all three must be present
+  if (!rows.length) {
+    ['Type','Entity Name','Percentage'].forEach(fld => {
+      const lbl = `Beneficiary ${fld}`;
+      if (!required.includes(lbl)) required.push(lbl);
+      if (!missing.includes(lbl)) missing.push(lbl);
+    });
+  } else {
+    rows.forEach((row, idx) => {
+      const rel = row.querySelector('select[name*="[Relationship]"]')?.value;
+      const isNonPerson = rel === 'Non-Person';
+
+      // choose which fields to check
+      const fields = isNonPerson
+        ? ['Type','Entity Name','Percentage']
+        : ['First Name','Last Name','Percentage','Relationship','Type'];
+
+      fields.forEach(fld => {
+        const lbl = `Beneficiary #${idx+1} ${fld}`;
+        if (!required.includes(lbl)) required.push(lbl);
+
+        // locate the input or select by name
+        const sel = row.querySelector(`[name*="[${fld}]"]`);
+        const val = sel ? sel.value.trim() : '';
+        if (!val && !missing.includes(lbl)) {
+          missing.push(lbl);
+        }
+      });
+    });
+  }
+}
+
+  // 4) Additional Holder
+  if (regTypesRequireHolder.includes(reg) || acct.toLowerCase().includes('joint')) {
+    // First/Last
+    ['First Name','Last Name'].forEach(n => {
+      const lbl = `Additional Holder ${n}`;
+      if (!required.includes(lbl)) required.push(lbl);
+      const sel = document.querySelector(`input[name="Additional Holder - ${n}"]`);
+      if (!sel || !sel.value.trim()) missing.push(lbl);
+    });
+    // Phone (any)
+    const phoneLbl = 'Additional Holder Phone (any)';
+    if (!required.includes(phoneLbl)) required.push(phoneLbl);
+    const home = document.querySelector('input[name="Additional Holder - Home Phone"]')?.value.trim();
+    const mob  = document.querySelector('input[name="Additional Holder - Mobile Phone"]')?.value.trim();
+    const bus  = document.querySelector('input[name="Additional Holder - Business Phone"]')?.value.trim();
+    if (!(home||mob||bus)) missing.push(phoneLbl);
+    // Employer Address
+    const useSame = document.querySelector('input[name="Additional Holder - Use Same Address As Primary"]')?.checked;
+    const excl    = document.querySelector('input[name="Additional Holder - Exclude Employer Address"]')?.checked;
+    if (!useSame && !excl) {
+      ['Employer Address Line 1','Employer City','Employer State','Employer Zip']
+      .forEach(n => {
+        const lbl = `Additional Holder ${n}`;
+        if (!required.includes(lbl)) required.push(lbl);
+        const sel = n==='Employer State'
+          ? document.querySelector(`select[name="Additional Holder - ${n}"]`)
+          : document.querySelector(`input[name="Additional Holder - ${n}"]`);
+        if (!sel || !sel.value.trim()) missing.push(lbl);
+      });
+    }
+  }
+
+  // Dedupe & render
+  const reqList = Array.from(new Set(required)).sort();
+  const missList= Array.from(new Set(missing)).sort();
+  if (!reqList.length) { summary.innerHTML=''; return; }
+
+  const items = reqList.map(f =>
+    missList.includes(f)
+      ? `<li class="text-red-600 font-semibold">${f}</li>`
+      : `<li>${f}</li>`
+  ).join('');
+
+  summary.innerHTML = `
+    <strong>Required fields for this selection:</strong>
+    <ul class="list-disc ml-6 mt-1">${items}</ul>
+    ${missList.length
+      ? `<p class="mt-2 text-red-700"><strong>${missList.length}</strong> required field${missList.length>1?'s':' is'} still missing.</p>`
+      : `<p class="mt-2 text-green-700">All required fields are filled out.</p>`
+    }
+  `;
+}
+
+// Re-run on any change/input/click or nav click
+['change','input','click'].forEach(e =>
+  document.addEventListener(e,()=>setTimeout(showRequiredFieldsSummary,10))
+);
+document.querySelectorAll('.nav-btn').forEach(b =>
+  b.addEventListener('click',()=>setTimeout(showRequiredFieldsSummary,10))
+);
+document.addEventListener('DOMContentLoaded',()=>setTimeout(showRequiredFieldsSummary,50));
+</script>
+<script>
+// re-run summary half a second after everything’s loaded
+setTimeout(showRequiredFieldsSummary, 500);
+</script>
+<script>
+function forceSummaryUpdateUntilStable(maxAttempts = 20) {
+  let attempts = 0;
+
+  function attempt() {
+    showRequiredFieldsSummary();
+
+    const message = document.getElementById('requiredFieldsSummary')?.innerText || '';
+    const stillMissing = message.includes('required field') || message.includes('still missing');
+
+    if (!stillMissing || attempts >= maxAttempts) return;
+    attempts++;
+    setTimeout(attempt, 50);
+  }
+
+  // Start the loop
+  setTimeout(attempt, 50);
+}
+
+document.addEventListener('DOMContentLoaded', forceSummaryUpdateUntilStable);
+</script>
+  <style>
+    /* visited nav buttons get a subtle gray bar when not active */
+    .nav-btn.visited:not(.bg-white) {
+      border-left-width: 4px;
+      border-left-color: #D1D5DB;  /* gray-300 */
+    }
+  </style>
+</head>
+
+<body class="bg-gray-50 py-10">
+  
+  <form method="post" action="/clients/8/accounts/0/edit" id="accountForm">
+
+    <div class="max-w-5xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden flex">
+
+      <!-- Sidebar Nav (unchanged) -->
+      <nav class="w-1/4 bg-gray-100 p-6 space-y-2 sticky top-0">
+        <button type="button"
+          class="nav-btn w-full text-left px-3 py-2 bg-white border-l-4 border-blue-800 rounded-r text-blue-800 font-medium"
+          data-section="accountInfo" onclick="showSection('accountInfo', this)">
+          Account Information
+        </button>
+        <button type="button"
+          class="nav-btn w-full text-left px-3 py-2 text-gray-700 hover:bg-white hover:border-l-4 hover:border-blue-800 rounded-r"
+          data-section="achInfo" onclick="showSection('achInfo', this)">
+          ACH Information
+        </button>
+        <button type="button"
+          class="nav-btn w-full text-left px-3 py-2 text-gray-700 hover:bg-white hover:border-l-4 hover:border-blue-800 rounded-r"
+          data-section="additionalHolders" onclick="showSection('additionalHolders', this)">
+          Additional Account Holders
+        </button>
+        <button type="button"
+          class="nav-btn w-full text-left px-3 py-2 text-gray-700 hover:bg-white hover:border-l-4 hover:border-blue-800 rounded-r"
+          data-section="beneficiaries" onclick="showSection('beneficiaries', this)">
+          Beneficiaries
+        </button>
+        <button type="button"
+          class="nav-btn w-full text-left px-3 py-2 text-gray-700 hover:bg-white hover:border-l-4 hover:border-blue-800 rounded-r"
+          data-section="accountOptions" onclick="showSection('accountOptions', this)">
+          Account Options
+        </button>
+        <button type="button"
+          class="nav-btn w-full text-left px-3 py-2 text-gray-700 hover:bg-white hover:border-l-4 hover:border-blue-800 rounded-r"
+          data-section="powerOfAttorney" onclick="showSection('powerOfAttorney', this)">
+          Power of Attorney
+        </button>
+        <button type="button"
+          class="nav-btn w-full text-left px-3 py-2 text-gray-700 hover:bg-white hover:border-l-4 hover:border-blue-800 rounded-r"
+          data-section="tradingAuthority" onclick="showSection('tradingAuthority', this)">
+          Trading Authority
+        </button>
+        <button type="button"
+          class="nav-btn w-full text-left px-3 py-2 text-gray-700 hover:bg-white hover:border-l-4 hover:border-blue-800 rounded-r"
+          data-section="tradingOptions" onclick="showSection('tradingOptions', this)">
+          Trading Options
+        </button>
+        <button type="button"
+          class="nav-btn w-full text-left px-3 py-2 text-gray-700 hover:bg-white hover:border-l-4 hover:border-blue-800 rounded-r"
+          data-section="directOutsideBusiness" onclick="showSection('directOutsideBusiness', this)">
+          Direct/Outside Business
+        </button>
+        <button type="button"
+          class="nav-btn w-full text-left px-3 py-2 text-gray-700 hover:bg-white hover:border-l-4 hover:border-blue-800 rounded-r"
+          data-section="planDisclosureChecklist" onclick="showSection('planDisclosureChecklist', this)">
+          529 Plan Disclosure Checklist
+        </button>
+        <button type="button"
+          class="nav-btn w-full text-left px-3 py-2 text-gray-700 hover:bg-white hover:border-l-4 hover:border-blue-800 rounded-r"
+          data-section="trustAccountInfo" onclick="showSection('trustAccountInfo', this)">
+          Trust Account Information
+        </button>
+        <div id="requiredFieldsSummary" class="mb-4 p-4 bg-gray-50 border-l-4 border-orange-300 text-black-800 rounded"></div>
+      </nav>
+
+      <!-- Main Form Content -->
+      <div class="w-3/4 p-8 space-y-12">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-6">
+          <h1 class="text-2xl font-bold">
+            Edit Account for
+            Brandybuck,
+            Pippin
+          </h1>
+          <a href="/clients/8/accounts"
+             class="bg-gray-300 text-gray-800 py-2 px-4 rounded hover:bg-gray-400">
+            ← Back to Accounts
+          </a>
+        </div>
+
+      <form action="/clients/8/accounts" method="post" class="space-y-12">
+        <!-- Hidden field to know which client index this account belongs to -->
+        <input type="hidden" name="Client Index" value="8" />
+<!-- 1. Account Information -->
+<section id="accountInfo" class="space-y-6">
+  <h2 class="text-xl font-semibold border-b pb-2">Account Information</h2>
+
+  <!-- Rep ID & Notes -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div>
+      <label for="rep_id" class="block font-medium mb-1">
+        Rep ID <span class="text-red-500">*</span>
+      </label>
+      <input type="text"
+             id="rep_id"
+             name="Rep ID"
+             value=""
+             required
+             class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+    </div>
+    <div class="md:col-span-2">
+      <label for="notes" class="block font-medium mb-1">Notes</label>
+      <textarea id="notes"
+                name="Notes"
+                rows="4"
+                placeholder="Enter any account-specific notes…"
+                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400"></textarea>
+    </div>
+  </div>
+
+  <!-- Account Type / Program / Registration -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div>
+      <label for="account_type" class="block font-medium mb-1">Account Type</label>
+      <select id="account_type"
+              name="Account Type"
+              required
+              data-list-key="Account Type"
+              data-initial="Individual"
+              class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
+        <option value="" hidden>Select</option>
+      </select>
+    </div>
+    <div>
+      <label for="program_type" class="block font-medium mb-1">Program Type</label>
+      <select id="program_type"
+              name="Program Type"
+              required
+              data-list-key="Program Type"
+              data-initial="Brokerage"
+              class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
+        <option value="" hidden>Select</option>
+      </select>
+    </div>
+    <div>
+      <label for="registration_type" class="block font-medium mb-1">Registration Type</label>
+      <select id="registration_type"
+              name="Registration Type"
+              required
+              data-initial="Individual"
+              class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
+        <option value="" hidden>Select</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- ACAT Instructions -->
+  <div data-field-key="Delivering Firm">
+    <h3 class="text-lg font-semibold mb-2">ACAT Instructions</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <label for="delivering_firm" class="block font-medium mb-1">Delivering Firm</label>
+        <input type="text"
+               id="delivering_firm"
+               name="Delivering Firm"
+               value=""
+               class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+      </div>
+      <div>
+        <label for="contra_account" class="block font-medium mb-1">Contra Account #</label>
+        <input type="text"
+               id="contra_account"
+               name="Contra Account #"
+               value=""
+               class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+      </div>
+      <div data-field-key="IRA Type">
+        <label for="ira_type" class="block font-medium mb-1">IRA Type</label>
+        <select id="ira_type"
+                name="IRA Type"
+                data-list-key="IRA Type"
+                data-initial=""
+                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
+          <option value="" hidden>Select</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Transfer on Death (TOD) ─── -->
+  <div data-field-key="Transfer On Death">
+    <h3 class="text-lg font-semibold mt-6">Transfer on Death</h3>
+    <p class="font-medium mb-2">Include Transfer on Death (TOD)?</p>
+    <div class="inline-flex border rounded-lg overflow-hidden">
+      <button type="button" id="todNoBtn"
+              class="px-4 py-2 bg-blue-100 text-blue-800"
+              onclick="toggleTOD(false)">
+        No
+      </button>
+      <button type="button" id="todYesBtn"
+              class="px-4 py-2 text-gray-600 hover:bg-blue-100 hover:text-blue-800"
+              onclick="toggleTOD(true)">
+        Yes
+      </button>
+    </div>
+    <input type="hidden"
+           name="Transfer on Death (TOD)"
+           id="todChoice"
+           value="No" />
+  </div>
+
+  <script>
+    function toggleTOD(yes) {
+      // set the hidden input value
+      document.getElementById('todChoice').value = yes ? 'Yes' : 'No';
+      // highlight the correct button
+      document.getElementById('todYesBtn').classList.toggle('bg-blue-100', yes);
+      document.getElementById('todYesBtn').classList.toggle('text-blue-800', yes);
+      document.getElementById('todNoBtn').classList.toggle('bg-blue-100', !yes);
+      document.getElementById('todNoBtn').classList.toggle('text-blue-800', !yes);
+    }
+
+    // initialise based on current hidden value
+    document.addEventListener('DOMContentLoaded', () => {
+      toggleTOD(document.getElementById('todChoice').value === 'Yes');
+    });
+  </script>
+
+  <!-- ─── Beneficiary IRA Details ─── -->
+  <div id="beneficiaryIraDetails" class="space-y-4 mt-6">
+    <h3 class="text-lg font-semibold">Beneficiary IRA Details</h3>
+
+    <!-- Decedent Name & Date Of Death -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div data-field-key="Decedent Name">
+        <label for="decedent_name" class="block font-medium mb-1">Decedent Name</label>
+        <input type="text"
+               id="decedent_name"
+               name="Beneficiary IRA Details - Decedent Name"
+               value=""
+               class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+      </div>
+      <div data-field-key="Date Of Death">
+        <label for="date_of_death" class="block font-medium mb-1">Date Of Death</label>
+        <input type="date"
+               id="date_of_death"
+               name="Beneficiary IRA Details - Date Of Death"
+               value=""
+               class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+      </div>
+    </div>
+
+    <!-- Distribution Types -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div data-field-key="Distribution Types">
+        <label for="distribution_types" class="block font-medium mb-1">Distribution Types</label>
+        <select id="distribution_types"
+                name="Beneficiary IRA Details - Distribution Types"
+                data-list-key="Distribution Types"
+                data-initial=""
+                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
+          <option value="" disabled selected hidden>Select</option>
+        </select>
+      </div>
+      <div></div>
+    </div>
+  </div>
+
+  <!-- Suitability -->
+  <div class="space-y-4 mt-6">
+    <h3 class="text-lg font-semibold mb-2">Suitability</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <label for="investment_obj" class="block font-medium mb-1">Investment Objective</label>
+        <select id="investment_obj"
+                name="Investment Objective"
+                required
+                data-list-key="Investment Objective"
+                data-initial="D) Growth"
+                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
+          <option value="" hidden>Select</option>
+        </select>
+      </div>
+      <div data-field-key="Approximate Account Value">
+        <label for="approx_value" class="block font-medium mb-1">Approximate Account Value</label>
+        <select id="approx_value"
+                name="Approximate Account Value"
+                data-list-key="Suitability"
+                data-initial="G) $750,000 - $999,999"
+                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
+          <option value="" hidden>Select</option>
+        </select>
+      </div>
+      <div data-field-key="Expected Account Value">
+        <label for="expected_value" class="block font-medium mb-1">Expected Account Value</label>
+        <div class="relative">
+          <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">$</span>
+          <input type="text"
+                 id="expected_value"
+                 name="Expected Account Value"
+                 value=""
+                 placeholder="Enter expected account value"
+                 class="w-full p-3 pl-8 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Investment Horizon & Liquidity Needs -->
+    <div class="space-y-4 mt-6">
+      <h3 class="text-lg font-semibold mb-2">Investment Horizon &amp; Liquidity Needs</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label for="horizon" class="block font-medium mb-1">Investment Time Horizon</label>
+          <select id="horizon"
+                  name="Investment Time Horizon"
+                  required
+                  data-list-key="Investment Time Horizon"
+                  data-initial="3 - 5 years"
+                  class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
+            <option value="" hidden>Select</option>
+          </select>
+        </div>
+        <div>
+          <label for="funds_needed" class="block font-medium mb-1">Funds Needed In</label>
+          <select id="funds_needed"
+                  name="Funds Needed In"
+                  required
+                  data-list-key="Liquidity Needs Timeframe"
+                  data-initial="0 - 3 years"
+                  class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
+            <option value="" hidden>Select</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Advisory Program Account Information -->
+    <div id="advisoryProgramAccountInfo" class="space-y-4 mt-6">
+      <h3 class="text-lg font-semibold mb-2">Advisory Program Account Information</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div data-field-key="Advisor Fee">
+          <label for="advisor_fee" class="block font-medium mb-1">Advisor Fee</label>
+          <input type="text"
+                 id="advisor_fee"
+                 name="Advisor Fee"
+                 value=""
+                 class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+        </div>
+        <div data-field-key="Advisory Billing Cycle">
+          <label for="advisory_billing_cycle" class="block font-medium mb-1">Advisory Billing Cycle</label>
+          <select id="advisory_billing_cycle"
+                  name="Advisory Billing Cycle"
+                  data-list-key="Billing Cycle"
+                  data-initial=""
+                  class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
+            <option value="" hidden>Select</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- 2. ACH Information -->
+<section id="achInfo" class="hidden space-y-6">
+  <h2 class="text-xl font-semibold border-b pb-2">ACH Information</h2>
+
+  <!-- Yes/No toggle -->
+  <div>
+    <p class="font-medium mb-2">Would you like to add ACH Information?</p>
+    <div class="inline-flex border rounded-lg overflow-hidden">
+      <button type="button" id="achNoBtn"
+              class="px-4 py-2 bg-blue-100 text-blue-800"
+              onclick="toggleAch(false)">
+        No
+      </button>
+      <button type="button" id="achYesBtn"
+              class="px-4 py-2 text-gray-600 hover:bg-blue-100 hover:text-blue-800"
+              onclick="toggleAch(true)">
+        Yes
+      </button>
+    </div>
+    <!-- NEW: store Yes/No in a hidden field so edit-mode can pre-fill -->
+    <input type="hidden"
+           id="achChoice"
+           name="Has ACH"
+           value="">
+  </div>
+
+  <!-- Container for ACH entries (hidden until “Yes”) -->
+  <div id="achContainer" class="hidden space-y-6">
+    <!-- Entry #0 -->
+    <div class="ach-entry space-y-4 border rounded-lg p-4">
+      <div>
+        <label for="bank_name_0" class="block font-medium mb-1">Bank Name</label>
+        <input type="text"
+               id="bank_name_0"
+               name="ACH[0][Bank Name]"
+               value=""
+               placeholder="Bank Name"
+               class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+      </div>
+      <div>
+        <p class="font-medium mb-1">Account Type</p>
+        <label class="inline-flex items-center mr-4">
+          <input type="radio"
+                 name="ACH[0][Account Type]"
+                 value="Checking"
+                 class="form-radio"
+                  />
+          <span class="ml-2">Checking</span>
+        </label>
+        <label class="inline-flex items-center">
+          <input type="radio"
+                 name="ACH[0][Account Type]"
+                 value="Savings"
+                 class="form-radio"
+                  />
+          <span class="ml-2">Savings</span>
+        </label>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label for="routing_number_0" class="block font-medium mb-1">Routing Number</label>
+          <input type="text"
+                 id="routing_number_0"
+                 name="ACH[0][Routing Number]"
+                 value=""
+                 placeholder="Routing Number"
+                 class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+        </div>
+        <div>
+          <label for="account_number_0" class="block font-medium mb-1">Bank Account Number</label>
+          <input type="text"
+                 id="account_number_0"
+                 name="ACH[0][Bank Account Number]"
+                 value=""
+                 placeholder="Account Number"
+                 class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+        </div>
+      </div>
+      <div>
+        <label for="bank_registration_0" class="block font-medium mb-1">Bank Account Registration</label>
+        <input type="text"
+               id="bank_registration_0"
+               name="ACH[0][Bank Account Registration]"
+               value=""
+               placeholder="Registration at receiving institution"
+               class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+        <p class="text-sm text-gray-500 mt-1">
+          Registration and/or bank account owner(s) at the receiving financial institution. If joint include
+          both names.
+        </p>
+      </div>
+      <div class="space-y-2">
+        <label class="inline-flex items-center">
+          <input type="checkbox"
+                 name="ACH[0][On Demand]"
+                 class="form-checkbox"
+                  />
+          <span class="ml-2">On Demand</span>
+        </label>
+        <div>
+          <label for="periodic_0" class="block font-medium mb-1">Periodic</label>
+          <select id="periodic_0"
+                  name="ACH[0][Periodic]"
+                  data-initial=""
+                  class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
+            <option value="" hidden>Select</option>
+            <option>Contribution</option>
+            <option>Distribution</option>
+          </select>
+        </div>
+        <p class="text-sm text-red-600">
+          At least one feature - On Demand / Periodic needs to be selected in order to save.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- “Add Another” (only if < 2 entries) -->
+  <button type="button" id="addAchBtn"
+          class="hidden text-blue-600 hover:underline"
+          onclick="addAchEntry()">
+    + Add Another Bank Account
+  </button>
+                  <!-- Template for extra entries -->
+<template id="achTemplate">
+  <div class="ach-entry space-y-4 border rounded-lg p-4 relative">
+    <button type="button" class="removeAch absolute top-2 right-2 text-red-600 hover:text-red-800">
+      &times;
+    </button>
+    <!-- same fields as above, but with __INDEX__ placeholders -->
+    <div>
+      <label for="bank_name___INDEX__" class="block font-medium mb-1">Bank Name</label>
+      <input type="text" id="bank_name___INDEX__" name="ACH[__INDEX__][Bank Name]" placeholder="Bank Name"
+        class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+    </div>
+    <div>
+      <p class="font-medium mb-1">Account Type</p>
+      <label class="inline-flex items-center mr-4">
+        <input type="radio" name="ACH[__INDEX__][Account Type]" value="Checking" class="form-radio" />
+        <span class="ml-2">Checking</span>
+      </label>
+      <label class="inline-flex items-center">
+        <input type="radio" name="ACH[__INDEX__][Account Type]" value="Savings" class="form-radio" />
+        <span class="ml-2">Savings</span>
+      </label>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <label for="routing_number___INDEX__" class="block font-medium mb-1">Routing Number</label>
+        <input type="text" id="routing_number___INDEX__" name="ACH[__INDEX__][Routing Number]"
+          placeholder="Routing Number"
+          class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+      </div>
+      <div>
+        <label for="account_number___INDEX__" class="block font-medium mb-1">Bank Account Number</label>
+        <input type="text" id="account_number___INDEX__" name="ACH[__INDEX__][Bank Account Number]"
+          placeholder="Account Number"
+          class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+      </div>
+    </div>
+    <div>
+      <label for="bank_registration___INDEX__" class="block font-medium mb-1">Bank Account
+        Registration</label>
+      <input type="text" id="bank_registration___INDEX__" name="ACH[__INDEX__][Bank Account Registration]"
+        placeholder="Registration at receiving institution"
+        class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+      <p class="text-sm text-gray-500 mt-1">
+        Registration and/or bank account owner(s) at the receiving financial institution. If joint include
+        both names
+    </div>
+    <div class="space-y-2">
+      <label class="inline-flex items-center">
+        <input type="checkbox" name="ACH[__INDEX__][On Demand]" class="form-checkbox" />
+        <span class="ml-2">On Demand</span>
+      </label>
+      <div>
+        <label for="periodic___INDEX__" class="block font-medium mb-1">Periodic</label>
+        <select id="periodic___INDEX__" name="ACH[__INDEX__][Periodic]"
+          class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
+          <option value="" hidden>Select</option>
+          <option>Contribution</option>
+          <option>Distribution</option>
+        </select>
+      </div>
+      <p class="text-sm text-red-600">
+        At least one feature - On Demand / Periodic needs to be selected in order to save.
+      </p>
+      </select>
+    </div>
+  </div>
+</div>
+</template>
+</section>
+
+
+<!-- 2. Additional Account Holder (single-holder block) -->
+<section id="additionalHolders" class="space-y-8">
+
+  <!-- Account Holder Information -->
+  <h3 class="text-lg font-semibold mt-4 mb-2">Account Holder Information</h3>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div>
+      <label for="add_first_name" class="block font-medium mb-1">First Name</label>
+      <input type="text" id="add_first_name" name="Additional Holder - First Name"
+             value=""
+             placeholder="First Name"
+             class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+    </div>
+    <div>
+      <label for="add_middle_name" class="block font-medium mb-1">Middle Name</label>
+      <input type="text" id="add_middle_name" name="Additional Holder - Middle Name"
+             value=""
+             placeholder="Middle Name"
+             class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+    </div>
+    <div>
+      <label for="add_last_name" class="block font-medium mb-1">Last Name</label>
+      <input type="text" id="add_last_name" name="Additional Holder - Last Name"
+             value=""
+             placeholder="Last Name"
+             class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+    </div>
+    <div>
+      <label for="add_alias" class="block font-medium mb-1">Alias</label>
+      <input type="text" id="add_alias" name="Additional Holder - Alias"
+             value=""
+             placeholder="Nickname (optional)"
+             class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+    </div>
+    <div>
+      <label for="add_citizenship" class="block font-medium mb-1">Citizenship / Legal Establishment</label>
+      <select id="add_citizenship"
+              name="Additional Holder - Citizenship / Legal Establishment"
+              data-list-key="Country"
+              data-initial=""
+              class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
+        <option value="" hidden>Select</option>
+      </select>
+    </div>
+    <div>
+      <label for="add_dob" class="block font-medium mb-1">Date of Birth</label>
+      <input type="date" id="add_dob" name="Additional Holder - Date Of Birth"
+             value=""
+             placeholder="mm/dd/yyyy"
+             class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400"
+             onfocus="(this.type='date')" onblur="if (!this.value) this.type='text'"
+             style="font-family: inherit;" />
+    </div>
+    <div>
+      <label for="add_ssn" class="block font-medium mb-1">SSN</label>
+      <input type="text" id="add_ssn" name="Additional Holder - SSN"
+             value=""
+             pattern="\d{9}" maxlength="9" placeholder="123456789"
+             class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+    </div>
+  </div>
+
+  <!-- Contact Information -->
+  <h3 class="text-lg font-semibold mt-6 mb-2">Contact Information</h3>
+  <div class="mb-4">
+    <label class="inline-flex items-center">
+      <input type="checkbox" id="add_same_address"
+             name="Additional Holder - Use Same Address As Primary"
+             class="form-checkbox"
+              />
+      <span class="ml-2">Use same address as primary</span>
+    </label>
+  </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div>
+      <label for="add_addr1" class="block font-medium mb-1">Legal Address Line&nbsp;1</label>
+      <input type="text" id="add_addr1" name="Additional Holder - Legal Address Line 1"
+             value=""
+             placeholder="Legal Address Line 1"
+             class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+    </div>
+    <div>
+      <label for="add_addr2" class="block font-medium mb-1">Legal Address Line&nbsp;2</label>
+      <input type="text" id="add_addr2" name="Additional Holder - Legal Address Line 2"
+             value=""
+             placeholder="Legal Address Line 2"
+             class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+    </div>
+    <div>
+      <label for="add_city" class="block font-medium mb-1">City</label>
+      <input type="text" id="add_city" name="Additional Holder - City"
+             value=""
+             placeholder="City"
+             class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+    </div>
+    <div>
+      <label for="add_state" class="block font-medium mb-1">State</label>
+      <select id="add_state" name="Additional Holder - State"
+              data-list-key="States"
+              data-initial=""
+              class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
+        <option value="" hidden>Select</option>
+      </select>
+    </div>
+    <div>
+      <label for="add_zip" class="block font-medium mb-1">Zip</label>
+      <input type="text" id="add_zip" name="Additional Holder - Zip"
+             value=""
+             pattern="\d{5}" maxlength="5" placeholder="12345"
+             class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+    </div>
+    <div>
+      <label for="add_email" class="block font-medium mb-1">Email</label>
+      <input type="email" id="add_email" name="Additional Holder - Email"
+             value=""
+             placeholder="name@example.com"
+             class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+    </div>
+  </div>
+
+  <!-- inline script for copy-address (unchanged except it now works because checkbox may start checked) -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const cb = document.getElementById('add_same_address');
+      const mapping = {
+        line1: 'add_addr1',
+        line2: 'add_addr2',
+        city:  'add_city',
+        state: 'add_state',
+        zip:   'add_zip'
+      };
+      function copyOrClear() {
+        Object.entries(mapping).forEach(([prop, dstId]) => {
+          const dst = document.getElementById(dstId);
+          if (!dst) return;
+          if (cb.checked) {
+            dst.value = window.primaryAddress[prop] || '';
+          } else {
+            dst.value = '';
+          }
+        });
+      }
+      if (cb.checked) copyOrClear();
+      cb.addEventListener('change', copyOrClear);
+    });
+  </script>
+
+  <!-- Phone Information -->
+  <h3 class="text-lg font-semibold mt-6 mb-2">Phone Information</h3>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div>
+      <label for="add_home_phone" class="block font-medium mb-1">Home Phone</label>
+      <input type="tel" id="add_home_phone" name="Additional Holder - Home Phone"
+             value=""
+             placeholder="e.g. 5551234567" pattern="\d{10}" maxlength="10"
+             class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400"
+             title="Enter exactly 10 digits, e.g. 5551234567" />
+    </div>
+    <div>
+      <label for="add_mobile_phone" class="block font-medium mb-1">Mobile Phone</label>
+      <input type="tel" id="add_mobile_phone" name="Additional Holder - Mobile Phone"
+             value=""
+             placeholder="e.g. 5552345678" pattern="\d{10}" maxlength="10"
+             class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400"
+             title="Enter exactly 10 digits, e.g. 5552345678" />
+    </div>
+    <div>
+      <label for="add_business_phone" class="block font-medium mb-1">Business Phone</label>
+      <input type="tel" id="add_business_phone" name="Additional Holder - Business Phone"
+             value=""
+             placeholder="e.g. 5553456789" pattern="\d{10}" maxlength="10"
+             class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400"
+             title="Enter exactly 10 digits, e.g. 5553456789" />
+    </div>
+  </div>
+
+  <!-- 3. Employment Information -->
+  <h3 class="text-lg font-semibold mt-6 mb-2">Employment Information</h3>
+  <div class="space-y-4">
+    <!-- Employment Status -->
+    <div>
+      <label for="add_employment_status" class="block font-medium mb-1">Employment Status</label>
+      <select id="add_employment_status"
+              name="Additional Holder - Employment Status"
+              data-list-key="Employment Status"
+              data-initial=""
+              class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
+        <option value="" disabled selected hidden>Select</option>
+      </select>
+    </div>
+
+    <!-- Industry -->
+    <div>
+      <label for="add_industry" class="block font-medium mb-1">Industry</label>
+      <select id="add_industry"
+              name="Additional Holder - Industry"
+              data-list-key="Industry"
+              data-initial=""
+              required
+              class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 bg-gray-100" disabled>
+        <option value="" disabled selected hidden>Select</option>
+      </select>
+
+      <!-- “Other Industry” -->
+      <label id="add_industry_other_label"
+             for="add_industry_other"
+             class="block font-medium mb-1 mt-4 hidden">Other Industry</label>
+      <input type="text" id="add_industry_other"
+             name="Additional Holder - Other Industry"
+             value=""
+             placeholder="Please specify Industry"
+             class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 mt-1 hidden" />
+    </div>
+
+    <!-- Occupation -->
+    <div id="add_occupation_container">
+      <label for="add_occupation" class="block font-medium mb-1">Occupation</label>
+      <input type="text" id="add_occupation" name="Additional Holder - Occupation"
+             value=""
+             placeholder="Occupation"
+             class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 bg-gray-100" disabled />
+    </div>
+
+    <!-- Employer Name -->
+    <div id="add_employer_name_wrapper" class="hidden">
+      <label for="employer_name" class="block font-medium mb-1">Employer Name</label>
+      <input type="text" id="employer_name" name="Additional Holder - Employer Name"
+             value=""
+             placeholder="Employer Name"
+             class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+    </div>
+
+    <!-- Exclude Employer Address -->
+    <div class="flex items-center space-x-2">
+      <input type="checkbox" id="exclude_employer_address"
+             name="Additional Holder - Exclude Employer Address"
+             class="h-4 w-4 text-blue-600 border-gray-300 rounded"
+              />
+      <label for="exclude_employer_address" class="font-medium">Exclude Employer Address</label>
+    </div>
+
+    <!-- Employer Address Fields -->
+    <div id="employer_address_fields" class="space-y-4">
+      <div>
+        <input type="text" id="add_employer_address1"
+               name="Additional Holder - Employer Address Line 1"
+               value=""
+               placeholder="Employer Address Line 1"
+               class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+      </div>
+      <div>
+        <input type="text" id="add_employer_address2"
+               name="Additional Holder - Employer Address Line 2"
+               value=""
+               placeholder="Employer Address Line 2"
+               class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <input type="text" id="add_employer_city"
+               name="Additional Holder - Employer City"
+               value=""
+               placeholder="City"
+               class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+        <select id="add_employer_state"
+                name="Additional Holder - Employer State"
+                data-list-key="States"
+                data-initial=""
+                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
+          <option value="" hidden>Select State</option>
+        </select>
+        <input type="text" id="add_employer_zip"
+               name="Additional Holder - Employer Zip"
+               value=""
+               placeholder="Zip"
+               class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+      </div>
+    </div>
+
+    <!-- Affiliation Type -->
+    <div id="add_affiliation_wrapper" class="hidden">
+      <label for="add_affiliation_type" class="block font-medium mb-1">Industry Affiliation</label>
+      <select id="add_affiliation_type"
+              name="Additional Holder - Affiliation Type"
+              data-list-key="Affiliation Type"
+              data-initial=""
+              class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
+        <option value="" disabled selected hidden>Select</option>
+      </select>
+    </div>
+  </div>
+</section>
+<!----- 4. Beneficiaries ------------------------------------------------------>
+<section id="beneficiaries" class="hidden space-y-6">
+  <h2 class="text-xl font-semibold border-b pb-2">Beneficiaries</h2>
+
+  <div id="beneficiaryContainer" class="space-y-6">
+    <!-- Beneficiary #0 (always present) -->
+    <div class="beneficiary-entry space-y-4 border rounded-lg p-4 relative" data-index="0">
+      <button type="button"
+              class="removeBeneficiary absolute top-2 right-2 text-red-600 hover:text-red-800"
+              aria-label="Remove beneficiary">&times;</button>
+
+      <!-- Relationship / Type -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label for="ben_relationship_0" class="block font-medium mb-1">Relationship</label>
+          <select id="ben_relationship_0"
+                  name="Beneficiaries[0][Relationship]"
+                  data-list-key="Bene Relation"
+                  data-initial=""
+                  class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
+            <option value="" hidden>Select</option>
+          </select>
+        </div>
+        <div>
+          <label for="ben_type_0" class="block font-medium mb-1">Type</label>
+          <select id="ben_type_0"
+                  name="Beneficiaries[0][Type]"
+                  data-list-key="Bene Type"
+                  data-initial=""
+                  class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
+            <option value="" hidden>Select</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Name / % -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div>
+          <label for="ben_first_name_0" class="block font-medium mb-1">First Name</label>
+          <input type="text" id="ben_first_name_0" name="Beneficiaries[0][First Name]"
+                 value=""
+                 placeholder="First Name"
+                 class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+        </div>
+        <div>
+          <label for="ben_middle_name_0" class="block font-medium mb-1">Middle Name</label>
+          <input type="text" id="ben_middle_name_0" name="Beneficiaries[0][Middle Name]"
+                 value=""
+                 placeholder="Middle Name"
+                 class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+        </div>
+        <div>
+          <label for="ben_last_name_0" class="block font-medium mb-1">Last Name</label>
+          <input type="text" id="ben_last_name_0" name="Beneficiaries[0][Last Name]"
+                 value=""
+                 placeholder="Last Name"
+                 class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+        </div>
+              <div class="entity-name-container hidden">
+        <label for="ben_entity_name_0" class="block font-medium mb-1">Entity Name</label>
+        <input type="text"
+              id="ben_entity_name_0"
+              name="Beneficiaries[0][Entity Name]"
+              placeholder="Entity Name"
+              class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400"
+              value="">
+      </div>
+        <div>
+          <label for="ben_percentage_0" class="block font-medium mb-1">Percentage</label>
+          <div class="relative">
+            <input type="number" id="ben_percentage_0" name="Beneficiaries[0][Percentage]"
+                   value=""
+                   placeholder="%" min="0" max="100" step="1"
+                   class="w-full pr-10 p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- DOB / SSN -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label for="ben_dob_0" class="block font-medium mb-1">Date&nbsp;Of&nbsp;Birth</label>
+          <input type="date" id="ben_dob_0" name="Beneficiaries[0][Date Of Birth]"
+                 value=""
+                 class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+        </div>
+        <div>
+          <label for="ben_ssn_0" class="block font-medium mb-1">SSN</label>
+          <input type="text" id="ben_ssn_0" name="Beneficiaries[0][SSN]"
+                 value=""
+                 pattern="\d{9}" maxlength="9" placeholder="123456789"
+                 class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button type="button" id="addBeneficiary" class="text-blue-600 hover:underline">
+    + Add Another Beneficiary
+  </button>
+
+      <template id="beneficiaryTemplate">
+        <div class="beneficiary-entry space-y-4 border rounded-lg p-4 relative" data-index="__INDEX__">
+          <!-- REMOVE BUTTON -->
+          <button type="button" class="removeBeneficiary absolute top-2 right-2 text-red-600 hover:text-red-800"
+            aria-label="Remove beneficiary">
+            &times;
+          </button>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label for="ben_relationship___INDEX__" class="block font-medium mb-1">Relationship</label>
+              <select id="ben_relationship___INDEX__" name="Beneficiaries[__INDEX__][Relationship]"
+                data-list-key="Bene Relation" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
+                <option value="" hidden>Select</option>
+              </select>
+            </div>
+            <div>
+              <label for="ben_type___INDEX__" class="block font-medium mb-1">Type</label>
+              <select id="ben_type___INDEX__" name="Beneficiaries[__INDEX__][Type]" data-list-key="Bene Type"
+                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
+                <option value="" hidden>Select</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <label for="ben_first_name___INDEX__" class="block font-medium mb-1">First Name</label>
+              <input type="text" id="ben_first_name___INDEX__" name="Beneficiaries[__INDEX__][First Name]"
+                placeholder="First Name" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+            </div>
+            <div>
+              <label for="ben_middle_name___INDEX__" class="block font-medium mb-1">Middle Name</label>
+              <input type="text" id="ben_middle_name___INDEX__" name="Beneficiaries[__INDEX__][Middle Name]"
+                placeholder="Middle Name" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+            </div>
+            <div>
+              <label for="ben_last_name___INDEX__" class="block font-medium mb-1">Last Name</label>
+              <input type="text" id="ben_last_name___INDEX__" name="Beneficiaries[__INDEX__][Last Name]"
+                placeholder="Last Name" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+            </div>
+                      <div class="entity-name-container hidden">
+            <label for="ben_entity_name___INDEX__" class="block font-medium mb-1">Entity Name</label>
+            <input type="text"
+                  id="ben_entity_name___INDEX__"
+                  name="Beneficiaries[__INDEX__][Entity Name]"
+                  placeholder="Entity Name"
+                  class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+          </div>
+            <div>
+              <label for="ben_percentage___INDEX__" class="block font-medium mb-1">Percentage</label>
+              <div class="relative">
+                <input type="number" id="ben_percentage___INDEX__" name="Beneficiaries[__INDEX__][Percentage]"
+                  placeholder="%" min="0" max="100" step="1"
+                  class="w-full pr-10 p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+                <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label for="ben_dob___INDEX__" class="block font-medium mb-1">Date Of Birth</label>
+              <input type="date" id="ben_dob___INDEX__" name="Beneficiaries[__INDEX__][Date Of Birth]"
+                placeholder="mm/dd/yyyy" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+            </div>
+            <div>
+              <label for="ben_ssn___INDEX__" class="block font-medium mb-1">SSN</label>
+              <input type="text" id="ben_ssn___INDEX__" name="Beneficiaries[__INDEX__][SSN]" pattern="\d{9}"
+                maxlength="9" placeholder="123456789"
+                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+            </div>
+          </div>
+        </div>
+      </template>
+    </section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const MODE         = window.MODE      || 'new';
+    const INIT_ACCT    = window.INIT_ACCT || {};
+    const container    = document.getElementById('beneficiaryContainer');
+    const addBtn       = document.getElementById('addBeneficiary');
+    const templateHTML = document.getElementById('beneficiaryTemplate').innerHTML;
+    const maxBen       = 6;
+    let   benCount     = container.querySelectorAll('.beneficiary-entry').length;
+    let   listsData    = {};
+
+    /* ─── utility helpers ─────────────────────────────────────────────── */
+    function updateAddBtn() {
+      addBtn.style.display = benCount < maxBen ? '' : 'none';
+    }
+    function bindRemove(btn) {
+      btn.addEventListener('click', () => {
+        btn.closest('.beneficiary-entry').remove();
+        benCount--;
+        reindex();
+        updateAddBtn();
+      });
+    }
+    function reindex() {
+      Array.from(container.querySelectorAll('.beneficiary-entry')).forEach((entry, idx) => {
+        entry.dataset.index = idx;
+        entry.querySelectorAll('[name]').forEach(el => {
+          el.name = el.name.replace(/\[\d+\]/, `[${idx}]`);
+          if (el.id) {
+            el.id = el.id.replace(/_\d+/, `_${idx}`).replace(/___\d+/, `___${idx}`);
+          }
+        });
+      });
+    }
+    function addEntry(idx) {
+      if (benCount >= maxBen) return;
+      const html = templateHTML.replace(/__INDEX__/g, idx);
+      container.insertAdjacentHTML('beforeend', html);
+      const entry = container.querySelector('.beneficiary-entry:last-child');
+      // populate dropdowns
+      entry.querySelectorAll('select[data-list-key]').forEach(sel => {
+        (listsData[sel.dataset.listKey] || []).forEach(opt => sel.add(new Option(opt, opt)));
+      });
+      bindRemove(entry.querySelector('.removeBeneficiary'));
+      benCount++;
+      updateAddBtn();
+    }
+
+    /* ─── fetch dropdown lists first ──────────────────────────────────── */
+fetch('/lists')
+  .then(r => r.json())
+  .then(data => listsData = data)
+  .finally(() => {
+    /* EDIT mode: only add rows for actually-filled beneficiaries */
+    if (MODE === 'edit') {
+      const benIndices = [...new Set(
+        Object.entries(INIT_ACCT)
+          // find all Beneficiaries[...] keys that have non-empty values
+          .filter(([key, val]) => {
+            const m = key.match(/^Beneficiaries\[(\d+)]/);
+            return m && String(val).trim() !== '';
+          })
+          // pull out the numeric index
+          .map(([key]) => parseInt(key.match(/^Beneficiaries\[(\d+)]/)[1], 10))
+      )]
+      // skip index 0 (it’s already in your HTML)
+      .filter(i => i > 0)
+      .sort((a, b) => a - b);
+
+      // add exactly those rows
+      benIndices.forEach(idx => {
+        addEntry(idx);
+      });
+
+      if (typeof prefillFromRow === 'function') prefillFromRow();
+    }
+
+      // initial remove binding & add-btn status
+      container.querySelectorAll('.removeBeneficiary').forEach(bindRemove);
+      updateAddBtn();
+      initNonPersonLogic();
+      enforceBeneficiaryFields();
+      showRequiredFieldsSummary();
+    });
+
+    /* Add-another button */
+    addBtn.addEventListener('click', () => addEntry(benCount));
+  });
+</script>
+
+<!-- 5. Account Options -->
+<section id="accountOptions" class="hidden space-y-6">
+  <h2 class="text-xl font-semibold border-b pb-2">Account Options</h2>
+
+  <!-- ─── Checkwriting ─── -->
+  <div>
+    <p class="font-medium mb-2">Do you want checkwriting for this account?</p>
+    <div class="inline-flex border rounded-lg overflow-hidden" role="group" aria-label="Checkwriting">
+      <button type="button" id="cwNoBtn"
+              class="px-4 py-2 bg-blue-100 text-blue-800"
+              onclick="updateCheckwriting(false)">No</button>
+      <button type="button" id="cwYesBtn"
+              class="px-4 py-2 text-gray-600 hover:bg-blue-100 hover:text-blue-800"
+              onclick="updateCheckwriting(true)">Yes</button>
+    </div>
+    <input type="hidden" name="Checkwriting" id="checkwritingChoice"
+           value="">
+  </div>
+
+  <!-- Checkwriting Account Type / Debit Card (visible only if Checkwriting = Yes) -->
+  <div id="checkwritingAccountTypeFields" class="hidden mt-4 space-y-4">
+    <p class="font-medium mb-2">
+      Account Type
+      <span class="text-blue-500 cursor-help"
+            title="Premier: Free, wallet-size checks. Initial checkbook includes 40 checks. 
+Premier Plus: Same benefits as Premier, Business Checks available upon request and also offers an optional VISA Platinum debit card.">ℹ️</span>
+    </p>
+
+    <div class="inline-flex border rounded-lg overflow-hidden" role="group" aria-label="Checkwriting Account Type">
+      <button type="button" id="acctPremierBtn"
+              class="px-4 py-2 bg-blue-100 text-blue-800"
+              onclick="updateAcctType('Premier')">Premier</button>
+      <button type="button" id="acctPremierPlusBtn"
+              class="px-4 py-2 text-gray-600 hover:bg-blue-100 hover:text-blue-800"
+              onclick="updateAcctType('Premier Plus')">Premier&nbsp;+</button>
+    </div>
+    <input type="hidden" name="Checkwriting Account Type" id="acctTypeChoice"
+           value="">
+
+    <!-- Debit Card (only if Account Type = Premier Plus) -->
+    <div id="debitCardWrapper" class="hidden mt-4 space-y-4">
+      <p class="font-medium mb-2">Do you want a debit card for this account?</p>
+      <div class="inline-flex border rounded-lg overflow-hidden" role="group" aria-label="Debit Card">
+        <button type="button" id="dcNoBtn"
+                class="px-4 py-2 bg-blue-100 text-blue-800"
+                onclick="updateDebit(false)">No</button>
+        <button type="button" id="dcYesBtn"
+                class="px-4 py-2 text-gray-600 hover:bg-blue-100 hover:text-blue-800"
+                onclick="updateDebit(true)">Yes</button>
+      </div>
+      <input type="hidden" name="Debit Card" id="debitCardChoice"
+             value="">
+    </div>
+  </div>
+
+  <!-- ─── Cost Basis ─── -->
+  <div class="mt-6">
+    <p class="font-medium mb-2">Does client want cost-basis reporting on LPL Statement?</p>
+    <div class="inline-flex border rounded-lg overflow-hidden" role="group" aria-label="Cost Basis">
+      <button type="button" id="cbNoBtn"
+              class="px-4 py-2 bg-blue-100 text-blue-800"
+              onclick="updateCost(false)">No</button>
+      <button type="button" id="cbYesBtn"
+              class="px-4 py-2 text-gray-600 hover:bg-blue-100 hover:text-blue-800"
+              onclick="updateCost(true)">Yes</button>
+    </div>
+    <input type="hidden" name="Cost Basis Reporting" id="costBasisChoice"
+           value="">
+  </div>
+</section>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // --- Element references ---
+  const cwNoBtn  = document.getElementById('cwNoBtn');
+  const cwYesBtn = document.getElementById('cwYesBtn');
+  const acctFlds = document.getElementById('checkwritingAccountTypeFields');
+
+  const acctPremBtn     = document.getElementById('acctPremierBtn');
+  const acctPremPlusBtn = document.getElementById('acctPremierPlusBtn');
+  const acctTypeChoice  = document.getElementById('acctTypeChoice');
+  const debitWrapper    = document.getElementById('debitCardWrapper');
+
+  const dcNoBtn    = document.getElementById('dcNoBtn');
+  const dcYesBtn   = document.getElementById('dcYesBtn');
+  const debitChoice = document.getElementById('debitCardChoice');
+
+  const cbNoBtn    = document.getElementById('cbNoBtn');
+  const cbYesBtn   = document.getElementById('cbYesBtn');
+  const costChoice = document.getElementById('costBasisChoice');
+
+  // --- Helpers to reset nested toggles ---
+  function clearAcctFields() {
+    acctTypeChoice.value = '';
+    acctPremBtn.classList.remove('bg-blue-100','text-blue-800');
+    acctPremBtn.classList.add('text-gray-600');
+    acctPremPlusBtn.classList.remove('bg-blue-100','text-blue-800');
+    acctPremPlusBtn.classList.add('text-gray-600');
+    debitWrapper.classList.add('hidden');
+    updateDebit(false);
+  }
+
+  // --- Top-level toggle: Checkwriting ---
+  window.updateCheckwriting = function(yes) {
+    document.getElementById('checkwritingChoice').value = yes ? 'Yes' : 'No';
+
+    cwYesBtn.classList.toggle('bg-blue-100', yes);
+    cwYesBtn.classList.toggle('text-blue-800', yes);
+    cwYesBtn.classList.toggle('text-gray-600', !yes);
+
+    cwNoBtn.classList.toggle('bg-blue-100', !yes);
+    cwNoBtn.classList.toggle('text-blue-800', !yes);
+    cwNoBtn.classList.toggle('text-gray-600', yes);
+
+    if (yes) {
+      acctFlds.classList.remove('hidden');
+      updateAcctType(acctTypeChoice.value || 'Premier');
+    } else {
+      clearAcctFields();
+      acctFlds.classList.add('hidden');
+    }
+  };
+
+  // --- Account-type toggle (updated) ---
+  window.updateAcctType = function(type) {
+    acctTypeChoice.value = type;
+    const isPremierPlus = (type === 'Premier Plus');
+
+    acctPremBtn.classList.toggle('bg-blue-100', type === 'Premier');
+    acctPremBtn.classList.toggle('text-blue-800', type === 'Premier');
+    acctPremBtn.classList.toggle('text-gray-600', type !== 'Premier');
+
+    acctPremPlusBtn.classList.toggle('bg-blue-100', isPremierPlus);
+    acctPremPlusBtn.classList.toggle('text-blue-800', isPremierPlus);
+    acctPremPlusBtn.classList.toggle('text-gray-600', !isPremierPlus);
+
+    if (isPremierPlus) {
+      debitWrapper.classList.remove('hidden');
+      // restore saved debit choice instead of always resetting
+      updateDebit(debitChoice.value === 'Yes');
+    } else {
+      debitWrapper.classList.add('hidden');
+      updateDebit(false);
+    }
+  };
+
+  // --- Debit-card toggle ---
+  window.updateDebit = function(yes) {
+    debitChoice.value = yes ? 'Yes' : 'No';
+
+    dcYesBtn.classList.toggle('bg-blue-100', yes);
+    dcYesBtn.classList.toggle('text-blue-800', yes);
+    dcYesBtn.classList.toggle('text-gray-600', !yes);
+
+    dcNoBtn.classList.toggle('bg-blue-100', !yes);
+    dcNoBtn.classList.toggle('text-blue-800', !yes);
+    dcNoBtn.classList.toggle('text-gray-600', yes);
+  };
+
+  // --- Cost-basis toggle ---
+  window.updateCost = function(yes) {
+    costChoice.value = yes ? 'Yes' : 'No';
+
+    cbYesBtn.classList.toggle('bg-blue-100', yes);
+    cbYesBtn.classList.toggle('text-blue-800', yes);
+    cbYesBtn.classList.toggle('text-gray-600', !yes);
+
+    cbNoBtn.classList.toggle('bg-blue-100', !yes);
+    cbNoBtn.classList.toggle('text-blue-800', !yes);
+    cbNoBtn.classList.toggle('text-gray-600', yes);
+  };
+
+  // --- Initialise based on hidden values ---
+  window.updateCheckwriting(document.getElementById('checkwritingChoice').value === 'Yes');
+  window.updateCost(costChoice.value === 'Yes');
+});
+</script>
+
+<!-- 6. Power of Attorney -->
+<section id="powerOfAttorney" class="hidden space-y-6">
+  <h2 class="text-xl font-semibold border-b pb-2">
+    Power of Attorney
+    <span title="Grant someone authority to act on behalf of the client"
+          class="ml-1 text-gray-400 cursor-help">ℹ️</span>
+  </h2>
+
+  <!-- Grant POA? -->
+  <div>
+    <p class="font-medium mb-2">Grant Power of Attorney?</p>
+    <div class="inline-flex border rounded-lg overflow-hidden">
+      <button type="button" id="poaNoBtn"
+              class="px-4 py-2 bg-blue-100 text-blue-800"
+              onclick="togglePOA(false)">No</button>
+      <button type="button" id="poaYesBtn"
+              class="px-4 py-2 text-gray-600 hover:bg-blue-100 hover:text-blue-800"
+              onclick="togglePOA(true)">Yes</button>
+    </div>
+    <input type="hidden" name="Power Of Attorney" id="poaChoice"
+           value="">
+  </div>
+
+  <!-- POA details (shown only when Yes) -->
+  <div id="poaFields" class="space-y-4 hidden">
+    <div>
+      <label for="poa_agent_name" class="block font-medium mb-1">Authorized Agent Name</label>
+      <input type="text" id="poa_agent_name" name="POA Authorized Agent Name"
+             value=""
+             placeholder="Authorized Agent Name"
+             class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+    </div>
+
+    <div>
+      <p class="font-medium mb-2">Is agent an existing client?</p>
+      <div class="inline-flex border rounded-lg overflow-hidden">
+        <button type="button" id="poaExistingNoBtn"
+                class="px-4 py-2 bg-blue-100 text-blue-800"
+                onclick="togglePOAExisting(false)">No</button>
+        <button type="button" id="poaExistingYesBtn"
+                class="px-4 py-2 text-gray-600 hover:bg-blue-100 hover:text-blue-800"
+                onclick="togglePOAExisting(true)">Yes</button>
+      </div>
+      <input type="hidden" name="POA Agent Existing Client" id="poaExistingChoice"
+             value="">
+    </div>
+  </div>
+</section>
+
+<script>
+/* Utility: clear all inputs/selects/textareas within a container */
+function clearFields(container) {
+  container.querySelectorAll('input, select, textarea').forEach(el => {
+    if (el.type === 'checkbox' || el.type === 'radio') {
+      el.checked = false;
+    } else {
+      el.value = '';
+      if (el.tagName.toLowerCase() === 'select') el.selectedIndex = 0;
+    }
+  });
+}
+
+/* Toggle POA Yes/No */
+function togglePOA(granted) {
+  const poaFields = document.getElementById('poaFields');
+  document.getElementById('poaChoice').value = granted ? 'Yes' : 'No';
+
+  document.getElementById('poaYesBtn').classList.toggle('bg-blue-100', granted);
+  document.getElementById('poaYesBtn').classList.toggle('text-blue-800', granted);
+  document.getElementById('poaNoBtn').classList.toggle('bg-blue-100', !granted);
+  document.getElementById('poaNoBtn').classList.toggle('text-blue-800', !granted);
+
+  if (!granted) {
+    clearFields(poaFields);
+    togglePOAExisting(false);
+  }
+  poaFields.classList.toggle('hidden', !granted);
+}
+
+/* Toggle “existing client?” */
+function togglePOAExisting(isExisting) {
+  document.getElementById('poaExistingChoice').value = isExisting ? 'Yes' : 'No';
+
+  document.getElementById('poaExistingYesBtn').classList.toggle('bg-blue-100', isExisting);
+  document.getElementById('poaExistingYesBtn').classList.toggle('text-blue-800', isExisting);
+  document.getElementById('poaExistingNoBtn').classList.toggle('bg-blue-100', !isExisting);
+  document.getElementById('poaExistingNoBtn').classList.toggle('text-blue-800', !isExisting);
+}
+
+/* Initialise on page load based on hidden inputs */
+document.addEventListener('DOMContentLoaded', () => {
+  const grantedInit  = document.getElementById('poaChoice').value === 'Yes';
+  const existingInit = document.getElementById('poaExistingChoice').value === 'Yes';
+
+  togglePOA(grantedInit);
+  if (grantedInit) togglePOAExisting(existingInit);
+});
+</script>
+<!-- 6.5. Trading Authority -->
+<section id="tradingAuthority" class="hidden space-y-6">
+  <h2 class="text-xl font-semibold border-b pb-2">
+    Trading Authority
+    <span title="Grant someone authority to trade on behalf of the client"
+          class="ml-1 text-gray-400 cursor-help">ℹ️</span>
+  </h2>
+
+  <!-- Grant Trading Authority? -->
+  <div>
+    <p class="font-medium mb-2">Grant Trading Authority?</p>
+    <div class="inline-flex border rounded-lg overflow-hidden">
+      <button type="button" id="tradeNoBtn"
+              class="px-4 py-2 bg-blue-100 text-blue-800">No</button>
+      <button type="button" id="tradeYesBtn"
+              class="px-4 py-2 text-gray-600 hover:bg-blue-100 hover:text-blue-800">Yes</button>
+    </div>
+    <input type="hidden" id="tradingChoice" name="Trading Authority"
+           value="">
+  </div>
+
+  <!-- Trading Authority Details (visible when Yes) -->
+  <div id="tradingFields" class="space-y-6 hidden">
+    <!-- Authorized Agent Name -->
+    <div>
+      <label for="trading_agent" class="block font-medium mb-1">Authorized Agent Name</label>
+      <input type="text" id="taAgentName" name="TA Authorized Agent Name"
+             value=""
+             placeholder="Authorized Agent Name"
+             class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+    </div>
+
+    <!-- Existing-client toggle -->
+    <div>
+      <p class="font-medium mb-2">Is agent an existing client?</p>
+      <div class="inline-flex border rounded-lg overflow-hidden">
+        <button type="button" id="agentExistingNoBtn"
+                class="px-4 py-2 bg-blue-100 text-blue-800">No</button>
+        <button type="button" id="agentExistingYesBtn"
+                class="px-4 py-2 text-gray-600 hover:bg-blue-100 hover:text-blue-800">Yes</button>
+      </div>
+      <input type="hidden" id="tradingExistingChoice" name="Trading Agent Existing Client"
+             value="">
+    </div>
+
+    <!-- Authorization Type -->
+    <div>
+      <p class="font-medium mb-2">Trading Authorization Type (Select One)</p>
+      <div class="flex items-center space-x-6">
+        <label class="inline-flex items-center cursor-pointer">
+          <input type="radio" name="Trading Authorization Type"
+                 value="Limited Trading Authority" class="form-radio"
+                 >
+          <span class="ml-2">Limited Trading Authority</span>
+          <span title="Agent may buy/sell securities on behalf of the client"
+                class="ml-1 text-gray-400 cursor-help">ℹ️</span>
+        </label>
+        <label class="inline-flex items-center cursor-pointer">
+          <input type="radio" name="Trading Authorization Type"
+                 value="Full Trading Authorization" class="form-radio"
+                 >
+          <span class="ml-2">Full Trading Authorization</span>
+          <span title="Includes LTA privileges plus cash withdrawals for client benefit"
+                class="ml-1 text-gray-400 cursor-help">ℹ️</span>
+        </label>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Trading Authority script -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+  /* Element refs */
+  const tradeNoBtn  = document.getElementById('tradeNoBtn');
+  const tradeYesBtn = document.getElementById('tradeYesBtn');
+  const fields      = document.getElementById('tradingFields');
+  const choiceInput = document.getElementById('tradingChoice');
+
+  const agentNoBtn  = document.getElementById('agentExistingNoBtn');
+  const agentYesBtn = document.getElementById('agentExistingYesBtn');
+  const agentInput  = document.getElementById('tradingExistingChoice');
+
+  /* Util: clear all form controls inside a container */
+  function clearFields(container) {
+    container.querySelectorAll('input, select, textarea').forEach(el => {
+      if (el.type === 'radio' || el.type === 'checkbox') {
+        el.checked = false;
+      } else {
+        el.value = '';
+        if (el.tagName.toLowerCase() === 'select') el.selectedIndex = 0;
+      }
+    });
+  }
+
+  /* Toggle Trading Authority main switch */
+  function toggleTrading(granted) {
+    choiceInput.value = granted ? 'Yes' : 'No';
+
+    tradeYesBtn.classList.toggle('bg-blue-100', granted);
+    tradeYesBtn.classList.toggle('text-blue-800', granted);
+    tradeNoBtn.classList.toggle('bg-blue-100', !granted);
+    tradeNoBtn.classList.toggle('text-blue-800', !granted);
+
+    if (!granted) {
+      clearFields(fields);
+      toggleTradingExisting(false);
+    }
+    fields.classList.toggle('hidden', !granted);
+  }
+
+  /* Toggle “existing client” sub-switch */
+  function toggleTradingExisting(isExisting) {
+    agentInput.value = isExisting ? 'Yes' : 'No';
+
+    agentYesBtn.classList.toggle('bg-blue-100', isExisting);
+    agentYesBtn.classList.toggle('text-blue-800', isExisting);
+    agentNoBtn.classList.toggle('bg-blue-100', !isExisting);
+    agentNoBtn.classList.toggle('text-blue-800', !isExisting);
+  }
+
+  /* Bind clicks */
+  tradeNoBtn .addEventListener('click', () => toggleTrading(false));
+  tradeYesBtn.addEventListener('click', () => toggleTrading(true ));
+  agentNoBtn .addEventListener('click', () => toggleTradingExisting(false));
+  agentYesBtn.addEventListener('click', () => toggleTradingExisting(true ));
+
+  /* Initialise from hidden inputs (edit or new) */
+  const grantedInit  = choiceInput.value === 'Yes';
+  const existingInit = agentInput.value  === 'Yes';
+  toggleTrading(grantedInit);
+  if (grantedInit) toggleTradingExisting(existingInit);
+});
+</script>
+<!-- 7. Trading Options -->
+<section id="tradingOptions" class="hidden space-y-6">
+  <h2 class="text-xl font-semibold border-b pb-2">Trading Options</h2>
+
+  <!-- Full-Discretionary Trading -->
+  <div data-field-key="FDT">
+    <p class="font-medium mb-2">Would you like to add Full Discretionary Trading?</p>
+    <div class="inline-flex border rounded-lg overflow-hidden">
+      <button type="button" id="fdtNoBtn"
+              class="px-4 py-2 bg-blue-100 text-blue-800"
+              onclick="toggleFDT(false)">No</button>
+      <button type="button" id="fdtYesBtn"
+              class="px-4 py-2 text-gray-600 hover:bg-blue-100 hover:text-blue-800"
+              onclick="toggleFDT(true)">Yes</button>
+    </div>
+    <input type="hidden" id="fdtChoice" name="Full Discretionary Trading"
+           value="">
+  </div>
+
+  <!-- Margin -->
+  <div data-field-key="Margin">
+    <p class="font-medium mb-2">Would you like to add margin to this Account?</p>
+    <div class="inline-flex border rounded-lg overflow-hidden">
+      <button type="button" id="marginNoBtn"
+              class="px-4 py-2 bg-blue-100 text-blue-800"
+              onclick="toggleMargin(false)">No</button>
+      <button type="button" id="marginYesBtn"
+              class="px-4 py-2 text-gray-600 hover:bg-blue-100 hover:text-blue-800"
+              onclick="toggleMargin(true)">Yes</button>
+    </div>
+    <input type="hidden" id="marginChoice" name="Add Margin"
+           value="">
+  </div>
+
+  <!-- Structured Product Trading -->
+  <div data-field-key="SPT">
+    <p class="font-medium mb-2">Would you like to add Structured Product Trading to this Account?</p>
+    <div class="inline-flex border rounded-lg overflow-hidden">
+      <button type="button" id="spNoBtn"
+              class="px-4 py-2 bg-blue-100 text-blue-800"
+              onclick="toggleStructured(false)">No</button>
+      <button type="button" id="spYesBtn"
+              class="px-4 py-2 text-gray-600 hover:bg-blue-100 hover:text-blue-800"
+              onclick="toggleStructured(true)">Yes</button>
+    </div>
+    <input type="hidden" id="spChoice" name="Structured Product Trading"
+           value="">
+  </div>
+
+  <!-- Complex ETPs -->
+  <div>
+    <p class="font-medium mb-2">Would you like to trade complex ETPs (including cryptocurrency)?</p>
+    <div class="inline-flex border rounded-lg overflow-hidden">
+      <button type="button" id="etpNoBtn"
+              class="px-4 py-2 bg-blue-100 text-blue-800"
+              onclick="toggleETP(false)">No</button>
+      <button type="button" id="etpYesBtn"
+              class="px-4 py-2 text-gray-600 hover:bg-blue-100 hover:text-blue-800"
+              onclick="toggleETP(true)">Yes</button>
+    </div>
+    <input type="hidden" id="etpChoice" name="Complex ETP Trading"
+           value="">
+  </div>
+
+  <!-- Options Trading -->
+  <div>
+    <p class="font-medium mb-2">Would you like to add Options Trading to this account?</p>
+    <div class="inline-flex border rounded-lg overflow-hidden">
+      <button type="button" id="optionsNoBtn"
+              class="px-4 py-2 bg-blue-100 text-blue-800"
+              onclick="toggleOptions(false)">No</button>
+      <button type="button" id="optionsYesBtn"
+              class="px-4 py-2 text-gray-600 hover:bg-blue-100 hover:text-blue-800"
+              onclick="toggleOptions(true)">Yes</button>
+    </div>
+    <input type="hidden" id="optionsChoice" name="Options Trading"
+           value="">
+  </div>
+
+  <!-- Options Levels -->
+<div id="optionsLevelContainer" class="hidden space-y-2 mt-4">
+  <p class="font-medium">Select Options Trading Level:</p>
+  <div class="flex items-center space-x-4">
+    
+      <label data-field-key="Options Level 1" class="inline-flex items-center cursor-pointer group relative">
+        <input type="radio" name="Options Level"
+               value="Level 1" class="form-radio"
+               >
+        <span class="ml-2">Level 1</span>
+        <span class="ml-1 text-gray-400 cursor-help relative">ℹ️
+          <span class="absolute left-1/2 -translate-x-1/2 top-6 z-20 min-w-[200px] bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 pointer-events-none whitespace-normal shadow-lg">
+            Covered Calls and purchase of Puts to Hedge; Maximum level for Advisory, Retirement, Collateral, and Custodian Accounts; Level required for Non-Principal Protected Structured Trading.
+            
+            
+            
+            
+          </span>
+        </span>
+      </label>
+    
+      <label data-field-key="Options Level 2" class="inline-flex items-center cursor-pointer group relative">
+        <input type="radio" name="Options Level"
+               value="Level 2" class="form-radio"
+               >
+        <span class="ml-2">Level 2</span>
+        <span class="ml-1 text-gray-400 cursor-help relative">ℹ️
+          <span class="absolute left-1/2 -translate-x-1/2 top-6 z-20 min-w-[200px] bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 pointer-events-none whitespace-normal shadow-lg">
+            
+            Level 1 + Purchases
+            
+            
+            
+          </span>
+        </span>
+      </label>
+    
+      <label data-field-key="Options Level 3" class="inline-flex items-center cursor-pointer group relative">
+        <input type="radio" name="Options Level"
+               value="Level 3" class="form-radio"
+               >
+        <span class="ml-2">Level 3</span>
+        <span class="ml-1 text-gray-400 cursor-help relative">ℹ️
+          <span class="absolute left-1/2 -translate-x-1/2 top-6 z-20 min-w-[200px] bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 pointer-events-none whitespace-normal shadow-lg">
+            
+            
+            Level 2 + Spreads; Requires Margin agreement and minimum account value of $25,000
+            
+            
+          </span>
+        </span>
+      </label>
+    
+      <label data-field-key="Options Level 4" class="inline-flex items-center cursor-pointer group relative">
+        <input type="radio" name="Options Level"
+               value="Level 4" class="form-radio"
+               >
+        <span class="ml-2">Level 4</span>
+        <span class="ml-1 text-gray-400 cursor-help relative">ℹ️
+          <span class="absolute left-1/2 -translate-x-1/2 top-6 z-20 min-w-[200px] bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 pointer-events-none whitespace-normal shadow-lg">
+            
+            
+            
+            Level 3 + Equity Put Writing; Requires Margin agreement and minimum account value of $25,000.
+            
+          </span>
+        </span>
+      </label>
+    
+      <label data-field-key="Options Level 5" class="inline-flex items-center cursor-pointer group relative">
+        <input type="radio" name="Options Level"
+               value="Level 5" class="form-radio"
+               >
+        <span class="ml-2">Level 5</span>
+        <span class="ml-1 text-gray-400 cursor-help relative">ℹ️
+          <span class="absolute left-1/2 -translate-x-1/2 top-6 z-20 min-w-[200px] bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 pointer-events-none whitespace-normal shadow-lg">
+            
+            
+            
+            
+            Level 4 + Index Put Writing; Requires Margin agreement and minimum account value of $100,000.
+          </span>
+        </span>
+      </label>
+    
+  </div>
+</div>
+</section>
+
+<script>
+/* ---------- Utility ---------------------------------------------------- */
+function clearFields(container){
+  container.querySelectorAll('input,select,textarea').forEach(el=>{
+    if(el.type==='radio'||el.type==='checkbox'){el.checked=false;}
+    else{el.value=''; if(el.tagName.toLowerCase()==='select') el.selectedIndex=0;}
+  });
+}
+
+/* ---------- Toggle helpers -------------------------------------------- */
+function toggleFDT(y){_toggle('fdt',y);}
+function toggleMargin(y){_toggle('margin',y);}
+function toggleStructured(y){_toggle('sp',y);}
+function toggleETP(y){_toggle('etp',y);}
+function _toggle(prefix,yes){
+  const YesBtn=document.getElementById(prefix+'YesBtn');
+  const NoBtn =document.getElementById(prefix+'NoBtn');
+  document.getElementById(prefix+'Choice').value=yes?'Yes':'No';
+  YesBtn.classList.toggle('bg-blue-100',yes);
+  YesBtn.classList.toggle('text-blue-800',yes);
+  NoBtn .classList.toggle('bg-blue-100',!yes);
+  NoBtn .classList.toggle('text-blue-800',!yes);
+}
+
+/* Options special toggle */
+function toggleOptions(yes){
+  _toggle('options',yes);
+  const cont=document.getElementById('optionsLevelContainer');
+  if(!yes){clearFields(cont);}
+  cont.classList.toggle('hidden',!yes);
+  // radios required only if visible
+  document.querySelectorAll('input[name="Options Level"]').forEach(r=>r.required=yes);
+}
+
+/* ---------- Initialisation -------------------------------------------- */
+document.addEventListener('DOMContentLoaded',()=>{
+  /* read hidden values */
+  toggleFDT(document.getElementById('fdtChoice').value==='Yes');
+  toggleMargin(document.getElementById('marginChoice').value==='Yes');
+  toggleStructured(document.getElementById('spChoice').value==='Yes');
+  toggleETP(document.getElementById('etpChoice').value==='Yes');
+  const wantOpt=document.getElementById('optionsChoice').value==='Yes';
+  toggleOptions(wantOpt);
+});
+</script>
+<!-- 529 Plan Disclosure Checklist Section -->
+<section id="planDisclosureChecklist" class="hidden space-y-6">
+  <h2 class="text-xl font-semibold border-b pb-2">529 Plan Disclosure Checklist</h2>
+
+  <div class="space-y-4">
+
+    <!-- Name of Product Sponsor & 529 Plan -->
+    <div>
+      <label for="planSponsorName" class="block font-medium mb-1">
+        Name of Product Sponsor &amp; 529 Plan
+      </label>
+      <input
+        type="text"
+        id="planSponsorName"
+        name="Name of Product Sponsor & 529 Plan"
+        value=""
+        placeholder="Name of Product Sponsor & 529 Plan"
+        class="block w-full bg-white border border-gray-300 rounded py-2 px-3"
+      />
+    </div>
+
+    <!-- Investment Portfolio / Option Chosen & Owner State of Residence -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label for="investmentPortfolio" class="block font-medium mb-1">
+          Investment Portfolio / Option Chosen
+        </label>
+        <input
+          type="text"
+          id="investmentPortfolio"
+          name="Investment Portfolio / Option Chosen"
+          value=""
+          placeholder="Investment Portfolio / Option Chosen"
+          class="block w-full bg-white border border-gray-300 rounded py-2 px-3"
+        />
+      </div>
+
+      <div>
+        <label for="ownerState" class="block font-medium mb-1">
+          Owner State of Residence
+        </label>
+        <select
+          id="ownerState"
+          name="Owner State of Residence"
+          data-list-key="States"
+          data-initial=""
+          class="block w-full bg-white border border-gray-300 rounded py-2 px-3"
+        >
+          <option value="">Select state</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Source of Funds & Share Class -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label for="sourceOfFunds" class="block font-medium mb-1">
+          Source of Funds
+        </label>
+        <select
+          id="sourceOfFunds"
+          name="Source of Funds"
+          data-list-key="529 Source"
+          data-initial=""
+          class="block w-full bg-white border border-gray-300 rounded py-2 px-3"
+        >
+          <option value="">Select source</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="shareClass" class="block font-medium mb-1">
+          Share Class
+        </label>
+        <select
+          id="shareClass"
+          name="Share Class"
+          data-list-key="Share Class"
+          data-initial=""
+          class="block w-full bg-white border border-gray-300 rounded py-2 px-3"
+        >
+          <option value="">Select share class</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Plan Administrator -->
+    <div>
+      <label for="planAdministrator" class="block font-medium mb-1">
+        Plan Administrator
+      </label>
+      <input
+        type="text"
+        id="planAdministrator"
+        name="Plan Administrator"
+        value=""
+        placeholder="Plan Administrator"
+        class="block w-full bg-white border border-gray-300 rounded py-2 px-3"
+      />
+    </div>
+
+  </div>
+</section>
+<!-- 8. Direct/Outside Business -->
+<section id="directOutsideBusiness" class="hidden space-y-6">
+  <h2 class="text-xl font-semibold border-b pb-2">Direct/Outside Business</h2>
+
+  <!-- Entries container -->
+  <div id="directContainer" class="space-y-6">
+    <!-- Entry #0 (always present) -->
+    <div class="direct-entry space-y-4 border rounded-lg p-4 relative" data-index="0">
+      <button type="button" class="removeDirect absolute top-2 right-2 text-red-600 hover:text-red-800"
+              aria-label="Remove entry">&times;</button>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label for="dob_type_account_0" class="block font-medium mb-1">Type of Account</label>
+          <select id="dob_type_account_0"
+                  name="DirectBusiness[0][Type of Account]"
+                  data-list-key="Account Type"
+                  data-initial=""
+                  class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
+            <option value="" hidden>Select</option>
+          </select>
+        </div>
+        <div>
+          <label for="dob_sponsor_name_0" class="block font-medium mb-1">Full Name of Sponsor</label>
+          <input type="text" id="dob_sponsor_name_0"
+                 name="DirectBusiness[0][Full Name of Sponsor]"
+                 value=""
+                 placeholder="Full Name of Sponsor"
+                 class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label for="dob_product_name_0" class="block font-medium mb-1">Product Name</label>
+          <input type="text" id="dob_product_name_0"
+                 name="DirectBusiness[0][Product Name]"
+                 value=""
+                 placeholder="Product Name"
+                 class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+        </div>
+        <div>
+          <label for="dob_account_number_0" class="block font-medium mb-1">Account or Contract/Policy&nbsp;Number</label>
+          <input type="text" id="dob_account_number_0"
+                 name="DirectBusiness[0][Account or Contract/Policy Number]"
+                 value=""
+                 placeholder="Account or Contract/Policy Number"
+                 class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add-another button -->
+  <button type="button" id="addDirect" class="text-blue-600 hover:underline">
+    + Add Another Direct / Outside Business
+  </button>
+
+  <!-- Template for additional entries (structure unchanged) -->
+  <template id="directBusinessTemplate">
+    <div class="direct-entry space-y-4 border rounded-lg p-4 relative" data-index="__INDEX__">
+      <button type="button" class="removeDirect absolute top-2 right-2 text-red-600 hover:text-red-800"
+              aria-label="Remove entry">&times;</button>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label for="dob_type_account___INDEX__" class="block font-medium mb-1">Type of Account</label>
+          <select id="dob_type_account___INDEX__"
+                  name="DirectBusiness[__INDEX__][Type of Account]"
+                  data-list-key="Account Type"
+                  class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
+            <option value="" hidden>Select</option>
+          </select>
+        </div>
+        <div>
+          <label for="dob_sponsor_name___INDEX__" class="block font-medium mb-1">Full Name of Sponsor</label>
+          <input type="text" id="dob_sponsor_name___INDEX__"
+                 name="DirectBusiness[__INDEX__][Full Name of Sponsor]"
+                 placeholder="Full Name of Sponsor"
+                 class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label for="dob_product_name___INDEX__" class="block font-medium mb-1">Product Name</label>
+          <input type="text" id="dob_product_name___INDEX__"
+                 name="DirectBusiness[__INDEX__][Product Name]"
+                 placeholder="Product Name"
+                 class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+        </div>
+        <div>
+          <label for="dob_account_number___INDEX__" class="block font-medium mb-1">
+            Account or Contract/Policy&nbsp;Number</label>
+          <input type="text" id="dob_account_number___INDEX__"
+                 name="DirectBusiness[__INDEX__][Account or Contract/Policy Number]"
+                 placeholder="Account or Contract/Policy Number"
+                 class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+        </div>
+      </div>
+    </div>
+  </template>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const MODE      = window.MODE     || 'new';
+  const INIT_ACCT = window.INIT_ACCT|| {};
+
+  // ── Direct/Outside Business setup ─────────────────────────────────────────
+  const container = document.getElementById('directContainer');
+  const addBtn    = document.getElementById('addDirect');
+  const tmplHTML  = document.getElementById('directBusinessTemplate').innerHTML;
+  const maxItems  = 5;
+  let   count     = container.querySelectorAll('.direct-entry').length;
+  let   lists     = {};
+
+  function updateAddBtn() {
+    addBtn.style.display = count < maxItems ? '' : 'none';
+  }
+
+  function reindex() {
+    container.querySelectorAll('.direct-entry').forEach((entry, idx) => {
+      entry.dataset.index = idx;
+      entry.querySelectorAll('[name]').forEach(el => {
+        el.name = el.name.replace(/DirectBusiness\[\d+]/, `DirectBusiness[${idx}]`);
+      });
+      entry.querySelectorAll('[id]').forEach(el => {
+        el.id = el.id
+                  .replace(/_\d+$/, `_${idx}`)
+                  .replace(/___\d+/, `___${idx}`);
+      });
+    });
+  }
+
+  function bindRemove(btn) {
+    btn.addEventListener('click', () => {
+      btn.closest('.direct-entry').remove();
+      count--;
+      reindex();
+      updateAddBtn();
+    });
+  }
+
+  function populateSelects(scope) {
+    scope.querySelectorAll('select[data-list-key]').forEach(sel => {
+      (lists[sel.dataset.listKey]||[]).forEach(opt => sel.add(new Option(opt,opt)));
+      if (sel.dataset.initial) sel.value = sel.dataset.initial;
+    });
+  }
+
+  function addEntry(idx) {
+    if (count >= maxItems) return;
+    container.insertAdjacentHTML('beforeend', tmplHTML.replace(/__INDEX__/g, idx));
+    const entry = container.querySelector('.direct-entry:last-child');
+    populateSelects(entry);
+    bindRemove(entry.querySelector('.removeDirect'));
+    count++;
+    updateAddBtn();
+  }
+
+  // fetch your picklists, then wire up DirectBusiness
+  fetch('/lists')
+    .then(r => r.json()).then(data => lists = data)
+    .finally(() => {
+      // always populate the “0” row
+      populateSelects(container.querySelector('.direct-entry[data-index="0"]'));
+
+      if (MODE === 'edit') {
+        // only re-add rows for indices with at least one non-empty value
+        const directIdxs = [...new Set(
+          Object.entries(INIT_ACCT)
+            .filter(([key,val]) => {
+              const m = key.match(/^DirectBusiness\[(\d+)]/);
+              return m && String(val||'').trim() !== '';
+            })
+            .map(([key]) => Number(key.match(/^DirectBusiness\[(\d+)]/)[1]))
+        )]
+          .filter(i => i > 0)
+          .sort((a,b)=>a-b);
+
+        directIdxs.forEach(idx => addEntry(idx));
+
+        if (typeof prefillFromRow === 'function') prefillFromRow();
+      }
+
+      // finally, bind removes on whatever is present & update add button
+      container.querySelectorAll('.removeDirect').forEach(bindRemove);
+      updateAddBtn();
+    });
+
+  // wire up the +Add button
+  addBtn.addEventListener('click', () => addEntry(count));
+
+  // ── ACH rows on edit ───────────────────────────────────────────────────────
+  if (MODE === 'edit' && typeof window.addAchEntry === 'function') {
+    const achIdxs = [...new Set(
+      Object.entries(INIT_ACCT)
+        .filter(([key,val]) => {
+          const m = key.match(/^ACH\[(\d+)]/);
+          return m && String(val||'').trim() !== '';
+        })
+        .map(([key]) => Number(key.match(/^ACH\[(\d+)]/)[1]))
+    )]
+      .filter(i => i > 0)
+      .sort((a,b)=>a-b);
+
+    achIdxs.forEach(() => window.addAchEntry());
+  }
+});
+</script>
+<!-- 9. Trust Account Information -->
+<section id="trustAccountInfo" class="hidden space-y-6">
+  <h2 class="text-xl font-semibold border-b pb-2">Trust Account Information</h2>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Trust Formation State -->
+    <div>
+      <label class="block font-medium mb-1">Trust Formation State</label>
+      <select name="Trust Formation State"
+              data-list-key="States"
+              data-initial=""
+              class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
+        <option value="" hidden>Select</option>
+      </select>
+    </div>
+
+    <!-- Trust Type -->
+    <div>
+      <label class="block font-medium mb-1">Trust Type</label>
+      <select name="Trust Type"
+              class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
+        <option value="" hidden>Select</option>
+        <option value="Revocable"
+          >
+          Revocable
+        </option>
+        <option value="Irrevocable"
+          >
+          Irrevocable
+        </option>
+      </select>
+    </div>
+
+    <!-- Grantor / Decedent -->
+    <div class="md:col-span-2">
+      <label class="block font-medium mb-1">Grantor/Decedent Name(s)</label>
+      <input type="text" name="Grantor/Decedent Name(s)"
+             value=""
+             placeholder="Enter Grantor or Decedent Name(s)…"
+             class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+    </div>
+
+    <!-- Created By -->
+    <div>
+      <label for="created_by" class="block font-medium mb-1">Created By</label>
+      <select id="created_by"
+              name="Created By"
+              data-initial=""
+              data-trust-date=""
+              data-date-of-death=""
+              class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
+        <option value="" hidden>Select</option>
+        <option value="Agreement"
+          >
+          Agreement
+        </option>
+        <option value="Will"
+          >
+          Will
+        </option>
+      </select>
+    </div>
+
+    <!-- Dynamic Date Field -->
+    <div id="trustDateDiv" class="hidden">
+      <label for="trust_date" id="trustDateLabel" class="block font-medium mb-1">Trust Date</label>
+      <input type="date"
+             id="trust_date"
+             name="Trust Date"
+             class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400"
+             value="" />
+    </div>
+  </div>
+</section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const createdBy = document.getElementById('created_by');
+    const dateDiv   = document.getElementById('trustDateDiv');
+    const dateInput = document.getElementById('trust_date');
+    const dateLabel = document.getElementById('trustDateLabel');
+
+    function handleCreatedByChange() {
+      const val = createdBy.value;
+      if (val === 'Agreement') {
+        dateLabel.textContent = 'Trust Date';
+        dateInput.name        = 'Trust Date';
+        dateInput.value       = createdBy.dataset.trustDate || '';
+        dateDiv.classList.remove('hidden');
+      }
+      else if (val === 'Will') {
+        dateLabel.textContent = 'Date of Death';
+        // always save under the single “Trust Date” header
+        dateInput.name        = 'Trust Date';
+        dateInput.value       = createdBy.dataset.dateOfDeath || '';
+        dateDiv.classList.remove('hidden');
+      }
+      else {
+        dateDiv.classList.add('hidden');
+        dateInput.name  = '';
+        dateInput.value = '';
+      }
+    }
+
+    createdBy.addEventListener('change', handleCreatedByChange);
+    // initialize on load (covers edit mode)
+    handleCreatedByChange();
+  });
+</script>
+
+<!-- Submit button -->
+<div class="pt-8">
+  <button type="submit"
+          class="w-full bg-green-600 text-white py-3 rounded-lg text-lg font-medium hover:bg-green-700">
+    Save Changes
+  </button>
+</div>
+</form>  <!-- closes #accountForm -->
+</div>   <!-- closes .w-3/4 -->
+</div>   <!-- closes .max-w-5xl -->
+<script>
+// --- Utility: Clear fields in a container ---
+window.clearFields = function(container) {
+  if (!container) return;
+  container.querySelectorAll('input, select, textarea').forEach(f => {
+    if (f.type === 'checkbox' || f.type === 'radio') {
+      f.checked = false;
+    } else {
+      f.value = '';
+      if (f.tagName.toLowerCase() === 'select') f.selectedIndex = 0;
+    }
+  });
+};
+
+// --- Sidebar tab navigation ---
+window.showSection = function(id, btn) {
+  btn.classList.add('visited');
+  document.querySelectorAll('form section[id]').forEach(sec => {
+    sec.classList.add('hidden');
+  });
+  document.getElementById(id).classList.remove('hidden');
+  document.querySelectorAll('.nav-btn').forEach(b => {
+    b.classList.remove('bg-white', 'border-l-4', 'border-blue-800', 'text-blue-800');
+    b.classList.add('text-gray-700');
+  });
+  btn.classList.add('bg-white', 'border-l-4', 'border-blue-800', 'text-blue-800');
+  btn.classList.remove('text-gray-700');
+};
+
+// --- ACH Row Functions ---
+window.toggleAch = function(show, triggeredByUser = false) {
+  const container = document.getElementById('achContainer');
+  const addBtn    = document.getElementById('addAchBtn');
+  const hidden = document.getElementById('achChoice');
+  if (hidden) hidden.value = show ? 'Yes' : 'No';
+
+  if (!show) {
+    while (container && container.firstChild) {
+      container.removeChild(container.firstChild);
+    }
+    container.classList.add('hidden');
+    addBtn.classList.add('hidden');
+  } else if (triggeredByUser || window.MODE !== 'edit') {
+    while (container && container.firstChild) {
+      container.removeChild(container.firstChild);
+    }
+    const tpl  = document.getElementById('achTemplate').innerHTML;
+    const html = tpl.replace(/__INDEX__/g, 0);
+    container.insertAdjacentHTML('beforeend', html);
+    window.clearFields(container);
+    container.classList.remove('hidden');
+    addBtn.classList.remove('hidden');
+  } else {
+    container.classList.remove('hidden');
+    addBtn.classList.remove('hidden');
+  }
+
+  document.getElementById('achYesBtn')
+    .classList.toggle('bg-blue-100', show);
+  document.getElementById('achYesBtn')
+    .classList.toggle('text-blue-800', show);
+  document.getElementById('achNoBtn')
+    .classList.toggle('bg-blue-100', !show);
+  document.getElementById('achNoBtn')
+    .classList.toggle('text-blue-800', !show);
+};
+
+window.addAchEntry = function() {
+  const container = document.getElementById('achContainer');
+  const count     = container.querySelectorAll('.ach-entry').length;
+  if (count >= 2) return; // cap at 2 entries
+
+  const tpl  = document.getElementById('achTemplate').innerHTML;
+  const html = tpl.replace(/__INDEX__/g, count);
+  container.insertAdjacentHTML('beforeend', html);
+
+  if (container.querySelectorAll('.ach-entry').length >= 2) {
+    document.getElementById('addAchBtn').classList.add('hidden');
+  }
+};
+
+// --- Delegate Remove for ACH ---
+document.addEventListener('DOMContentLoaded', () => {
+  const achContainer = document.getElementById('achContainer');
+  if (achContainer) {
+    achContainer.addEventListener('click', e => {
+      const rem = e.target.closest('.removeAch');
+      if (!rem) return;
+      rem.closest('.ach-entry').remove();
+
+      if (achContainer.querySelectorAll('.ach-entry').length < 2) {
+        document.getElementById('addAchBtn').classList.remove('hidden');
+      }
+    });
+  }
+});
+
+// --- Master Dynamic Section & Prefill Handler ---
+document.addEventListener('DOMContentLoaded', () => {
+  const MODE = window.MODE || 'new';
+  const INIT_ACCT = window.INIT_ACCT || {};
+  const achChoiceInput = document.getElementById('achChoice');
+  const achContainer = document.getElementById('achContainer');
+  const addAchBtn = document.getElementById('addAchBtn');
+  const achYesBtn = document.getElementById('achYesBtn');
+  const achNoBtn = document.getElementById('achNoBtn');
+
+  // Helper: Check if any ACH entries in INIT_ACCT have actual data
+  function hasAnyFilledAch() {
+    const achRows = Object.entries(INIT_ACCT)
+      .filter(([k, v]) => /^ACH\[\d+\]\[.*\]$/.test(k));
+    if (!achRows.length) return false;
+    return achRows.some(([k, v]) => v && v.toString().trim() !== "");
+  }
+
+  // Show Account Information by default
+  const defaultBtn = document.querySelector('.nav-btn[data-section="accountInfo"]');
+  if (defaultBtn) defaultBtn.click();
+
+  // ACH logic for new/edit
+  if (typeof window.toggleAch === 'function' && MODE !== 'edit') {
+    window.toggleAch(false);
+  } else if (MODE === 'edit') {
+    const hasAch = achChoiceInput?.value === 'Yes';
+    const anyFilledAch = hasAnyFilledAch();
+    if (!hasAch || !anyFilledAch) {
+      // No real data: hide cards, set toggle to No
+      achContainer.classList.add('hidden');
+      addAchBtn.classList.add('hidden');
+      achYesBtn.classList.remove('bg-blue-100', 'text-blue-800');
+      achNoBtn.classList.add('bg-blue-100', 'text-blue-800');
+      if (achChoiceInput) achChoiceInput.value = 'No';
+    } else {
+      achContainer.classList.remove('hidden');
+      addAchBtn.classList.remove('hidden');
+      achYesBtn.classList.add('bg-blue-100', 'text-blue-800');
+      achNoBtn.classList.remove('bg-blue-100', 'text-blue-800');
+    }
+  }
+
+  // Populate dropdowns and dynamic rows
+  fetch('/lists').then(res => res.json()).then(listsData => {
+    document.querySelectorAll('select[data-list-key]').forEach(sel => {
+      const key = sel.dataset.listKey;
+      const options = listsData[key] || [];
+      sel.innerHTML = '<option value="" hidden>Select</option>';
+      options.forEach(item => {
+        const opt = document.createElement('option');
+        opt.value = item;
+        opt.text  = item;
+        sel.appendChild(opt);
+      });
+      const initial = sel.dataset.initial;
+      if (initial && initial !== '' && sel.querySelector(`option[value="${initial}"]`)) {
+        sel.value = initial;
+      }
+    });
+
+    // -- Registration Type logic --
+    const acctTypeSel = document.getElementById('account_type');
+    const regTypeSel = document.getElementById('registration_type');
+    if (acctTypeSel && regTypeSel) {
+      function fillReg() {
+        regTypeSel.innerHTML = '<option value="" hidden>Select</option>';
+        const opts = (listsData['Registration Type'] || {})[acctTypeSel.value] || [];
+        opts.forEach(o => regTypeSel.add(new Option(o, o)));
+        if (MODE === 'edit' && INIT_ACCT['Registration Type'])
+          regTypeSel.value = INIT_ACCT['Registration Type'];
+      }
+      acctTypeSel.addEventListener('change', fillReg);
+      fillReg();
+    }
+/*
+    // ---- ACH: Add extra rows only for indices > 0 ----
+    if (MODE === 'edit' && hasAnyFilledAch()) {
+      const achIdxs = [...new Set(
+        Object.keys(INIT_ACCT)
+          .map(k => (k.match(/^ACH\[(\d+)]/) || [])[1])
+          .filter(i => i !== undefined && i !== null)
+      )].map(Number).filter(i => i > 0).sort((a, b) => a - b);
+      achIdxs.forEach(() => { window.addAchEntry(); });
+    }
+
+    // ---- Beneficiaries: Add extra rows only for indices > 0 ----
+    if (MODE === 'edit' && typeof addBeneficiaryEntry === 'function') {
+      const benIdxs = [...new Set(
+        Object.keys(INIT_ACCT)
+          .map(k => (k.match(/^Beneficiaries\[(\d+)]/) || [])[1])
+          .filter(i => i !== undefined && i !== null)
+      )].map(Number).filter(i => i > 0).sort((a, b) => a - b);
+      benIdxs.forEach(idx => { addBeneficiaryEntry(idx); });
+    }
+
+    // ---- Direct Business: Add extra rows only for indices > 0 ----
+    if (MODE === 'edit' && typeof addDirectEntry === 'function') {
+      const directIdxs = [...new Set(
+        Object.keys(INIT_ACCT)
+          .map(k => (k.match(/^DirectBusiness\[(\d+)]/) || [])[1])
+          .filter(i => i !== undefined && i !== null)
+      )].map(Number).filter(i => i > 0).sort((a, b) => a - b);
+      directIdxs.forEach(idx => { addDirectEntry(idx); });
+    }
+*/
+    setTimeout(() => {
+      if (typeof prefillFromRow === 'function') prefillFromRow();
+    }, 0);
+  });
+
+  // -- Wire up Add buttons --
+  if (addAchBtn) addAchBtn.addEventListener('click', e => { e.preventDefault(); window.addAchEntry(); });
+  if (achYesBtn) achYesBtn.addEventListener('click', () => window.toggleAch(true, true));
+  if (achNoBtn) achNoBtn.addEventListener('click', () => window.toggleAch(false, true));
+});
+</script>
+
+
+</body>
+</html>

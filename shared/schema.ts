@@ -240,6 +240,30 @@ export const achInformation = pgTable("ach_information", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Additional Account Holders table
+export const additionalAccountHolders = pgTable("additional_account_holders", {
+  id: serial("id").primaryKey(),
+  accountId: integer("account_id").notNull().references(() => accounts.id, { onDelete: "cascade" }),
+  firstName: varchar("first_name"),
+  lastName: varchar("last_name"),
+  homePhone: varchar("home_phone"),
+  mobilePhone: varchar("mobile_phone"),
+  businessPhone: varchar("business_phone"),
+  employmentStatus: varchar("employment_status"),
+  industry: varchar("industry"),
+  occupation: varchar("occupation"),
+  employerName: varchar("employer_name"),
+  useSameAddress: boolean("use_same_address").default(false),
+  excludeEmployerAddress: boolean("exclude_employer_address").default(false),
+  employerAddress1: varchar("employer_address_1"),
+  employerAddress2: varchar("employer_address_2"),
+  employerCity: varchar("employer_city"),
+  employerState: varchar("employer_state"),
+  employerZip: varchar("employer_zip"),
+  affiliationType: varchar("affiliation_type"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Direct Business table
 export const directBusiness = pgTable("direct_business", {
   id: serial("id").primaryKey(),
@@ -319,6 +343,7 @@ export const accountsRelations = relations(accounts, ({ one, many }) => ({
   }),
   beneficiaries: many(beneficiaries),
   achInformation: many(achInformation),
+  additionalAccountHolders: many(additionalAccountHolders),
   directBusiness: many(directBusiness),
   createdByUser: one(users, {
     fields: [accounts.createdBy],
@@ -336,6 +361,13 @@ export const beneficiariesRelations = relations(beneficiaries, ({ one }) => ({
 export const achInformationRelations = relations(achInformation, ({ one }) => ({
   account: one(accounts, {
     fields: [achInformation.accountId],
+    references: [accounts.id],
+  }),
+}));
+
+export const additionalAccountHoldersRelations = relations(additionalAccountHolders, ({ one }) => ({
+  account: one(accounts, {
+    fields: [additionalAccountHolders.accountId],
     references: [accounts.id],
   }),
 }));
@@ -395,6 +427,11 @@ export const insertAchInformationSchema = createInsertSchema(achInformation).omi
   createdAt: true,
 });
 
+export const insertAdditionalAccountHolderSchema = createInsertSchema(additionalAccountHolders).omit({
+  id: true,
+  createdAt: true,
+});
+
 export const insertDirectBusinessSchema = createInsertSchema(directBusiness).omit({
   id: true,
   createdAt: true,
@@ -423,41 +460,14 @@ export type InsertBeneficiary = z.infer<typeof insertBeneficiarySchema>;
 export type Beneficiary = typeof beneficiaries.$inferSelect;
 export type InsertAchInformation = z.infer<typeof insertAchInformationSchema>;
 export type AchInformation = typeof achInformation.$inferSelect;
+export type InsertAdditionalAccountHolder = z.infer<typeof insertAdditionalAccountHolderSchema>;
+export type AdditionalAccountHolder = typeof additionalAccountHolders.$inferSelect;
 export type InsertDirectBusiness = z.infer<typeof insertDirectBusinessSchema>;
 export type DirectBusiness = typeof directBusiness.$inferSelect;
 export type InsertAuditLog = z.infer<typeof insertAuditLogSchema>;
 export type AuditLog = typeof auditLogs.$inferSelect;
 export type InsertFileUpload = z.infer<typeof insertFileUploadSchema>;
 export type FileUpload = typeof fileUploads.$inferSelect;
-
-// Additional Account Holder Information
-export const additionalHolders = pgTable("additional_holders", {
-  id: serial("id").primaryKey(),
-  accountId: integer("account_id").references(() => accounts.id),
-  firstName: varchar("first_name"),
-  middleName: varchar("middle_name"),
-  lastName: varchar("last_name"),
-  suffix: varchar("suffix"),
-  dateOfBirth: date("date_of_birth"),
-  socialSecurityNumber: varchar("social_security_number"),
-  employmentStatus: varchar("employment_status"),
-  industry: varchar("industry"),
-  occupation: varchar("occupation"),
-  employerName: varchar("employer_name"),
-  homePhone: varchar("home_phone"),
-  mobilePhone: varchar("mobile_phone"),
-  businessPhone: varchar("business_phone"),
-  email: varchar("email"),
-  legalAddressLine1: varchar("legal_address_line_1"),
-  legalAddressLine2: varchar("legal_address_line_2"),
-  legalCity: varchar("legal_city"),
-  legalState: varchar("legal_state"),
-  legalZipCode: varchar("legal_zip_code"),
-  useSameAddress: boolean("use_same_address").default(false),
-  affiliationType: varchar("affiliation_type"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
 
 // Trading Authority Information
 export const tradingAuthority = pgTable("trading_authority", {
