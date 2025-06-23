@@ -35,6 +35,7 @@ function Router() {
           <Route path="/client-onboarding-full" component={ClientOnboardingFull} />
           <Route path="/accounts" component={Accounts} />
           <Route path="/account-form" component={AccountFormEnhanced} />
+          <Route path="/account-form-enhanced" component={AccountFormEnhanced} />
           <Route path="/import-export" component={ImportExport} />
           <Route path="/users" component={Users} />
           <Route path="/groups" component={Groups} />
