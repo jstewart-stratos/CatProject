@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { isUnauthorizedError } from "@/lib/authUtils";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import Sidebar from "@/components/sidebar";
 import TopBar from "@/components/top-bar";
 import ClientModal from "@/components/modals/client-modal";
@@ -44,6 +45,38 @@ export default function Clients() {
   const { data: draftsData, isLoading: draftsLoading, refetch: refetchDrafts } = useQuery({
     queryKey: ["/api/draft-onboarding"],
     enabled: isAuthenticated,
+  });
+
+  // Delete draft mutation
+  const deleteDraftMutation = useMutation({
+    mutationFn: async (draftId: number) => {
+      await apiRequest("DELETE", `/api/draft-onboarding/${draftId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/draft-onboarding"] });
+      toast({
+        title: "Draft Deleted",
+        description: "The draft has been successfully deleted.",
+      });
+    },
+    onError: (error) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({
+        title: "Error",
+        description: "Failed to delete draft. Please try again.",
+        variant: "destructive",
+      });
+    },
   });
 
   // Calculate completion percentage for drafts
@@ -254,7 +287,12 @@ export default function Clients() {
                                   >
                                     Continue
                                   </Button>
-                                  <Button variant="ghost" size="sm">
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm"
+                                    onClick={() => deleteDraftMutation.mutate(draft.id)}
+                                    disabled={deleteDraftMutation.isPending}
+                                  >
                                     <Trash2 className="h-4 w-4" />
                                   </Button>
                                 </div>
