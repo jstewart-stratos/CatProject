@@ -144,6 +144,7 @@ Preferred communication style: Simple, everyday language.
   - ✅ Field visibility logic properly implemented based on original business rules from source code
   - ✅ Updated Investment Objective options to letter-based format: A) Income with Capital Preservation, B) Income with Moderate Growth, C) Growth with Income, D) Growth, E) Aggressive Growth, F) Trading
   - ✅ Updated Approximate Account Value dropdown to use letter-based format (A-H) matching original form structure
+  - ✅ Updated Investment Time Horizon dropdown to exact 4 options: 1-3 years, 3-5 years, 5-10 years, 10+ years
   - ✅ Created comprehensive onboarding form with conditional logic based on user screenshots
   - ✅ Implemented step-by-step progress tracking with smooth navigation
   - ✅ Added conditional form sections for investment experience and financial information

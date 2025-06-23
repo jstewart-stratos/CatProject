@@ -688,7 +688,12 @@ export default function AccountFormEnhanced() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {lists?.["Investment Time Horizon"]?.map((horizon: string) => (
+                          {[
+                            "1 - 3 years",
+                            "3 - 5 years", 
+                            "5 - 10 years",
+                            "10+ years"
+                          ].map((horizon: string) => (
                             <SelectItem key={horizon} value={horizon}>{horizon}</SelectItem>
                           ))}
                         </SelectContent>
