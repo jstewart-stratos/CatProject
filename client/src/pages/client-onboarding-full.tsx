@@ -222,12 +222,21 @@ export default function ClientOnboardingFull() {
   const watchedValues = form.watch();
   const employmentStatus = form.watch("employmentStatus");
 
-  // Auto-populate fields when "Minor" is selected
+  // Auto-populate fields for specific employment statuses
   useEffect(() => {
     if (employmentStatus === "minor") {
       form.setValue("industry", "minor");
       form.setValue("occupation", "Minor");
       form.setValue("employerName", "Minor");
+    } else if (employmentStatus === "retired") {
+      form.setValue("industry", "retired");
+      form.setValue("occupation", "Retired");
+    } else if (employmentStatus === "student") {
+      form.setValue("industry", "student");
+      form.setValue("occupation", "Student");
+    } else if (employmentStatus === "homemaker") {
+      form.setValue("industry", "homemaker");
+      form.setValue("occupation", "Homemaker");
     }
   }, [employmentStatus, form]);
 
@@ -817,6 +826,9 @@ export default function ClientOnboardingFull() {
                               </FormControl>
                               <SelectContent>
                                 <SelectItem value="minor">Minor</SelectItem>
+                                <SelectItem value="retired">Retired</SelectItem>
+                                <SelectItem value="student">Student</SelectItem>
+                                <SelectItem value="homemaker">Homemaker</SelectItem>
                                 <SelectItem value="accounting">Accounting</SelectItem>
                                 <SelectItem value="advertising">Advertising</SelectItem>
                                 <SelectItem value="aerospace">Aerospace</SelectItem>
