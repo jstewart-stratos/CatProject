@@ -310,7 +310,6 @@ function ClientOnboarding() {
                 <FormLabel>Email Address</FormLabel>
                 <FormControl>
                   <Input 
-                    {...field} 
                     type="email" 
                     value={field.value || ""} 
                     onChange={field.onChange}
@@ -329,7 +328,6 @@ function ClientOnboarding() {
                 <FormLabel>Phone Number</FormLabel>
                 <FormControl>
                   <Input 
-                    {...field} 
                     placeholder="(XXX) XXX-XXXX" 
                     value={field.value || ""} 
                     onChange={field.onChange}
@@ -348,7 +346,6 @@ function ClientOnboarding() {
                 <FormLabel>Address</FormLabel>
                 <FormControl>
                   <Input 
-                    {...field} 
                     value={field.value || ""} 
                     onChange={field.onChange}
                   />
@@ -366,7 +363,6 @@ function ClientOnboarding() {
                 <FormLabel>City</FormLabel>
                 <FormControl>
                   <Input 
-                    {...field} 
                     value={field.value || ""} 
                     onChange={field.onChange}
                   />
@@ -411,7 +407,6 @@ function ClientOnboarding() {
                 <FormLabel>ZIP Code</FormLabel>
                 <FormControl>
                   <Input 
-                    {...field} 
                     value={field.value || ""} 
                     onChange={field.onChange}
                   />
