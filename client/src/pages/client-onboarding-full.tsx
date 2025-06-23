@@ -2157,12 +2157,22 @@ export default function ClientOnboardingFull() {
                   </Button>
                 ) : (
                   <Button 
-                    type="submit" 
+                    type="button" 
                     disabled={mutation.isPending}
-                    onClick={(e) => {
+                    onClick={async () => {
                       console.log("Submit button clicked");
-                      console.log("Form errors:", form.formState.errors);
-                      console.log("Form is valid:", form.formState.isValid);
+                      const formData = form.getValues();
+                      console.log("Current form data:", formData);
+                      
+                      // Manually trigger form submission
+                      const transformedData = {
+                        ...formData,
+                        hasInvestmentExperience: formData.hasInvestmentExperience === "yes",
+                        hasOtherInvestments: formData.hasOtherInvestments === "yes"
+                      };
+                      
+                      console.log("Submitting client data:", transformedData);
+                      mutation.mutate(transformedData);
                     }}
                   >
                     {mutation.isPending ? "Submitting..." : "Submit"}
