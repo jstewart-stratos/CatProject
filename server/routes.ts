@@ -821,6 +821,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
           'Owner',
           'Contractor',
           'None'
+        ],
+        'IRA Type': [
+          'Traditional IRA',
+          'Roth IRA',
+          'SEP IRA',
+          'SIMPLE IRA',
+          'Rollover IRA',
+          'Beneficiary IRA',
+          'Beneficiary Roth IRA',
+          'SARSEP IRA'
+        ],
+        'Bene Relation': [
+          'Spouse',
+          'Child',
+          'Parent',
+          'Sibling',
+          'Grandchild',
+          'Grandparent',
+          'Other Relative',
+          'Friend',
+          'Trust',
+          'Estate',
+          'Charity',
+          'Other'
+        ],
+        'Bene Type': [
+          'Primary',
+          'Contingent',
+          'Per Stirpes',
+          'Per Capita'
+        ],
+        'Funds Needed In': [
+          'Less than 1 year',
+          '1-2 years',
+          '2-5 years',
+          '5-10 years',
+          'More than 10 years',
+          'Not sure'
         ]
       };
       res.json(lists);
