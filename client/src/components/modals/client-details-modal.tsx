@@ -2,15 +2,18 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { User, Mail, Phone, MapPin, Briefcase, DollarSign, Users, Calendar, FileText } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { User, Mail, Phone, MapPin, Briefcase, DollarSign, Users, Calendar, FileText, Edit, Plus, CreditCard } from "lucide-react";
 
 interface ClientDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
   client: any;
+  onEdit?: (client: any) => void;
+  onAddAccount?: (clientId: number) => void;
 }
 
-export function ClientDetailsModal({ isOpen, onClose, client }: ClientDetailsModalProps) {
+export function ClientDetailsModal({ isOpen, onClose, client, onEdit, onAddAccount }: ClientDetailsModalProps) {
   if (!client) return null;
 
   const formatDate = (dateString: string) => {
@@ -27,10 +30,36 @@ export function ClientDetailsModal({ isOpen, onClose, client }: ClientDetailsMod
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <User className="h-5 w-5" />
-            Client Details - {client.firstName} {client.lastName}
-          </DialogTitle>
+          <div className="flex items-center justify-between">
+            <DialogTitle className="flex items-center gap-2">
+              <User className="h-5 w-5" />
+              Client Details - {client.firstName} {client.lastName}
+            </DialogTitle>
+            <div className="flex items-center gap-2">
+              {onEdit && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onEdit(client)}
+                  className="flex items-center gap-1"
+                >
+                  <Edit className="h-4 w-4" />
+                  Edit Client
+                </Button>
+              )}
+              {onAddAccount && (
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={() => onAddAccount(client.id)}
+                  className="flex items-center gap-1"
+                >
+                  <Plus className="h-4 w-4" />
+                  Add Account
+                </Button>
+              )}
+            </div>
+          </div>
         </DialogHeader>
 
         <div className="grid gap-6">
@@ -49,9 +78,9 @@ export function ClientDetailsModal({ isOpen, onClose, client }: ClientDetailsMod
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-600">Client Type</label>
-                <p className="text-sm">
+                <div className="text-sm">
                   <Badge variant="secondary">{client.clientType || "Individual"}</Badge>
-                </p>
+                </div>
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-600">Full Name</label>
@@ -212,19 +241,19 @@ export function ClientDetailsModal({ isOpen, onClose, client }: ClientDetailsMod
             <CardContent className="grid md:grid-cols-2 gap-4">
               <div>
                 <label className="text-sm font-medium text-gray-600">Has Investment Experience</label>
-                <p className="text-sm">
+                <div className="text-sm">
                   <Badge variant={client.hasInvestmentExperience ? "default" : "secondary"}>
                     {client.hasInvestmentExperience ? "Yes" : "No"}
                   </Badge>
-                </p>
+                </div>
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-600">Has Other Investments</label>
-                <p className="text-sm">
+                <div className="text-sm">
                   <Badge variant={client.hasOtherInvestments ? "default" : "secondary"}>
                     {client.hasOtherInvestments ? "Yes" : "No"}
                   </Badge>
-                </p>
+                </div>
               </div>
               {client.investmentExperience && (
                 <div className="md:col-span-2">

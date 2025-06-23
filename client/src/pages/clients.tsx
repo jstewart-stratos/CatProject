@@ -129,6 +129,16 @@ export default function Clients() {
     setClientToView(null);
   };
 
+  const handleEditClient = (client: any) => {
+    setSelectedClient(client);
+    setIsModalOpen(true);
+    setIsDetailsModalOpen(false);
+  };
+
+  const handleAddAccount = (clientId: number) => {
+    window.location.href = `/accounts/new?clientId=${clientId}`;
+  };
+
   if (isLoading || !isAuthenticated) {
     return null;
   }
@@ -358,6 +368,8 @@ export default function Clients() {
         isOpen={isDetailsModalOpen}
         onClose={closeDetailsModal}
         client={clientToView}
+        onEdit={handleEditClient}
+        onAddAccount={handleAddAccount}
       />
     </div>
   );
