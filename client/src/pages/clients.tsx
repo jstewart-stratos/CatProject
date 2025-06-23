@@ -7,6 +7,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import Sidebar from "@/components/sidebar";
 import TopBar from "@/components/top-bar";
 import ClientModal from "@/components/modals/client-modal";
+import { ClientDetailsModal } from "@/components/modals/client-details-modal";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,6 +21,8 @@ export default function Clients() {
   const [search, setSearch] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState<any>(null);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [clientToView, setClientToView] = useState<any>(null);
 
   // Redirect to home if not authenticated
   useEffect(() => {
@@ -116,6 +119,16 @@ export default function Clients() {
     });
   };
 
+  const openDetailsModal = (client: any) => {
+    setClientToView(client);
+    setIsDetailsModalOpen(true);
+  };
+
+  const closeDetailsModal = () => {
+    setIsDetailsModalOpen(false);
+    setClientToView(null);
+  };
+
   if (isLoading || !isAuthenticated) {
     return null;
   }
@@ -210,7 +223,7 @@ export default function Clients() {
                             </TableCell>
                             <TableCell>
                               <div className="flex items-center space-x-2">
-                                <Button variant="ghost" size="sm">
+                                <Button variant="ghost" size="sm" onClick={() => openDetailsModal(client)}>
                                   <Eye className="h-4 w-4" />
                                 </Button>
                                 <Button variant="ghost" size="sm" onClick={() => openModal(client)}>
@@ -339,6 +352,12 @@ export default function Clients() {
         onClose={closeModal}
         client={selectedClient}
         onSuccess={handleModalSuccess}
+      />
+      
+      <ClientDetailsModal
+        isOpen={isDetailsModalOpen}
+        onClose={closeDetailsModal}
+        client={clientToView}
       />
     </div>
   );
