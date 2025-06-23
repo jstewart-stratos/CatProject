@@ -128,9 +128,67 @@ export default function ClientOnboardingFull() {
     resolver: zodResolver(fullSchema),
     defaultValues: {
       clientType: "individual",
+      ssn: "",
+      firstName: "",
+      middleName: "",
+      lastName: "",
+      alias: "",
+      citizenship: "",
+      residencyStatus: "",
+      dateOfBirth: "",
+      signingMethod: "",
+      emailAddress: "",
+      legalAddress1: "",
+      legalAddress2: "",
+      city: "",
+      state: "",
+      zipCode: "",
+      homePhone: "",
+      mobilePhone: "",
+      businessPhone: "",
       mailingAddressSameAsAbove: true,
+      mailingAddress1: "",
+      mailingAddress2: "",
+      mailingCity: "",
+      mailingState: "",
+      mailingZipCode: "",
+      employmentStatus: "",
+      industry: "",
+      occupation: "",
+      annualIncome: "",
+      taxBracket: "",
+      netWorth: "",
+      liquidNetWorth: "",
+      sourceOfWealth: "",
+      trustedContactFirstName: "",
+      trustedContactLastName: "",
+      trustedContactRelationship: "",
+      trustedContactAddress1: "",
+      trustedContactAddress2: "",
+      trustedContactCity: "",
+      trustedContactState: "",
+      trustedContactZipCode: "",
+      trustedContactEmail: "",
+      trustedContactPhone: "",
       hasInvestmentExperience: "",
+      annuitiesYears: "",
+      bondsYears: "",
+      marginYears: "",
+      mutualFundsYears: "",
+      optionsYears: "",
+      partnershipsYears: "",
+      stocksYears: "",
+      otherYears: "",
       hasOtherInvestments: "",
+      altInvestmentsPercent: "",
+      annuitiesPercent: "",
+      bondsPercent: "",
+      checkingSavingsPercent: "",
+      equitiesPercent: "",
+      insurancePercent: "",
+      mutualFundsPercent: "",
+      realEstatePercent: "",
+      otherPercent: "",
     },
   });
 
@@ -200,11 +258,10 @@ export default function ClientOnboardingFull() {
     }
   };
 
-  const handleNext = async () => {
-    const isValid = await form.trigger();
-    if (isValid) {
-      nextStep();
-    }
+  const handleNext = () => {
+    // For now, just advance to the next step
+    // We'll validate on final submit
+    nextStep();
   };
 
   if (isCompleted) {
