@@ -13,6 +13,7 @@ import ImportExport from "@/pages/import-export";
 import Users from "@/pages/users";
 import Groups from "@/pages/groups";
 import AccountForm from "@/pages/account-form";
+import ClientOnboarding from "@/pages/client-onboarding";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -25,6 +26,7 @@ function Router() {
         <>
           <Route path="/" component={Dashboard} />
           <Route path="/clients" component={Clients} />
+          <Route path="/client-onboarding" component={ClientOnboarding} />
           <Route path="/accounts" component={Accounts} />
           <Route path="/account-form" component={AccountForm} />
           <Route path="/import-export" component={ImportExport} />

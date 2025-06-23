@@ -140,7 +140,7 @@ const steps = [
   { id: 7, title: "Financial Information", description: "Additional financial details" },
 ];
 
-export default function ClientOnboarding() {
+function ClientOnboarding() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -1771,6 +1771,7 @@ export default function ClientOnboarding() {
       </div>
     </Form>
   );
+  };
 
   const renderStepContent = () => {
     switch (currentStep) {
@@ -1866,3 +1867,5 @@ export default function ClientOnboarding() {
     </div>
   );
 }
+
+export default ClientOnboarding;
