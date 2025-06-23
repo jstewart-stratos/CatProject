@@ -263,7 +263,7 @@ export default function ClientOnboardingFull() {
         title: "Draft Saved",
         description: "Your progress has been saved successfully.",
       });
-      setShowDraftDialog(false);
+      // Auto-save completed
     },
     onError: (error) => {
       console.error("Save draft error:", error);
@@ -350,10 +350,55 @@ export default function ClientOnboardingFull() {
   // Functions for handling draft operations
   const handleSaveDraft = () => {
     const currentFormData = form.getValues();
+    const clientName = `${currentFormData.firstName || 'Client'} ${currentFormData.lastName || ''}`.trim();
+    const draftTitle = clientName === 'Client' ? `Client ${new Date().toLocaleDateString()}` : clientName;
+    
     saveDraftMutation.mutate({ 
-      name: draftName || `Draft ${new Date().toLocaleDateString()}`, 
+      name: draftTitle, 
       data: currentFormData 
     });
+  };
+
+  // Auto-save functionality - save draft whenever user moves to next step
+  const handleAutoSave = () => {
+    const currentFormData = form.getValues();
+    const hasData = Object.values(currentFormData).some(value => value && value !== "");
+    
+    if (hasData) {
+      const clientName = `${currentFormData.firstName || 'Client'} ${currentFormData.lastName || ''}`.trim();
+      const draftTitle = clientName === 'Client' ? `Client ${new Date().toLocaleDateString()}` : clientName;
+      
+      saveDraftMutation.mutate({ 
+        name: draftTitle, 
+        data: currentFormData 
+      });
+    }
+  };
+
+  // Calculate completion percentage based on meaningful fields across all steps
+  const calculateCompletionPercentage = (formData: any) => {
+    const requiredFields = [
+      // Step 1 - Personal Information
+      'clientType', 'ssn', 'firstName', 'lastName', 'citizenship', 'dateOfBirth',
+      // Step 2 - Contact Information  
+      'emailAddress', 'legalAddress1', 'city', 'state', 'zipCode',
+      // Step 3 - Employment
+      'employmentStatus',
+      // Step 4 - Suitability
+      'annualIncome', 'netWorth', 'liquidNetWorth',
+      // Step 5 - Trusted Contact
+      'trustedContactFirstName', 'trustedContactLastName', 'trustedContactRelationship',
+      // Step 6 - Investment Experience
+      'hasInvestmentExperience',
+      // Step 7 - Financial Information
+      'hasOtherInvestments'
+    ];
+    
+    const filledRequiredFields = requiredFields.filter(field => 
+      formData[field] && formData[field] !== ""
+    ).length;
+    
+    return Math.round((filledRequiredFields / requiredFields.length) * 100);
   };
 
   const handleLoadDraft = (draft: any) => {
@@ -375,6 +420,7 @@ export default function ClientOnboardingFull() {
 
   const nextStep = () => {
     if (currentStep < steps.length) {
+      handleAutoSave(); // Auto-save when moving to next step
       setCurrentStep(currentStep + 1);
     }
   };
@@ -475,37 +521,15 @@ export default function ClientOnboardingFull() {
                 <p className="text-slate-600">Complete 7-step client information collection process</p>
               </div>
               <div className="flex gap-2">
-                <Dialog open={showDraftDialog} onOpenChange={setShowDraftDialog}>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" size="sm">
-                      <Save className="w-4 h-4 mr-2" />
-                      Save Draft
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Save Draft</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                      <div>
-                        <label className="text-sm font-medium">Draft Name</label>
-                        <Input
-                          placeholder="Enter a name for this draft"
-                          value={draftName}
-                          onChange={(e) => setDraftName(e.target.value)}
-                        />
-                      </div>
-                      <div className="flex justify-end gap-2">
-                        <Button variant="outline" onClick={() => setShowDraftDialog(false)}>
-                          Cancel
-                        </Button>
-                        <Button onClick={handleSaveDraft} disabled={saveDraftMutation.isPending}>
-                          {saveDraftMutation.isPending ? "Saving..." : "Save Draft"}
-                        </Button>
-                      </div>
-                    </div>
-                  </DialogContent>
-                </Dialog>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleSaveDraft}
+                  disabled={saveDraftMutation.isPending}
+                >
+                  <Save className="w-4 h-4 mr-2" />
+                  {saveDraftMutation.isPending ? "Saving..." : "Save Progress"}
+                </Button>
 
                 <Dialog open={showLoadDialog} onOpenChange={setShowLoadDialog}>
                   <DialogTrigger asChild>
@@ -521,35 +545,47 @@ export default function ClientOnboardingFull() {
                     <div className="space-y-4">
                       {userDrafts && userDrafts.length > 0 ? (
                         <div className="space-y-2">
-                          {userDrafts.map((draft: any) => (
-                            <div key={draft.id} className="flex items-center justify-between p-3 border rounded-lg">
-                              <div>
-                                <p className="font-medium">{draft.title}</p>
-                                <p className="text-sm text-gray-500">
-                                  Step {draft.currentStep || 1} • {new Date(draft.createdAt).toLocaleDateString()}
-                                </p>
+                          {userDrafts.map((draft: any) => {
+                            const completionPercentage = calculateCompletionPercentage(draft.formData || {});
+                            return (
+                              <div key={draft.id} className="flex items-center justify-between p-3 border rounded-lg">
+                                <div className="flex-1">
+                                  <p className="font-medium">{draft.title}</p>
+                                  <div className="flex items-center gap-2 mt-1">
+                                    <div className="flex-1 bg-gray-200 rounded-full h-2">
+                                      <div 
+                                        className="bg-blue-600 h-2 rounded-full" 
+                                        style={{ width: `${completionPercentage}%` }}
+                                      ></div>
+                                    </div>
+                                    <span className="text-sm text-gray-500">{completionPercentage}%</span>
+                                  </div>
+                                  <p className="text-sm text-gray-500 mt-1">
+                                    Step {draft.currentStep || 1} of 7 • {new Date(draft.createdAt).toLocaleDateString()}
+                                  </p>
+                                </div>
+                                <div className="flex gap-1 ml-4">
+                                  <Button
+                                    size="sm"
+                                    onClick={() => handleLoadDraft(draft)}
+                                  >
+                                    Continue
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => deleteDraftMutation.mutate(draft.id)}
+                                    disabled={deleteDraftMutation.isPending}
+                                  >
+                                    Delete
+                                  </Button>
+                                </div>
                               </div>
-                              <div className="flex gap-1">
-                                <Button
-                                  size="sm"
-                                  onClick={() => handleLoadDraft(draft)}
-                                >
-                                  Load
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => deleteDraftMutation.mutate(draft.id)}
-                                  disabled={deleteDraftMutation.isPending}
-                                >
-                                  Delete
-                                </Button>
-                              </div>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       ) : (
-                        <p className="text-gray-500 text-center py-4">No saved drafts found</p>
+                        <p className="text-gray-500 text-center py-4">No saved progress found</p>
                       )}
                     </div>
                   </DialogContent>
