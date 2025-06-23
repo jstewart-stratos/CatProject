@@ -186,6 +186,11 @@ Preferred communication style: Simple, everyday language.
     * Client table now has: Eye (view details), Plus (add account), Trash (delete)
     * Streamlined workflow: view client details for editing, quick account creation from table
     * User confirmed functionality works correctly
+  - ✅ **Connected Add Account buttons to account creation feature**:
+    * Both table plus icon and details modal "Add Account" button link to `/account-form?clientId=${clientId}`
+    * Account form automatically pre-fills client ID from URL parameter
+    * Seamless integration provides immediate account creation for selected clients
+    * User confirmed the integration looks good
 
 ## Onboarding Workflow
 
