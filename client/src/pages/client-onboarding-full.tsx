@@ -344,7 +344,8 @@ export default function ClientOnboardingFull() {
       console.log("Submitting client data:", data);
       return await apiRequest("POST", "/api/onboarding/client", data);
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log("Client creation successful:", data);
       // Delete the draft if it was loaded from a draft
       if (currentDraftId) {
         deleteDraftMutation.mutate(currentDraftId);
@@ -359,7 +360,7 @@ export default function ClientOnboardingFull() {
       console.error("Error creating client:", error);
       toast({
         title: "Error",
-        description: "Failed to create client. Please try again.",
+        description: error.message || "Failed to create client. Please try again.",
         variant: "destructive",
       });
     },
@@ -474,7 +475,7 @@ export default function ClientOnboardingFull() {
   };
 
   const onSubmit = (data: FormData) => {
-    console.log("Final form data:", data);
+    console.log("onSubmit called - Final form data:", data);
     
     // Transform string values to booleans for certain fields
     const transformedData = {
@@ -484,6 +485,7 @@ export default function ClientOnboardingFull() {
     };
     
     console.log("Submitting client data:", transformedData);
+    console.log("Mutation pending:", mutation.isPending);
     mutation.mutate(transformedData);
   };
 
