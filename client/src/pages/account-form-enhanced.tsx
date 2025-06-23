@@ -181,35 +181,57 @@ export default function AccountFormEnhanced() {
     return programTypeMap[accountType] || [];
   }, [accountType]);
 
-  // Get filtered registration types based on account type - use useMemo for proper re-rendering
+  // Get filtered registration types based on account type AND program type - use useMemo for proper re-rendering
   const filteredRegistrationTypes = useMemo(() => {
-    if (!accountType) return [];
+    if (!accountType || !programType) return [];
     
-    const registrationTypeMap: { [key: string]: string[] } = {
-      'Individual': [
-        'Individual'
-      ],
-      'Joint': [
-        'Joint Tenants with Rights of Survivorship',
-        'Tenants in Common',
-        'Joint Tenants in Common',
-        'Community Property'
-      ],
-      'IRA': [
-        'Traditional IRA',
-        'Roth IRA',
-        'SEP IRA',
-        'SIMPLE IRA',
-        'Rollover IRA',
-        'Beneficiary IRA',
-        'Beneficiary Roth IRA'
-      ]
+    // Registration Type filtering based on Account Type + Program Type combinations from original source
+    const registrationTypeMap: { [key: string]: { [key: string]: string[] } } = {
+      'Individual': {
+        'Brokerage': ['Conservatorship', 'Education Savings', 'Guardianship', 'Individual', 'Minor Custodial'],
+        'Direct Business': ['529 Plan', 'Conservatorship', 'Education Savings', 'Guardianship', 'Individual', 'Minor Custodial', 'TAMP/TPIA Non-Entity Non-Retirement'],
+        'Manager Access Network': ['Conservatorship', 'Education Savings', 'Guardianship', 'Individual', 'Minor Custodial'],
+        'Manager Access Select': ['Conservatorship', 'Education Savings', 'Guardianship', 'Individual', 'Minor Custodial'],
+        'Manager Select': ['Conservatorship', 'Education Savings', 'Guardianship', 'Individual', 'Minor Custodial'],
+        'MWP': ['Conservatorship', 'Education Savings', 'Guardianship', 'Individual', 'Minor Custodial'],
+        'MWP RIA': ['Conservatorship', 'Education Savings', 'Guardianship', 'Individual', 'Minor Custodial'],
+        'OMP - Advisory': ['Conservatorship', 'Education Savings', 'Guardianship', 'Individual', 'Minor Custodial'],
+        'OMP RIA': ['Conservatorship', 'Education Savings', 'Guardianship', 'Individual', 'Minor Custodial'],
+        'PWP': ['Conservatorship', 'Education Savings', 'Guardianship', 'Individual', 'Minor Custodial'],
+        'PWP RIA': ['Conservatorship', 'Education Savings', 'Guardianship', 'Individual', 'Minor Custodial'],
+        'SAM': ['Conservatorship', 'Education Savings', 'Guardianship', 'Individual', 'Minor Custodial'],
+        'SWM': ['Conservatorship', 'Education Savings', 'Guardianship', 'Individual', 'Minor Custodial']
+      },
+      'Joint': {
+        'Brokerage': ['Joint Tenants with Rights of Survivorship', 'Tenants in Common', 'Joint Tenants in Common', 'Community Property'],
+        'Direct Business': ['Joint Tenants with Rights of Survivorship', 'Tenants in Common', 'Joint Tenants in Common', 'Community Property'],
+        'Manager Access Network': ['Joint Tenants with Rights of Survivorship', 'Tenants in Common', 'Joint Tenants in Common', 'Community Property'],
+        'Manager Access Select': ['Joint Tenants with Rights of Survivorship', 'Tenants in Common', 'Joint Tenants in Common', 'Community Property'],
+        'Manager Select': ['Joint Tenants with Rights of Survivorship', 'Tenants in Common', 'Joint Tenants in Common', 'Community Property'],
+        'MWP': ['Joint Tenants with Rights of Survivorship', 'Tenants in Common', 'Joint Tenants in Common', 'Community Property'],
+        'MWP RIA': ['Joint Tenants with Rights of Survivorship', 'Tenants in Common', 'Joint Tenants in Common', 'Community Property'],
+        'OMP - Advisory': ['Joint Tenants with Rights of Survivorship', 'Tenants in Common', 'Joint Tenants in Common', 'Community Property'],
+        'OMP RIA': ['Joint Tenants with Rights of Survivorship', 'Tenants in Common', 'Joint Tenants in Common', 'Community Property'],
+        'PWP': ['Joint Tenants with Rights of Survivorship', 'Tenants in Common', 'Joint Tenants in Common', 'Community Property'],
+        'PWP RIA': ['Joint Tenants with Rights of Survivorship', 'Tenants in Common', 'Joint Tenants in Common', 'Community Property'],
+        'SAM': ['Joint Tenants with Rights of Survivorship', 'Tenants in Common', 'Joint Tenants in Common', 'Community Property'],
+        'SWM': ['Joint Tenants with Rights of Survivorship', 'Tenants in Common', 'Joint Tenants in Common', 'Community Property']
+      },
+      'IRA': {
+        'Brokerage': ['Traditional IRA', 'Roth IRA', 'SEP IRA', 'SIMPLE IRA', 'Rollover IRA', 'Beneficiary IRA', 'Beneficiary Roth IRA'],
+        'Manager Access Network': ['Traditional IRA', 'Roth IRA', 'SEP IRA', 'SIMPLE IRA', 'Rollover IRA', 'Beneficiary IRA', 'Beneficiary Roth IRA'],
+        'Manager Access Select': ['Traditional IRA', 'Roth IRA', 'SEP IRA', 'SIMPLE IRA', 'Rollover IRA', 'Beneficiary IRA', 'Beneficiary Roth IRA'],
+        'Manager Select': ['Traditional IRA', 'Roth IRA', 'SEP IRA', 'SIMPLE IRA', 'Rollover IRA', 'Beneficiary IRA', 'Beneficiary Roth IRA'],
+        'Unified Managed Account': ['Traditional IRA', 'Roth IRA', 'SEP IRA', 'SIMPLE IRA', 'Rollover IRA', 'Beneficiary IRA', 'Beneficiary Roth IRA']
+      }
     };
     
+    const registrationTypes = registrationTypeMap[accountType]?.[programType] || [];
     console.log('Account Type:', accountType);
-    console.log('Filtered Registration Types:', registrationTypeMap[accountType] || []);
-    return registrationTypeMap[accountType] || [];
-  }, [accountType]);
+    console.log('Program Type:', programType);
+    console.log('Filtered Registration Types:', registrationTypes);
+    return registrationTypes;
+  }, [accountType, programType]);
 
   // Business rules for conditional sections
   const regTypesRequireBenef = [
