@@ -231,12 +231,15 @@ export default function ClientOnboardingFull() {
     } else if (employmentStatus === "retired") {
       form.setValue("industry", "retired");
       form.setValue("occupation", "Retired");
+      form.setValue("employerName", "Retired");
     } else if (employmentStatus === "student") {
       form.setValue("industry", "student");
       form.setValue("occupation", "Student");
+      form.setValue("employerName", "Student");
     } else if (employmentStatus === "homemaker") {
       form.setValue("industry", "homemaker");
       form.setValue("occupation", "Homemaker");
+      form.setValue("employerName", "Homemaker");
     }
   }, [employmentStatus, form]);
 
