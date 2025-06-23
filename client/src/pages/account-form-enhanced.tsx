@@ -96,7 +96,6 @@ export default function AccountFormEnhanced() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [currentSection, setCurrentSection] = useState("accountInfo");
-  const [showAdditionalHolder, setShowAdditionalHolder] = useState(false);
   
   // Get clientId from URL params
   const params = new URLSearchParams(window.location.search);
@@ -234,20 +233,64 @@ export default function AccountFormEnhanced() {
     return registrationTypes;
   }, [accountType, programType]);
 
-  // Business rules for conditional sections
-  const regTypesRequireBenef = [
-    'Roth IRA', 'SARSEP', 'SEP IRA', 'SIMPLE IRA', 'Traditional IRA',
-    'Beneficiary IRA', 'Beneficiary Roth IRA', 'Beneficiary SIMPLE IRA',
-    'Guardian IRA', 'Guardian Roth IRA'
-  ];
+  // Field visibility logic based on original form data
+  const fieldVisibility = useMemo(() => {
+    // Business rules for conditional sections
+    const regTypesRequireBenef = [
+      'Roth IRA', 'SARSEP', 'SEP IRA', 'SIMPLE IRA', 'Traditional IRA',
+      'Beneficiary IRA', 'Beneficiary Roth IRA', 'Beneficiary SIMPLE IRA',
+      'Guardian IRA', 'Guardian Roth IRA'
+    ];
 
-  const regTypesRequireHolder = [
-    'Guardianship', 'Conservatorship', 'Education Savings',
-    'Minor Custodial', '529 Plan', 'Guardian IRA', 'Guardian Roth IRA'
-  ];
+    const regTypesRequireHolder = [
+      'Guardianship', 'Conservatorship', 'Education Savings',
+      'Minor Custodial', '529 Plan', 'Guardian IRA', 'Guardian Roth IRA'
+    ];
 
-  const shouldShowBeneficiaries = regTypesRequireBenef.includes(registrationType || '') || transferOnDeath === 'Yes';
-  const shouldShowAdditionalHolder = regTypesRequireHolder.includes(registrationType || '') || accountType?.toLowerCase().includes('joint');
+    // Default visibility
+    let showDeliveringFirm = true;
+    let showContraAccount = true;
+    let showIraType = false;
+
+    // Hide ACAT instructions for Joint accounts
+    if (accountType === 'Joint') {
+      showDeliveringFirm = false;
+      showContraAccount = false;
+    }
+
+    // Show IRA Type for IRA accounts
+    if (accountType === 'IRA') {
+      showIraType = true;
+    }
+
+    return {
+      showDeliveringFirm,
+      showContraAccount,
+      showIraType,
+      showTransferOnDeath: true,
+      showBeneficiaries: regTypesRequireBenef.includes(registrationType || '') || transferOnDeath === 'Yes',
+      showAdditionalHolder: regTypesRequireHolder.includes(registrationType || '') || accountType?.toLowerCase().includes('joint'),
+      showInvestmentObjective: true,
+      showInvestmentTimeHorizon: true,
+      showFundsNeededIn: true,
+      showApproximateAccountValue: true,
+      showExpectedAccountValue: false
+    };
+  }, [accountType, programType, registrationType, transferOnDeath]);
+
+  const {
+    showDeliveringFirm,
+    showContraAccount,
+    showIraType,
+    showTransferOnDeath,
+    showBeneficiaries,
+    showAdditionalHolder,
+    showInvestmentObjective,
+    showInvestmentTimeHorizon,
+    showFundsNeededIn,
+    showApproximateAccountValue,
+    showExpectedAccountValue
+  } = fieldVisibility;
 
   // Submit mutation
   const createAccountMutation = useMutation({
@@ -436,60 +479,68 @@ export default function AccountFormEnhanced() {
         />
       </div>
 
-      {/* ACAT Instructions */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">ACAT Instructions</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FormField
-            control={form.control}
-            name="deliveringFirm"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Delivering Firm</FormLabel>
-                <FormControl>
-                  <Input {...field} className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
+      {/* ACAT Instructions - Conditionally shown based on account type */}
+      {(showDeliveringFirm || showContraAccount || showIraType) && (
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">ACAT Instructions</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {showDeliveringFirm && (
+              <FormField
+                control={form.control}
+                name="deliveringFirm"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Delivering Firm</FormLabel>
+                    <FormControl>
+                      <Input {...field} className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             )}
-          />
-          <FormField
-            control={form.control}
-            name="contraAccount"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Contra Account #</FormLabel>
-                <FormControl>
-                  <Input {...field} className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
+            {showContraAccount && (
+              <FormField
+                control={form.control}
+                name="contraAccount"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Contra Account #</FormLabel>
+                    <FormControl>
+                      <Input {...field} className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             )}
-          />
-          <FormField
-            control={form.control}
-            name="iraType"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>IRA Type</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl>
-                    <SelectTrigger className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {lists?.["IRA Type"]?.map((type: string) => (
-                      <SelectItem key={type} value={type}>{type}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
+            {showIraType && (
+              <FormField
+                control={form.control}
+                name="iraType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>IRA Type</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
+                          <SelectValue placeholder="Select" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {lists?.["IRA Type"]?.map((type: string) => (
+                          <SelectItem key={type} value={type}>{type}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             )}
-          />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Transfer on Death */}
       <div className="space-y-4">
