@@ -618,19 +618,16 @@ export default function AccountFormEnhanced() {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {/* Provide numerical value ranges for account values */}
+                      {/* Letter-based value ranges matching the original form */}
                       {[
-                        "Under $10,000",
-                        "$10,000 - $25,000",
-                        "$25,000 - $50,000",
-                        "$50,000 - $100,000",
-                        "$100,000 - $250,000",
-                        "$250,000 - $500,000",
-                        "$500,000 - $1,000,000",
-                        "$1,000,000 - $2,500,000",
-                        "$2,500,000 - $5,000,000",
-                        "$5,000,000 - $10,000,000",
-                        "Over $10,000,000"
+                        "A) $1 - $24,999",
+                        "B) $25,000 - $49,999",
+                        "C) $50,000 - $99,999",
+                        "D) $100,000 - $249,999",
+                        "E) $250,000 - $499,999",
+                        "F) $500,000 - $749,999",
+                        "G) $750,000 - $999,999",
+                        "H) $1,000,000 and over"
                       ].map((value: string) => (
                         <SelectItem key={value} value={value}>{value}</SelectItem>
                       ))}
