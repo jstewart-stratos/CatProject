@@ -230,7 +230,16 @@ export default function ClientOnboardingFull() {
 
   const onSubmit = (data: FormData) => {
     console.log("Final form data:", data);
-    mutation.mutate(data);
+    
+    // Transform string values to booleans for certain fields
+    const transformedData = {
+      ...data,
+      hasInvestmentExperience: data.hasInvestmentExperience === "yes",
+      hasOtherInvestments: data.hasOtherInvestments === "yes"
+    };
+    
+    console.log("Submitting client data:", transformedData);
+    mutation.mutate(transformedData);
   };
 
   const getStepSchema = (step: number) => {
