@@ -134,7 +134,7 @@ export default function AccountFormEnhanced() {
 
   // Get filtered program types based on account type
   const getFilteredProgramTypes = () => {
-    if (!accountType) return lists?.["Program Type"] || [];
+    if (!accountType) return [];
     
     const programTypeMap: { [key: string]: string[] } = {
       'Individual': [
@@ -156,12 +156,14 @@ export default function AccountFormEnhanced() {
       ]
     };
     
+    console.log('Account Type:', accountType);
+    console.log('Filtered Program Types:', programTypeMap[accountType] || []);
     return programTypeMap[accountType] || [];
   };
 
   // Get filtered registration types based on account type
   const getFilteredRegistrationTypes = () => {
-    if (!accountType) return lists?.["Registration Type"] || [];
+    if (!accountType) return [];
     
     const registrationTypeMap: { [key: string]: string[] } = {
       'Individual': [
@@ -184,6 +186,8 @@ export default function AccountFormEnhanced() {
       ]
     };
     
+    console.log('Account Type:', accountType);
+    console.log('Filtered Registration Types:', registrationTypeMap[accountType] || []);
     return registrationTypeMap[accountType] || [];
   };
 
