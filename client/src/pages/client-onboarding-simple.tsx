@@ -124,7 +124,8 @@ function ClientOnboarding() {
   });
 
   const mutation = useMutation({
-    mutationFn: async (data: OnboardingData) => {
+    mutationFn: async (data: any) => {
+      console.log("Submitting client data:", data);
       return await apiRequest("/api/clients", "POST", data);
     },
     onSuccess: () => {
