@@ -200,6 +200,12 @@ Preferred communication style: Simple, everyday language.
     * Built Special Accounts section with dynamic content for trust accounts and 529 education plans
     * Enhanced form validation and field organization throughout all sections
     * Applied professional styling with card-based layouts and proper spacing
+  - ✅ **Fixed critical registration dropdown and account value issues**:
+    * Added missing Registration Type options to server lists endpoint (25 registration types)
+    * Implemented conditional filtering logic for registration types based on account type selection
+    * Added numerical value ranges to approximate account value dropdown ($10K to $10M+ ranges)
+    * Fixed IRA accounts showing only IRA registrations, Corporate showing business types, Individual showing personal/joint types
+    * Registration dropdown now properly displays filtered options based on account type selection
 
 ## Onboarding Workflow
 
