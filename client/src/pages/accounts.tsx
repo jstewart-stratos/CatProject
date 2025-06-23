@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { isUnauthorizedError } from "@/lib/authUtils";
@@ -91,10 +92,12 @@ export default function Accounts() {
                     <SelectItem value="Trust">Trust</SelectItem>
                   </SelectContent>
                 </Select>
-                <Button onClick={() => openModal()}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Account
-                </Button>
+                <Link to="/account-form-enhanced">
+                  <Button>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Account
+                  </Button>
+                </Link>
               </div>
             </CardHeader>
             

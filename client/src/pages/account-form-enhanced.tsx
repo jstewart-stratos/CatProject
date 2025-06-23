@@ -1255,6 +1255,28 @@ export default function AccountFormEnhanced() {
           >
             Beneficiaries
           </button>
+          <button
+            type="button"
+            className={`nav-btn w-full text-left px-3 py-2 rounded-r ${
+              currentSection === 'tradingAuthority'
+                ? 'bg-white border-l-4 border-blue-800 text-blue-800 font-medium'
+                : 'text-gray-700 hover:bg-white hover:border-l-4 hover:border-blue-800'
+            }`}
+            onClick={() => setCurrentSection('tradingAuthority')}
+          >
+            Trading Authority
+          </button>
+          <button
+            type="button"
+            className={`nav-btn w-full text-left px-3 py-2 rounded-r ${
+              currentSection === 'specialAccounts'
+                ? 'bg-white border-l-4 border-blue-800 text-blue-800 font-medium'
+                : 'text-gray-700 hover:bg-white hover:border-l-4 hover:border-blue-800'
+            }`}
+            onClick={() => setCurrentSection('specialAccounts')}
+          >
+            Special Accounts
+          </button>
           
           {/* Required Fields Summary */}
           <div className="mb-4 p-4 bg-gray-50 border-l-4 border-orange-300 text-gray-800 rounded">
@@ -1297,8 +1319,10 @@ export default function AccountFormEnhanced() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-12">
               {currentSection === 'accountInfo' && renderAccountInfoSection()}
               {currentSection === 'achInfo' && renderAchInfoSection()}
-              {currentSection === 'additionalHolders' && renderAdditionalHoldersSection()}
+              {currentSection === 'additionalHolders' && renderAdditionalHolderSection()}
               {currentSection === 'beneficiaries' && renderBeneficiariesSection()}
+              {currentSection === 'tradingAuthority' && renderTradingAuthoritySection()}
+              {currentSection === 'specialAccounts' && renderSpecialAccountsSection()}
 
               {/* Submit Button */}
               <div className="flex justify-end gap-4 pt-6 border-t">
