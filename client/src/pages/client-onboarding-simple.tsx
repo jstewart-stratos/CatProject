@@ -96,16 +96,18 @@ function ClientOnboarding() {
     },
   });
 
+  const [contactData, setContactData] = useState<ContactInfo>({
+    emailAddress: "",
+    phoneNumber: "",
+    address: "",
+    city: "",
+    state: "",
+    zipCode: "",
+  });
+
   const contactForm = useForm<ContactInfo>({
     resolver: zodResolver(contactInfoSchema),
-    defaultValues: {
-      emailAddress: "",
-      phoneNumber: "",
-      address: "",
-      city: "",
-      state: "",
-      zipCode: "",
-    },
+    defaultValues: contactData,
     mode: "onChange",
   });
 
@@ -299,125 +301,79 @@ function ClientOnboarding() {
   );
 
   const renderContactInfo = () => (
-    <Form {...contactForm}>
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FormField
-            control={contactForm.control}
-            name="emailAddress"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email Address</FormLabel>
-                <FormControl>
-                  <Input 
-                    type="email" 
-                    value={field.value || ""} 
-                    onChange={field.onChange}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-2">
+          <label htmlFor="emailAddress" className="text-sm font-medium">Email Address</label>
+          <Input
+            id="emailAddress"
+            type="email"
+            value={contactData.emailAddress}
+            onChange={(e) => setContactData({ ...contactData, emailAddress: e.target.value })}
+            className="w-full"
           />
+        </div>
 
-          <FormField
-            control={contactForm.control}
-            name="phoneNumber"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Phone Number</FormLabel>
-                <FormControl>
-                  <Input 
-                    placeholder="(XXX) XXX-XXXX" 
-                    value={field.value || ""} 
-                    onChange={field.onChange}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+        <div className="space-y-2">
+          <label htmlFor="phoneNumber" className="text-sm font-medium">Phone Number</label>
+          <Input
+            id="phoneNumber"
+            placeholder="(XXX) XXX-XXXX"
+            value={contactData.phoneNumber}
+            onChange={(e) => setContactData({ ...contactData, phoneNumber: e.target.value })}
+            className="w-full"
           />
+        </div>
 
-          <FormField
-            control={contactForm.control}
-            name="address"
-            render={({ field }) => (
-              <FormItem className="md:col-span-2">
-                <FormLabel>Address</FormLabel>
-                <FormControl>
-                  <Input 
-                    value={field.value || ""} 
-                    onChange={field.onChange}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+        <div className="space-y-2 md:col-span-2">
+          <label htmlFor="address" className="text-sm font-medium">Address</label>
+          <Input
+            id="address"
+            value={contactData.address}
+            onChange={(e) => setContactData({ ...contactData, address: e.target.value })}
+            className="w-full"
           />
+        </div>
 
-          <FormField
-            control={contactForm.control}
-            name="city"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>City</FormLabel>
-                <FormControl>
-                  <Input 
-                    value={field.value || ""} 
-                    onChange={field.onChange}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+        <div className="space-y-2">
+          <label htmlFor="city" className="text-sm font-medium">City</label>
+          <Input
+            id="city"
+            value={contactData.city}
+            onChange={(e) => setContactData({ ...contactData, city: e.target.value })}
+            className="w-full"
           />
+        </div>
 
-          <FormField
-            control={contactForm.control}
-            name="state"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>State</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value || ""}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select state" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="AL">Alabama</SelectItem>
-                    <SelectItem value="AK">Alaska</SelectItem>
-                    <SelectItem value="AZ">Arizona</SelectItem>
-                    <SelectItem value="CA">California</SelectItem>
-                    <SelectItem value="FL">Florida</SelectItem>
-                    <SelectItem value="NY">New York</SelectItem>
-                    <SelectItem value="TX">Texas</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        <div className="space-y-2">
+          <label htmlFor="state" className="text-sm font-medium">State</label>
+          <Select value={contactData.state} onValueChange={(value) => setContactData({ ...contactData, state: value })}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select state" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="AL">Alabama</SelectItem>
+              <SelectItem value="AK">Alaska</SelectItem>
+              <SelectItem value="AZ">Arizona</SelectItem>
+              <SelectItem value="CA">California</SelectItem>
+              <SelectItem value="FL">Florida</SelectItem>
+              <SelectItem value="NY">New York</SelectItem>
+              <SelectItem value="TX">Texas</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
-          <FormField
-            control={contactForm.control}
-            name="zipCode"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>ZIP Code</FormLabel>
-                <FormControl>
-                  <Input 
-                    value={field.value || ""} 
-                    onChange={field.onChange}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+        <div className="space-y-2">
+          <label htmlFor="zipCode" className="text-sm font-medium">ZIP Code</label>
+          <Input
+            id="zipCode"
+            value={contactData.zipCode}
+            onChange={(e) => setContactData({ ...contactData, zipCode: e.target.value })}
+            className="w-full"
           />
         </div>
       </div>
-    </Form>
+    </div>
   );
 
   const renderEmploymentInfo = () => {
