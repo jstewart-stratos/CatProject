@@ -11,9 +11,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
-import { ChevronLeft, ChevronRight, CheckCircle } from "lucide-react";
+import { ChevronLeft, ChevronRight, CheckCircle, InfoIcon } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 // Step schemas
 const step1Schema = z.object({
@@ -51,6 +52,8 @@ const step3Schema = z.object({
   employmentStatus: z.string().min(1, "Employment status is required"),
   industry: z.string().optional(),
   occupation: z.string().optional(),
+  employerName: z.string().optional(),
+  industryAffiliation: z.string().optional(),
 });
 
 const step4Schema = z.object({
@@ -155,6 +158,8 @@ export default function ClientOnboardingFull() {
       employmentStatus: "",
       industry: "",
       occupation: "",
+      employerName: "",
+      industryAffiliation: "",
       annualIncome: "",
       taxBracket: "",
       netWorth: "",
@@ -756,77 +761,154 @@ export default function ClientOnboardingFull() {
 
               {/* Step 3: Employment Information */}
               {currentStep === 3 && (
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Employment Information</h3>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="employmentStatus"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Status</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="employed">Employed</SelectItem>
-                              <SelectItem value="unemployed">Unemployed</SelectItem>
-                              <SelectItem value="retired">Retired</SelectItem>
-                              <SelectItem value="student">Student</SelectItem>
-                              <SelectItem value="self_employed">Self Employed</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                <TooltipProvider>
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold">Employment Information</h3>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="employmentStatus"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Status</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="employed">Employed</SelectItem>
+                                <SelectItem value="unemployed">Unemployed</SelectItem>
+                                <SelectItem value="retired">Retired</SelectItem>
+                                <SelectItem value="student">Student</SelectItem>
+                                <SelectItem value="self_employed">Self Employed</SelectItem>
+                                <SelectItem value="minor">Minor</SelectItem>
+                                <SelectItem value="homemaker">Homemaker</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
 
-                    <FormField
-                      control={form.control}
-                      name="industry"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Industry</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="technology">Technology</SelectItem>
-                              <SelectItem value="finance">Finance</SelectItem>
-                              <SelectItem value="healthcare">Healthcare</SelectItem>
-                              <SelectItem value="education">Education</SelectItem>
-                              <SelectItem value="retail">Retail</SelectItem>
-                              <SelectItem value="manufacturing">Manufacturing</SelectItem>
-                              <SelectItem value="other">Other</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                      <FormField
+                        control={form.control}
+                        name="industry"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Industry</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="accounting">Accounting</SelectItem>
+                                <SelectItem value="advertising">Advertising</SelectItem>
+                                <SelectItem value="aerospace">Aerospace</SelectItem>
+                                <SelectItem value="agriculture">Agriculture</SelectItem>
+                                <SelectItem value="automotive">Automotive</SelectItem>
+                                <SelectItem value="banking">Banking</SelectItem>
+                                <SelectItem value="biotechnology">Biotechnology</SelectItem>
+                                <SelectItem value="construction">Construction</SelectItem>
+                                <SelectItem value="consulting">Consulting</SelectItem>
+                                <SelectItem value="education">Education</SelectItem>
+                                <SelectItem value="energy">Energy</SelectItem>
+                                <SelectItem value="entertainment">Entertainment</SelectItem>
+                                <SelectItem value="finance">Finance</SelectItem>
+                                <SelectItem value="food_beverage">Food & Beverage</SelectItem>
+                                <SelectItem value="government">Government</SelectItem>
+                                <SelectItem value="healthcare">Healthcare</SelectItem>
+                                <SelectItem value="hospitality">Hospitality</SelectItem>
+                                <SelectItem value="insurance">Insurance</SelectItem>
+                                <SelectItem value="legal">Legal</SelectItem>
+                                <SelectItem value="manufacturing">Manufacturing</SelectItem>
+                                <SelectItem value="media">Media</SelectItem>
+                                <SelectItem value="nonprofit">Non-Profit</SelectItem>
+                                <SelectItem value="pharmaceuticals">Pharmaceuticals</SelectItem>
+                                <SelectItem value="real_estate">Real Estate</SelectItem>
+                                <SelectItem value="retail">Retail</SelectItem>
+                                <SelectItem value="technology">Technology</SelectItem>
+                                <SelectItem value="telecommunications">Telecommunications</SelectItem>
+                                <SelectItem value="transportation">Transportation</SelectItem>
+                                <SelectItem value="utilities">Utilities</SelectItem>
+                                <SelectItem value="other">Other</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
 
-                    <FormField
-                      control={form.control}
-                      name="occupation"
-                      render={({ field }) => (
-                        <FormItem className="md:col-span-2">
-                          <FormLabel>Occupation</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Occupation" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                      <FormField
+                        control={form.control}
+                        name="occupation"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Occupation</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Occupation" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="employerName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Employer Name</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Employer Name" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="industryAffiliation"
+                        render={({ field }) => (
+                          <FormItem className="md:col-span-2">
+                            <div className="flex items-center gap-2">
+                              <FormLabel>Industry Affiliation</FormLabel>
+                              <Tooltip>
+                                <TooltipTrigger type="button">
+                                  <InfoIcon className="h-4 w-4 text-gray-500" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p className="max-w-xs">Indicate if the account holder or any immediate family member is affiliated with a financial institution or securities firm.</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </div>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="lpl_rep_employee_sales_assistant">LPL Rep/Employee/Sales Assistant</SelectItem>
+                                <SelectItem value="relative_of_lpl_rep_employee">Relative of LPL Rep/Employee</SelectItem>
+                                <SelectItem value="employee_relative_other_securities_firm">Employee/Relative of Other Securities Firm</SelectItem>
+                                <SelectItem value="employee_relative_other_financial_institution">Employee/Relative of Other Financial Institution</SelectItem>
+                                <SelectItem value="employee_relative_finra_employee">Employee/Relative of FINRA Employee</SelectItem>
+                                <SelectItem value="none">None</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
                   </div>
-                </div>
+                </TooltipProvider>
               )}
 
               {/* Step 4: Suitability */}
