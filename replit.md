@@ -142,7 +142,7 @@ Preferred communication style: Simple, everyday language.
   - ✅ Approximate Account Value field hidden for Joint accounts
   - ✅ Investment Time Horizon and Funds Needed In remain visible for Joint accounts
   - ✅ Field visibility logic properly implemented based on original business rules from source code
-  - ✅ Updated Investment Objective options to: Income with Capital Preservation, Income with Moderate Growth, Growth with Income, Growth, Aggressive Growth, Trading
+  - ✅ Updated Investment Objective options to letter-based format: A) Income with Capital Preservation, B) Income with Moderate Growth, C) Growth with Income, D) Growth, E) Aggressive Growth, F) Trading
   - ✅ Updated Approximate Account Value dropdown to use letter-based format (A-H) matching original form structure
   - ✅ Created comprehensive onboarding form with conditional logic based on user screenshots
   - ✅ Implemented step-by-step progress tracking with smooth navigation

@@ -594,7 +594,14 @@ export default function AccountFormEnhanced() {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {lists?.["Investment Objective"]?.map((obj: string) => (
+                      {[
+                        "A) Income with Capital Preservation",
+                        "B) Income with Moderate Growth",
+                        "C) Growth with Income",
+                        "D) Growth",
+                        "E) Aggressive Growth",
+                        "F) Trading"
+                      ].map((obj: string) => (
                         <SelectItem key={obj} value={obj}>{obj}</SelectItem>
                       ))}
                     </SelectContent>
