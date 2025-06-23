@@ -236,8 +236,8 @@ export default function Clients() {
                                 <Button variant="ghost" size="sm" onClick={() => openDetailsModal(client)}>
                                   <Eye className="h-4 w-4" />
                                 </Button>
-                                <Button variant="ghost" size="sm" onClick={() => openModal(client)}>
-                                  <Edit className="h-4 w-4" />
+                                <Button variant="ghost" size="sm" onClick={() => handleAddAccount(client.id)}>
+                                  <Plus className="h-4 w-4" />
                                 </Button>
                                 <Button variant="ghost" size="sm">
                                   <Trash2 className="h-4 w-4" />

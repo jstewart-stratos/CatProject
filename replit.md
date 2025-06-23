@@ -181,6 +181,10 @@ Preferred communication style: Simple, everyday language.
     * Edit functionality opens the client modal with pre-filled data for editing
     * Add Account redirects to account creation page with client ID parameter
     * Fixed DOM nesting warnings in Badge components for cleaner UI
+  - ✅ **Updated client management table actions**:
+    * Changed edit button (pencil icon) to plus icon for adding accounts
+    * Client table now has: Eye (view details), Plus (add account), Trash (delete)
+    * Streamlined workflow: view client details for editing, quick account creation from table
 
 ## Onboarding Workflow
 
