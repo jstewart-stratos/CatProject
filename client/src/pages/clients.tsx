@@ -136,7 +136,7 @@ export default function Clients() {
   };
 
   const handleAddAccount = (clientId: number) => {
-    window.location.href = `/accounts/new?clientId=${clientId}`;
+    window.location.href = `/account-form?clientId=${clientId}`;
   };
 
   if (isLoading || !isAuthenticated) {
