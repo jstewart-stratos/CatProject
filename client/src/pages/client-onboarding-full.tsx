@@ -368,10 +368,39 @@ export default function ClientOnboardingFull() {
       const clientName = `${currentFormData.firstName || 'Client'} ${currentFormData.lastName || ''}`.trim();
       const draftTitle = clientName === 'Client' ? `Client ${new Date().toLocaleDateString()}` : clientName;
       
-      saveDraftMutation.mutate({ 
-        name: draftTitle, 
-        data: currentFormData 
-      });
+      // Check if we already have a draft ID (loaded or created), otherwise check if one exists
+      if (currentDraftId) {
+        // Update existing draft
+        saveDraftMutation.mutate({ 
+          name: draftTitle, 
+          data: currentFormData 
+        });
+      } else {
+        // Check if a draft already exists for this user before creating
+        const existingDraft = draftsData?.find((draft: any) => {
+          const draftFormData = draft.formData || {};
+          return (
+            draftFormData.firstName === currentFormData.firstName &&
+            draftFormData.lastName === currentFormData.lastName &&
+            draftFormData.emailAddress === currentFormData.emailAddress
+          );
+        });
+        
+        if (existingDraft) {
+          // Update the existing draft
+          setCurrentDraftId(existingDraft.id);
+          saveDraftMutation.mutate({ 
+            name: draftTitle, 
+            data: currentFormData 
+          });
+        } else {
+          // Create new draft only if none exists
+          saveDraftMutation.mutate({ 
+            name: draftTitle, 
+            data: currentFormData 
+          });
+        }
+      }
     }
   };
 

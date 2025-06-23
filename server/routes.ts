@@ -543,8 +543,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId,
       };
 
-      const draft = await storage.createDraftOnboarding(draftData);
-      res.json(draft);
+      // Check if user already has a draft with similar client data
+      const existingDrafts = await storage.getUserDraftOnboardings(userId);
+      const formData = draftData.formData || {};
+      
+      // Look for existing draft with matching name data
+      const existingDraft = existingDrafts.find((draft: any) => {
+        const existingFormData = draft.formData || {};
+        return (
+          existingFormData.firstName === formData.firstName &&
+          existingFormData.lastName === formData.lastName &&
+          existingFormData.emailAddress === formData.emailAddress
+        );
+      });
+
+      if (existingDraft) {
+        // Update existing draft instead of creating new one
+        const updatedDraft = await storage.updateDraftOnboarding(existingDraft.id, draftData);
+        res.json(updatedDraft);
+      } else {
+        // Create new draft only if no match found
+        const draft = await storage.createDraftOnboarding(draftData);
+        res.json(draft);
+      }
     } catch (error) {
       console.error('Error creating draft onboarding:', error);
       res.status(500).json({ message: 'Failed to create draft onboarding' });
@@ -624,6 +645,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error deleting draft onboarding:', error);
       res.status(500).json({ message: 'Failed to delete draft onboarding' });
+    }
+  });
+
+  // Cleanup duplicate drafts endpoint
+  app.post('/api/draft-onboarding/cleanup-duplicates', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const allDrafts = await storage.getUserDraftOnboardings(userId);
+      
+      // Group drafts by client name/email combination
+      const draftGroups: { [key: string]: any[] } = {};
+      
+      allDrafts.forEach((draft: any) => {
+        const formData = draft.formData || {};
+        const key = `${formData.firstName || ''}_${formData.lastName || ''}_${formData.emailAddress || ''}`;
+        
+        if (!draftGroups[key]) {
+          draftGroups[key] = [];
+        }
+        draftGroups[key].push(draft);
+      });
+      
+      let deletedCount = 0;
+      
+      // For each group with duplicates, keep the most recent and delete the rest
+      for (const group of Object.values(draftGroups)) {
+        if (group.length > 1) {
+          // Sort by lastModified date, keep the most recent
+          group.sort((a, b) => new Date(b.lastModified).getTime() - new Date(a.lastModified).getTime());
+          
+          // Delete all but the most recent
+          for (let i = 1; i < group.length; i++) {
+            await storage.deleteDraftOnboarding(group[i].id);
+            deletedCount++;
+          }
+        }
+      }
+      
+      res.json({ 
+        message: `Cleanup completed. Removed ${deletedCount} duplicate drafts.`,
+        deletedCount 
+      });
+    } catch (error) {
+      console.error('Error cleaning up duplicate drafts:', error);
+      res.status(500).json({ message: 'Failed to cleanup duplicate drafts' });
     }
   });
 
