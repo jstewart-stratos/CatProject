@@ -273,8 +273,8 @@ export default function AccountFormEnhanced() {
       showBeneficiaries: regTypesRequireBenef.includes(registrationType || '') || transferOnDeath === 'Yes',
       showAdditionalHolder: regTypesRequireHolder.includes(registrationType || '') || accountType?.toLowerCase().includes('joint'),
       showInvestmentObjective: true,
-      showInvestmentTimeHorizon: accountType !== 'Joint',
-      showFundsNeededIn: accountType !== 'Joint',
+      showInvestmentTimeHorizon: true,
+      showFundsNeededIn: true,
       showApproximateAccountValue: accountType !== 'Joint',
       showExpectedAccountValue: false
     };

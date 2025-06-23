@@ -135,6 +135,13 @@ Preferred communication style: Simple, everyday language.
 ## Recent Changes
 
 - **June 23, 2025**: Successfully completed and tested 7-step client onboarding workflow
+- **June 23, 2025**: Implemented comprehensive conditional field visibility for Joint accounts in enhanced account form
+  - ✅ ACAT Instructions (Delivering Firm, Contra Account #) hidden for Joint accounts
+  - ✅ Transfer on Death section hidden for Joint accounts
+  - ✅ Suitability section shows only Investment Objective dropdown for Joint accounts
+  - ✅ Approximate Account Value field hidden for Joint accounts
+  - ✅ Investment Time Horizon and Funds Needed In remain visible for Joint accounts
+  - ✅ Field visibility logic properly implemented based on original business rules from source code
   - ✅ Created comprehensive onboarding form with conditional logic based on user screenshots
   - ✅ Implemented step-by-step progress tracking with smooth navigation
   - ✅ Added conditional form sections for investment experience and financial information
