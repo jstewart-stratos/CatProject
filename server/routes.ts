@@ -715,15 +715,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         'Account Type': [
           'Individual',
           'Joint',
-          'Corporate',
-          'Trust',
-          'IRA',
-          'Roth IRA',
-          'SEP IRA',
-          'Simple IRA',
-          '401k',
-          '403b',
-          'Entity'
+          'IRA'
         ],
         'Program Type': [
           'Brokerage',

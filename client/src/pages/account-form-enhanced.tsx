@@ -123,63 +123,69 @@ export default function AccountFormEnhanced() {
   const registrationType = watchedValues.registrationType;
   const transferOnDeath = watchedValues.transferOnDeath;
 
-  // Reset registration type when account type changes
+  // Reset program type and registration type when account type changes
   useEffect(() => {
-    if (accountType && registrationType) {
-      // Define specific registration types for each account type
-      const accountTypeMap: { [key: string]: string[] } = {
-        'Individual': [
-          'Individual',
-          'Joint Tenants with Rights of Survivorship',
-          'Tenants in Common',
-          'Joint Tenants in Common',
-          'Community Property'
-        ],
-        'Joint': [
-          'Joint Tenants with Rights of Survivorship',
-          'Tenants in Common',
-          'Joint Tenants in Common',
-          'Community Property'
-        ],
-        'Corporate': [
-          'Corporation',
-          'LLC',
-          'Partnership'
-        ],
-        'Trust': [
-          'Trust',
-          'Revocable Trust',
-          'Irrevocable Trust'
-        ],
-        'IRA': [
-          'Traditional IRA',
-          'Rollover IRA'
-        ],
-        'Roth IRA': [
-          'Roth IRA'
-        ],
-        'SEP IRA': [
-          'SEP IRA'
-        ],
-        'Simple IRA': [
-          'SIMPLE IRA'
-        ],
-        'Entity': [
-          'Corporation',
-          'LLC',
-          'Partnership',
-          'Trust',
-          'Estate'
-        ]
-      };
-      
-      // Check if current registration type is valid for selected account type
-      const validRegistrationTypes = accountTypeMap[accountType] || [];
-      if (!validRegistrationTypes.includes(registrationType)) {
-        form.setValue('registrationType', '');
-      }
+    if (accountType) {
+      // Reset dependent fields when account type changes
+      form.setValue('programType', '');
+      form.setValue('registrationType', '');
     }
   }, [accountType, form]);
+
+  // Get filtered program types based on account type
+  const getFilteredProgramTypes = () => {
+    if (!accountType) return lists?.["Program Type"] || [];
+    
+    const programTypeMap: { [key: string]: string[] } = {
+      'Individual': [
+        'Brokerage',
+        'Advisory',
+        'Wrap Fee Program'
+      ],
+      'Joint': [
+        'Brokerage',
+        'Advisory', 
+        'Wrap Fee Program'
+      ],
+      'IRA': [
+        'Brokerage',
+        'Manager Access Network',
+        'Manager Access Select',
+        'Manager Select',
+        'Unified Managed Account'
+      ]
+    };
+    
+    return programTypeMap[accountType] || [];
+  };
+
+  // Get filtered registration types based on account type
+  const getFilteredRegistrationTypes = () => {
+    if (!accountType) return lists?.["Registration Type"] || [];
+    
+    const registrationTypeMap: { [key: string]: string[] } = {
+      'Individual': [
+        'Individual'
+      ],
+      'Joint': [
+        'Joint Tenants with Rights of Survivorship',
+        'Tenants in Common',
+        'Joint Tenants in Common',
+        'Community Property'
+      ],
+      'IRA': [
+        'Traditional IRA',
+        'Roth IRA',
+        'SEP IRA',
+        'SIMPLE IRA',
+        'Rollover IRA',
+        'Beneficiary IRA',
+        'Beneficiary Roth IRA'
+      ]
+    };
+    
+    return registrationTypeMap[accountType] || [];
+  };
 
   // Business rules for conditional sections
   const regTypesRequireBenef = [
@@ -349,7 +355,7 @@ export default function AccountFormEnhanced() {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {lists?.["Program Type"]?.map((type: string) => (
+                  {getFilteredProgramTypes().map((type: string) => (
                     <SelectItem key={type} value={type}>{type}</SelectItem>
                   ))}
                 </SelectContent>
@@ -371,60 +377,7 @@ export default function AccountFormEnhanced() {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {/* Filter registration types based on account type */}
-                  {lists?.["Registration Type"]?.filter((type: string) => {
-                    if (!accountType) return true;
-                    
-                    // Define specific registration types for each account type
-                    const accountTypeMap: { [key: string]: string[] } = {
-                      'Individual': [
-                        'Individual',
-                        'Joint Tenants with Rights of Survivorship',
-                        'Tenants in Common',
-                        'Joint Tenants in Common',
-                        'Community Property'
-                      ],
-                      'Joint': [
-                        'Joint Tenants with Rights of Survivorship',
-                        'Tenants in Common',
-                        'Joint Tenants in Common',
-                        'Community Property'
-                      ],
-                      'Corporate': [
-                        'Corporation',
-                        'LLC',
-                        'Partnership'
-                      ],
-                      'Trust': [
-                        'Trust',
-                        'Revocable Trust',
-                        'Irrevocable Trust'
-                      ],
-                      'IRA': [
-                        'Traditional IRA',
-                        'Rollover IRA'
-                      ],
-                      'Roth IRA': [
-                        'Roth IRA'
-                      ],
-                      'SEP IRA': [
-                        'SEP IRA'
-                      ],
-                      'Simple IRA': [
-                        'SIMPLE IRA'
-                      ],
-                      'Entity': [
-                        'Corporation',
-                        'LLC',
-                        'Partnership',
-                        'Trust',
-                        'Estate'
-                      ]
-                    };
-                    
-                    // Return types that match the selected account type
-                    return accountTypeMap[accountType]?.includes(type) || false;
-                  }).map((type: string) => (
+                  {getFilteredRegistrationTypes().map((type: string) => (
                     <SelectItem key={type} value={type}>{type}</SelectItem>
                   ))}
                 </SelectContent>
