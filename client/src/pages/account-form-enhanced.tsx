@@ -253,7 +253,7 @@ export default function AccountFormEnhanced() {
     let showIraType = false;
     let showTransferOnDeath = true;
 
-    // Hide ACAT instructions and Transfer on Death for Joint accounts
+    // Hide ACAT instructions, Transfer on Death, and account value fields for Joint accounts
     if (accountType === 'Joint') {
       showDeliveringFirm = false;
       showContraAccount = false;
@@ -273,9 +273,9 @@ export default function AccountFormEnhanced() {
       showBeneficiaries: regTypesRequireBenef.includes(registrationType || '') || transferOnDeath === 'Yes',
       showAdditionalHolder: regTypesRequireHolder.includes(registrationType || '') || accountType?.toLowerCase().includes('joint'),
       showInvestmentObjective: true,
-      showInvestmentTimeHorizon: true,
-      showFundsNeededIn: true,
-      showApproximateAccountValue: true,
+      showInvestmentTimeHorizon: accountType !== 'Joint',
+      showFundsNeededIn: accountType !== 'Joint',
+      showApproximateAccountValue: accountType !== 'Joint',
       showExpectedAccountValue: false
     };
   }, [accountType, programType, registrationType, transferOnDeath]);
@@ -580,135 +580,147 @@ export default function AccountFormEnhanced() {
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Suitability</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FormField
-            control={form.control}
-            name="investmentObjective"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Investment Objective <span className="text-red-500">*</span></FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
+          {showInvestmentObjective && (
+            <FormField
+              control={form.control}
+              name="investmentObjective"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Investment Objective <span className="text-red-500">*</span></FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {lists?.["Investment Objective"]?.map((obj: string) => (
+                        <SelectItem key={obj} value={obj}>{obj}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+          {showApproximateAccountValue && (
+            <FormField
+              control={form.control}
+              name="approximateAccountValue"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Approximate Account Value</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {/* Provide numerical value ranges for account values */}
+                      {[
+                        "Under $10,000",
+                        "$10,000 - $25,000",
+                        "$25,000 - $50,000",
+                        "$50,000 - $100,000",
+                        "$100,000 - $250,000",
+                        "$250,000 - $500,000",
+                        "$500,000 - $1,000,000",
+                        "$1,000,000 - $2,500,000",
+                        "$2,500,000 - $5,000,000",
+                        "$5,000,000 - $10,000,000",
+                        "Over $10,000,000"
+                      ].map((value: string) => (
+                        <SelectItem key={value} value={value}>{value}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+          {showExpectedAccountValue && (
+            <FormField
+              control={form.control}
+              name="expectedAccountValue"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Expected Account Value</FormLabel>
                   <FormControl>
-                    <SelectTrigger className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
+                    <div className="relative">
+                      <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">$</span>
+                      <Input 
+                        {...field} 
+                        placeholder="Enter expected account value"
+                        className="w-full p-3 pl-8 border rounded-lg focus:ring-2 focus:ring-blue-400"
+                      />
+                    </div>
                   </FormControl>
-                  <SelectContent>
-                    {lists?.["Investment Objective"]?.map((obj: string) => (
-                      <SelectItem key={obj} value={obj}>{obj}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="approximateAccountValue"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Approximate Account Value</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl>
-                    <SelectTrigger className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {/* Provide numerical value ranges for account values */}
-                    {[
-                      "Under $10,000",
-                      "$10,000 - $25,000",
-                      "$25,000 - $50,000",
-                      "$50,000 - $100,000",
-                      "$100,000 - $250,000",
-                      "$250,000 - $500,000",
-                      "$500,000 - $1,000,000",
-                      "$1,000,000 - $2,500,000",
-                      "$2,500,000 - $5,000,000",
-                      "$5,000,000 - $10,000,000",
-                      "Over $10,000,000"
-                    ].map((value: string) => (
-                      <SelectItem key={value} value={value}>{value}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="expectedAccountValue"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Expected Account Value</FormLabel>
-                <FormControl>
-                  <div className="relative">
-                    <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">$</span>
-                    <Input 
-                      {...field} 
-                      placeholder="Enter expected account value"
-                      className="w-full p-3 pl-8 border rounded-lg focus:ring-2 focus:ring-blue-400"
-                    />
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
         </div>
 
-        {/* Investment Horizon */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Investment Horizon & Liquidity Needs</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FormField
-              control={form.control}
-              name="investmentTimeHorizon"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Investment Time Horizon <span className="text-red-500">*</span></FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {lists?.["Investment Time Horizon"]?.map((horizon: string) => (
-                        <SelectItem key={horizon} value={horizon}>{horizon}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
+        {/* Investment Horizon - Conditionally shown based on account type */}
+        {(showInvestmentTimeHorizon || showFundsNeededIn) && (
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Investment Horizon & Liquidity Needs</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {showInvestmentTimeHorizon && (
+                <FormField
+                  control={form.control}
+                  name="investmentTimeHorizon"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Investment Time Horizon <span className="text-red-500">*</span></FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
+                            <SelectValue placeholder="Select" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {lists?.["Investment Time Horizon"]?.map((horizon: string) => (
+                            <SelectItem key={horizon} value={horizon}>{horizon}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               )}
-            />
-            <FormField
-              control={form.control}
-              name="fundsNeededIn"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Funds Needed In</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {lists?.["Funds Needed In"]?.map((period: string) => (
-                        <SelectItem key={period} value={period}>{period}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
+              {showFundsNeededIn && (
+                <FormField
+                  control={form.control}
+                  name="fundsNeededIn"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Funds Needed In</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
+                            <SelectValue placeholder="Select" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {lists?.["Funds Needed In"]?.map((period: string) => (
+                            <SelectItem key={period} value={period}>{period}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               )}
-            />
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </section>
   );
