@@ -206,7 +206,10 @@ export default function Clients() {
                                   </div>
                                   <div className="ml-4">
                                     <div className="text-sm font-medium text-slate-800">
-                                      {draft.title}
+                                      {formData.firstName && formData.lastName 
+                                        ? `${formData.firstName} ${formData.lastName}`
+                                        : draft.title || `Draft ${draft.id}`
+                                      }
                                     </div>
                                     <div className="text-sm text-slate-500">
                                       DRAFT-{draft.id}
