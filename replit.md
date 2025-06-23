@@ -132,7 +132,40 @@ DataFlow is a full-stack client data management system built with React, Express
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes
+
+- **June 23, 2025**: Completed 7-step client onboarding workflow
+  - Created comprehensive onboarding form with conditional logic based on screenshots
+  - Implemented step-by-step progress tracking with validation
+  - Added conditional form sections for investment experience and financial information
+  - Fixed authentication bypass for onboarding endpoint to allow public access
+  - Successfully tested 3-step workflow, now expanded to full 7-step process
+
+## Onboarding Workflow
+
+### 7-Step Client Onboarding Process
+1. **Personal Information** - Client type, SSN, names, citizenship, residency status, DOB, signing method
+2. **Contact Information** - Email, legal address, phone numbers, mailing address (conditional)
+3. **Employment Information** - Status, industry, occupation
+4. **Suitability** - Annual income, tax bracket, net worth, liquid net worth, source of wealth
+5. **Trusted Contact** - Emergency contact with full address details
+6. **Investment Experience** - Yes/No with conditional detailed experience fields
+7. **Financial Information** - Yes/No with conditional percentage allocation fields
+
+### Routes
+- `/client-onboarding` - Simple 3-step version (working)
+- `/client-onboarding-full` - Complete 7-step version (new)
+
+### Features
+- Step-by-step navigation with progress tracking
+- Form validation at each step
+- Conditional logic showing/hiding sections based on user responses
+- Mailing address same as legal address checkbox
+- Investment experience detailed fields (years)
+- Financial allocation percentages with 100% validation
+- Success page with completion confirmation
+
 ## Changelog
 
-Changelog:
 - June 20, 2025. Initial setup
+- June 23, 2025. Completed 7-step client onboarding workflow
