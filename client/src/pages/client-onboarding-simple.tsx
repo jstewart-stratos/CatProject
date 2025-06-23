@@ -163,7 +163,13 @@ function ClientOnboarding() {
         isValid = await personalForm.trigger();
         break;
       case 2:
-        isValid = await contactForm.trigger();
+        // Validate contact data manually since we're using state
+        isValid = contactData.emailAddress.trim() !== "" && 
+                 contactData.phoneNumber.trim() !== "" && 
+                 contactData.address.trim() !== "" && 
+                 contactData.city.trim() !== "" && 
+                 contactData.state.trim() !== "" && 
+                 contactData.zipCode.trim() !== "";
         break;
       case 3:
         isValid = await employmentForm.trigger();
@@ -177,7 +183,7 @@ function ClientOnboarding() {
         // Submit form
         const formData: OnboardingData = {
           personalInfo: personalForm.getValues(),
-          contactInfo: contactForm.getValues(),
+          contactInfo: contactData,
           employmentInfo: employmentForm.getValues(),
         };
         mutation.mutate(formData);
