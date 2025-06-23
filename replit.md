@@ -142,6 +142,8 @@ Preferred communication style: Simple, everyday language.
   - ✅ Resolved form validation issues and data type transformation (string to boolean)
   - ✅ Successfully tested full workflow - Client ID 4 created successfully
   - ✅ All 7 steps working: Personal Info → Contact → Employment → Suitability → Trusted Contact → Investment Experience → Financial Information
+  - ✅ Enhanced Employment step with "Minor" status and industry affiliation dropdown
+  - ✅ Updated Annual Income dropdown in Suitability step with exact ranges (A-H options)
 
 ## Onboarding Workflow
 
