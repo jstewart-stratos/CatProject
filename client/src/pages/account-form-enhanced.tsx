@@ -123,6 +123,64 @@ export default function AccountFormEnhanced() {
   const registrationType = watchedValues.registrationType;
   const transferOnDeath = watchedValues.transferOnDeath;
 
+  // Reset registration type when account type changes
+  useEffect(() => {
+    if (accountType && registrationType) {
+      // Define specific registration types for each account type
+      const accountTypeMap: { [key: string]: string[] } = {
+        'Individual': [
+          'Individual',
+          'Joint Tenants with Rights of Survivorship',
+          'Tenants in Common',
+          'Joint Tenants in Common',
+          'Community Property'
+        ],
+        'Joint': [
+          'Joint Tenants with Rights of Survivorship',
+          'Tenants in Common',
+          'Joint Tenants in Common',
+          'Community Property'
+        ],
+        'Corporate': [
+          'Corporation',
+          'LLC',
+          'Partnership'
+        ],
+        'Trust': [
+          'Trust',
+          'Revocable Trust',
+          'Irrevocable Trust'
+        ],
+        'IRA': [
+          'Traditional IRA',
+          'Rollover IRA'
+        ],
+        'Roth IRA': [
+          'Roth IRA'
+        ],
+        'SEP IRA': [
+          'SEP IRA'
+        ],
+        'Simple IRA': [
+          'SIMPLE IRA'
+        ],
+        'Entity': [
+          'Corporation',
+          'LLC',
+          'Partnership',
+          'Trust',
+          'Estate'
+        ]
+      };
+      
+      // Check if current registration type is valid for selected account type
+      const validRegistrationTypes = accountTypeMap[accountType] || [];
+      if (!validRegistrationTypes.includes(registrationType)) {
+        form.setValue('registrationType', '');
+      }
+    }
+  }, [accountType, form]);
+
   // Business rules for conditional sections
   const regTypesRequireBenef = [
     'Roth IRA', 'SARSEP', 'SEP IRA', 'SIMPLE IRA', 'Traditional IRA',
@@ -317,27 +375,55 @@ export default function AccountFormEnhanced() {
                   {lists?.["Registration Type"]?.filter((type: string) => {
                     if (!accountType) return true;
                     
-                    // IRA account types should only show IRA registrations
-                    if (accountType.toLowerCase().includes('ira')) {
-                      return type.toLowerCase().includes('ira');
-                    }
+                    // Define specific registration types for each account type
+                    const accountTypeMap: { [key: string]: string[] } = {
+                      'Individual': [
+                        'Individual',
+                        'Joint Tenants with Rights of Survivorship',
+                        'Tenants in Common',
+                        'Joint Tenants in Common',
+                        'Community Property'
+                      ],
+                      'Joint': [
+                        'Joint Tenants with Rights of Survivorship',
+                        'Tenants in Common',
+                        'Joint Tenants in Common',
+                        'Community Property'
+                      ],
+                      'Corporate': [
+                        'Corporation',
+                        'LLC',
+                        'Partnership'
+                      ],
+                      'Trust': [
+                        'Trust',
+                        'Revocable Trust',
+                        'Irrevocable Trust'
+                      ],
+                      'IRA': [
+                        'Traditional IRA',
+                        'Rollover IRA'
+                      ],
+                      'Roth IRA': [
+                        'Roth IRA'
+                      ],
+                      'SEP IRA': [
+                        'SEP IRA'
+                      ],
+                      'Simple IRA': [
+                        'SIMPLE IRA'
+                      ],
+                      'Entity': [
+                        'Corporation',
+                        'LLC',
+                        'Partnership',
+                        'Trust',
+                        'Estate'
+                      ]
+                    };
                     
-                    // Corporate accounts should show corporate registrations
-                    if (accountType === 'Corporate') {
-                      return ['Corporate', 'LLC', 'Partnership', 'Trust'].some(corp => 
-                        type.toLowerCase().includes(corp.toLowerCase())
-                      );
-                    }
-                    
-                    // Individual accounts should show individual/joint registrations
-                    if (accountType === 'Individual') {
-                      return !type.toLowerCase().includes('ira') && 
-                             !['Corporate', 'LLC', 'Partnership'].some(corp => 
-                               type.toLowerCase().includes(corp.toLowerCase())
-                             );
-                    }
-                    
-                    return true;
+                    // Return types that match the selected account type
+                    return accountTypeMap[accountType]?.includes(type) || false;
                   }).map((type: string) => (
                     <SelectItem key={type} value={type}>{type}</SelectItem>
                   ))}
