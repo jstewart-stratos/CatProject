@@ -744,8 +744,8 @@ export default function AccountFormEnhanced() {
           )}
         </div>
 
-        {/* Investment Horizon - Always shown for Individual accounts */}
-        {accountType === 'Individual' && (
+        {/* Investment Horizon & Liquidity Needs - Show for Joint accounts always, Individual accounts conditionally */}
+        {(accountType === 'Joint' || accountType === 'Individual') && (
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Investment Horizon & Liquidity Needs</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -806,98 +806,7 @@ export default function AccountFormEnhanced() {
           </div>
         )}
 
-        {/* Suitability Section - Show Investment Objective and Investment Horizon & Liquidity Needs for Joint accounts */}
-        {accountType === 'Joint' && (
-          <div className="space-y-6">
-            <h3 className="text-lg font-semibold">Suitability</h3>
-            
-            {/* Investment Objective */}
-            <div className="space-y-4">
-              <FormField
-                control={form.control}
-                name="investmentObjective"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Investment Objective <span className="text-red-500">*</span></FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
-                          <SelectValue placeholder="Select" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {[
-                          "A) Income with Capital Preservation",
-                          "B) Income with Moderate Growth",
-                          "C) Growth with Income",
-                          "D) Growth",
-                          "E) Aggressive Growth",
-                          "F) Trading"
-                        ].map((objective: string) => (
-                          <SelectItem key={objective} value={objective}>{objective}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
 
-            {/* Investment Horizon & Liquidity Needs */}
-            <div className="space-y-4">
-              <h4 className="text-md font-semibold">Investment Horizon & Liquidity Needs</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
-                  control={form.control}
-                  name="investmentTimeHorizon"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Investment Time Horizon</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
-                            <SelectValue placeholder="Select time horizon" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="1-3 years">1-3 years</SelectItem>
-                          <SelectItem value="3-5 years">3-5 years</SelectItem>
-                          <SelectItem value="5-10 years">5-10 years</SelectItem>
-                          <SelectItem value="10+ years">10+ years</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="fundsNeededIn"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Funds Needed In</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
-                            <SelectValue placeholder="Select timeframe" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="None">None</SelectItem>
-                          <SelectItem value="0-3 years">0-3 years</SelectItem>
-                          <SelectItem value="3+ years">3+ years</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-          </div>
-        )}
 
 
 
