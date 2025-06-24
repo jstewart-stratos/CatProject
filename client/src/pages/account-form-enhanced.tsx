@@ -276,10 +276,11 @@ export default function AccountFormEnhanced() {
     if (accountType === 'Joint') {
       // Joint accounts: Similar to Individual but with different conditional rules
       if (programType === 'Brokerage') {
-        // Joint + Brokerage: ACAT + Suitability + Transfer on Death
+        // Joint + Brokerage: ACAT + Suitability + Transfer on Death (depends on registration type)
         showDeliveringFirm = true;
         showContraAccount = true;
-        showTransferOnDeath = true;
+        // Transfer on Death only for specific registration types
+        showTransferOnDeath = registrationType === 'Joint Tenants with Right of Survivorship';
         showExpectedAccountValue = false;
         showApproximateAccountValue = true;
         showAdvisorFee = false;
@@ -294,10 +295,11 @@ export default function AccountFormEnhanced() {
         showAdvisorFee = false;
         showInvestmentObjective = true;
       } else if (advisoryProgramTypes.includes(programType)) {
-        // Joint + Advisory Programs: ACAT + Suitability + Advisory Program + Transfer on Death
+        // Joint + Advisory Programs: ACAT + Suitability + Advisory Program + Transfer on Death (depends on registration type)
         showDeliveringFirm = true;
         showContraAccount = true;
-        showTransferOnDeath = true;
+        // Transfer on Death only for specific registration types
+        showTransferOnDeath = registrationType === 'Joint Tenants with Right of Survivorship';
         showExpectedAccountValue = true; // Advisory uses Expected Account Value text input
         showApproximateAccountValue = false;
         showAdvisorFee = true;
