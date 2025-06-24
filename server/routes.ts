@@ -865,10 +865,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           'Not sure'
         ],
         'Distribution Types': [
-          'Required Minimum Distribution',
-          'Early Distribution', 
-          'Normal Distribution',
-          'Hardship Distribution'
+          'Five Year',
+          'Single Life Expectancy',
+          'Ten Year'
         ]
       };
       res.json(lists);
