@@ -381,7 +381,7 @@ export default function AccountFormEnhanced() {
         showAdvisorFee = false;
         showInvestmentObjective = true;
       } else if (programType === 'Direct Business') {
-        // IRA + Direct Business: Only Suitability + Investment Horizon & Liquidity Needs
+        // IRA + Direct Business: NO ACAT Instructions, only Suitability + Investment Horizon & Liquidity Needs (from screenshots)
         showDeliveringFirm = false;
         showContraAccount = false;
         showTransferOnDeath = false;
