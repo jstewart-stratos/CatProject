@@ -37,6 +37,7 @@ const accountFormSchema = z.object({
   advisoryBillingCycle: z.string().optional(),
   // IRA-specific fields
   decedentName: z.string().optional(),
+  dateOfDeath: z.string().optional(),
   distributionTypes: z.string().optional(),
   investmentTimeHorizon: z.string().min(1, "Investment Time Horizon is required"),
   fundsNeededIn: z.string().optional(),
@@ -362,16 +363,16 @@ export default function AccountFormEnhanced() {
       // IRA accounts: Show IRA Type and IRA-specific sections based on registration type
       showIraType = true;
       
-      // Show Beneficiary Details for Beneficiary IRA types
+      // Show Beneficiary Details for Beneficiary IRA types (from screenshots)
       if (registrationType && registrationType.includes('Beneficiary')) {
         showBeneficiaryDetails = true;
       }
       
-      // Show Distribution Types for all IRA types
+      // Show Distribution Types for all IRA types (from screenshots)
       showDistributionTypes = true;
       
       if (programType === 'Brokerage') {
-        // IRA + Brokerage: ACAT + Suitability (no Transfer on Death for IRAs)
+        // IRA + Brokerage: ACAT + Suitability + Investment Horizon & Liquidity Needs (from screenshots)
         showDeliveringFirm = true;
         showContraAccount = true;
         showTransferOnDeath = false; // IRAs don't use Transfer on Death
@@ -380,7 +381,7 @@ export default function AccountFormEnhanced() {
         showAdvisorFee = false;
         showInvestmentObjective = true;
       } else if (programType === 'Direct Business') {
-        // IRA + Direct Business: Only Suitability
+        // IRA + Direct Business: Only Suitability + Investment Horizon & Liquidity Needs
         showDeliveringFirm = false;
         showContraAccount = false;
         showTransferOnDeath = false;
@@ -389,7 +390,7 @@ export default function AccountFormEnhanced() {
         showAdvisorFee = false;
         showInvestmentObjective = true;
       } else if (advisoryProgramTypes.includes(programType)) {
-        // IRA + Advisory Programs: ACAT + Suitability + Advisory Program (no Transfer on Death)
+        // IRA + Advisory Programs: ACAT + Suitability + Advisory Program + Investment Horizon & Liquidity Needs
         showDeliveringFirm = true;
         showContraAccount = true;
         showTransferOnDeath = false; // IRAs don't use Transfer on Death
@@ -881,19 +882,34 @@ export default function AccountFormEnhanced() {
         {showBeneficiaryDetails && (
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Beneficiary IRA Details</h3>
-            <FormField
-              control={form.control}
-              name="decedentName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Decedent Name</FormLabel>
-                  <FormControl>
-                    <Input {...field} className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" placeholder="Enter decedent name" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="decedentName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Decedent Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" placeholder="Enter decedent name" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="dateOfDeath"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Date Of Death</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="date" className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
           </div>
         )}
 
