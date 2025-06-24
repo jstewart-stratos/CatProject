@@ -134,14 +134,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
-- **June 24, 2025**: Completed Joint account conditional logic implementation based on source system screenshots
-  - ✅ Fixed Joint account registration types to match source system exactly (6 registration options)
-  - ✅ Implemented registration-based Transfer on Death logic: "Joint Tenants with Right of Survivorship" shows it, others hide it
-  - ✅ Fixed duplicate Suitability and Transfer on Death sections
-  - ✅ Joint + Brokerage: ACAT Instructions + Transfer on Death (registration-dependent) + Suitability + Investment Horizon & Liquidity Needs
-  - ✅ Joint + Direct Business: Only Suitability + Investment Horizon & Liquidity Needs
-  - ✅ Joint + Advisory Programs: ACAT Instructions + Transfer on Death (registration-dependent) + Suitability (Expected Account Value text input) + Advisory Program + Investment Horizon & Liquidity Needs
-  - ✅ User confirmed all sections now display correctly without duplicates
+- **June 24, 2025**: Completed comprehensive account form conditional logic for all account types
+  - ✅ **Individual accounts**: 3 program groups with correct business rules (Brokerage, Direct Business, Advisory Programs)
+  - ✅ **Joint accounts**: Registration-based Transfer on Death logic + fixed duplicate sections + 6 exact registration types
+  - ✅ **IRA accounts**: IRA Type selection with simplified logic (no Transfer on Death - IRAs use beneficiaries)
+  - ✅ **SAM/SWM enhancement**: Added Advisory Billing Cycle dropdown for SAM and SWM program types (3 billing cycle options)
+  - ✅ User confirmed all account type combinations work correctly with proper conditional field visibility
+  - ✅ Form now handles Individual, Joint, and IRA accounts with complete business rule accuracy matching source system
 - **June 24, 2025**: Completed Individual account conditional logic implementation
   - ✅ Fixed duplicate ACAT Instructions sections 
   - ✅ Implemented 3 program type groups with correct business rules:
