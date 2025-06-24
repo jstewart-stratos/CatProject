@@ -389,8 +389,17 @@ export default function AccountFormEnhanced() {
         showApproximateAccountValue = true;
         showAdvisorFee = false;
         showInvestmentObjective = true;
+      } else if (programType === 'Manager Access Network') {
+        // IRA + Manager Access Network: ACAT + Expected Account Value + Advisory Program + Investment Horizon & Liquidity Needs (from screenshots)
+        showDeliveringFirm = true;
+        showContraAccount = true;
+        showTransferOnDeath = false; // IRAs don't use Transfer on Death
+        showExpectedAccountValue = true;
+        showApproximateAccountValue = false;
+        showAdvisorFee = true;
+        showInvestmentObjective = true;
       } else if (advisoryProgramTypes.includes(programType)) {
-        // IRA + Advisory Programs (Manager Select, etc.): ACAT + Suitability + Advisory Program + Investment Horizon & Liquidity Needs (from screenshots)
+        // IRA + Other Advisory Programs (Manager Select, etc.): ACAT + Suitability + Advisory Program + Investment Horizon & Liquidity Needs (from screenshots)
         showDeliveringFirm = true;
         showContraAccount = true;
         showTransferOnDeath = false; // IRAs don't use Transfer on Death
