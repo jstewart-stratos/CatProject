@@ -145,6 +145,7 @@ export const accounts = pgTable("accounts", {
   programType: varchar("program_type"),
   registrationType: varchar("registration_type"),
   advisorFee: decimal("advisor_fee"),
+  advisoryBillingCycle: varchar("advisory_billing_cycle"),
   iraType: varchar("ira_type"),
   
   // Investment Details
@@ -203,7 +204,6 @@ export const accounts = pgTable("accounts", {
   
   // Metadata
   notes: text("notes"),
-  advisoryBillingCycle: varchar("advisory_billing_cycle"),
   
   createdBy: varchar("created_by").references(() => users.id),
   createdAt: timestamp("created_at").defaultNow(),

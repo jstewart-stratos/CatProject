@@ -34,6 +34,7 @@ const accountFormSchema = z.object({
   investmentObjective: z.string().min(1, "Investment Objective is required"),
   approximateAccountValue: z.string().optional(),
   expectedAccountValue: z.string().optional(),
+  advisoryBillingCycle: z.string().optional(),
   investmentTimeHorizon: z.string().min(1, "Investment Time Horizon is required"),
   fundsNeededIn: z.string().optional(),
   // ACH Information
@@ -256,6 +257,7 @@ export default function AccountFormEnhanced() {
     let showApproximateAccountValue = false;
     let showAdvisorFee = false;
     let showInvestmentObjective = true;
+    let showAdvisoryBillingCycle = false;
 
     // Program types that show ACAT Instructions and Advisory sections
     const advisoryProgramTypes = [
@@ -369,6 +371,11 @@ export default function AccountFormEnhanced() {
       }
     }
 
+    // Show Advisory Billing Cycle for SAM and SWM program types
+    if (programType === 'SAM' || programType === 'SWM') {
+      showAdvisoryBillingCycle = true;
+    }
+
     return {
       showDeliveringFirm,
       showContraAccount,
@@ -378,6 +385,7 @@ export default function AccountFormEnhanced() {
       showApproximateAccountValue,
       showAdvisorFee,
       showInvestmentObjective,
+      showAdvisoryBillingCycle,
       shouldShowBeneficiaries: regTypesRequireBenef.includes(registrationType),
       shouldShowAdditionalHolder: regTypesRequireHolder.includes(registrationType)
     };
@@ -392,6 +400,7 @@ export default function AccountFormEnhanced() {
     showApproximateAccountValue,
     showAdvisorFee,
     showInvestmentObjective,
+    showAdvisoryBillingCycle,
     shouldShowBeneficiaries,
     shouldShowAdditionalHolder
   } = fieldVisibility;
@@ -839,19 +848,45 @@ export default function AccountFormEnhanced() {
         {showAdvisorFee && (
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Advisory Program Account Information</h3>
-            <FormField
-              control={form.control}
-              name="advisorFee"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Advisor Fee (%)</FormLabel>
-                  <FormControl>
-                    <Input {...field} type="number" step="0.01" placeholder="Enter fee percentage" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="advisorFee"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Advisor Fee (%)</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="number" step="0.01" placeholder="Enter fee percentage" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {showAdvisoryBillingCycle && (
+                <FormField
+                  control={form.control}
+                  name="advisoryBillingCycle"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Advisory Billing Cycle</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
+                            <SelectValue placeholder="Select" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="1">1 (Jan/Apr/July/Oct)</SelectItem>
+                          <SelectItem value="2">2 (Feb/May/Aug/Nov)</SelectItem>
+                          <SelectItem value="3">3 (Mar/June/Sept/Dec)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               )}
-            />
+            </div>
           </div>
         )}
       </div>
