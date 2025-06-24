@@ -876,42 +876,7 @@ export default function AccountFormEnhanced() {
           </div>
         )}
 
-        {/* ACAT Instructions Section - Only for advisory program types */}
-        {showDeliveringFirm && (
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">ACAT Instructions</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField
-                control={form.control}
-                name="deliveringFirm"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Delivering Firm</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Enter delivering firm name" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              {showContraAccount && (
-                <FormField
-                  control={form.control}
-                  name="contraAccount"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Contra Account #</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="Enter contra account number" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-            </div>
-          </div>
-        )}
+
 
         {/* Transfer on Death Section - Only for advisory program types */}
         {showTransferOnDeath && (
