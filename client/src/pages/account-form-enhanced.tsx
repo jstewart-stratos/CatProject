@@ -361,7 +361,9 @@ export default function AccountFormEnhanced() {
       }
     } else if (accountType === 'IRA') {
       // IRA accounts: Show IRA Type and IRA-specific sections based on registration type
-      showIraType = true;
+      // Hide IRA Type for specific registration types that don't need it
+      const hideIraTypeForRegs = ['Beneficiary IRA', 'Beneficiary Roth IRA', 'Beneficiary SIMPLE IRA', 'Guardian IRA', 'SARSEP', 'SIMPLE IRA'];
+      showIraType = !hideIraTypeForRegs.includes(registrationType);
       
       // Show Beneficiary Details for Beneficiary IRA types (from screenshots)
       if (registrationType && registrationType.includes('Beneficiary')) {
