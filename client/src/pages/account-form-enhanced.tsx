@@ -274,14 +274,35 @@ export default function AccountFormEnhanced() {
 
     // Business logic based on Account Type and Program Type combinations
     if (accountType === 'Joint') {
-      // Joint accounts: Hide ACAT, Transfer on Death, Advisory sections
-      showDeliveringFirm = false;
-      showContraAccount = false;
-      showTransferOnDeath = false;
-      showExpectedAccountValue = false;
-      showApproximateAccountValue = false; // Joint accounts don't show account value field
-      showAdvisorFee = false;
-      showInvestmentObjective = true; // Show Investment Objective for Joint accounts
+      // Joint accounts: Similar to Individual but with different conditional rules
+      if (programType === 'Brokerage') {
+        // Joint + Brokerage: ACAT + Suitability + Transfer on Death
+        showDeliveringFirm = true;
+        showContraAccount = true;
+        showTransferOnDeath = true;
+        showExpectedAccountValue = false;
+        showApproximateAccountValue = true;
+        showAdvisorFee = false;
+        showInvestmentObjective = true;
+      } else if (programType === 'Direct Business') {
+        // Joint + Direct Business: Only Suitability
+        showDeliveringFirm = false;
+        showContraAccount = false;
+        showTransferOnDeath = false;
+        showExpectedAccountValue = false;
+        showApproximateAccountValue = true;
+        showAdvisorFee = false;
+        showInvestmentObjective = true;
+      } else if (advisoryProgramTypes.includes(programType)) {
+        // Joint + Advisory Programs: ACAT + Suitability + Advisory Program + Transfer on Death
+        showDeliveringFirm = true;
+        showContraAccount = true;
+        showTransferOnDeath = true;
+        showExpectedAccountValue = true; // Advisory uses Expected Account Value text input
+        showApproximateAccountValue = false;
+        showAdvisorFee = true;
+        showInvestmentObjective = true;
+      }
     } else if (accountType === 'Individual') {
       // Individual accounts: Logic based on Program Type
       if (programType === 'Brokerage') {
