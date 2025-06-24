@@ -315,6 +315,7 @@ export default function AccountFormEnhanced() {
       showExpectedAccountValue,
       showApproximateAccountValue,
       showAdvisorFee,
+      showInvestmentObjective,
       shouldShowBeneficiaries: regTypesRequireBenef.includes(registrationType),
       shouldShowAdditionalHolder: regTypesRequireHolder.includes(registrationType)
     };
@@ -328,6 +329,7 @@ export default function AccountFormEnhanced() {
     showExpectedAccountValue,
     showApproximateAccountValue,
     showAdvisorFee,
+    showInvestmentObjective,
     shouldShowBeneficiaries,
     shouldShowAdditionalHolder
   } = fieldVisibility;

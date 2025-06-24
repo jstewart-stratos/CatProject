@@ -134,6 +134,12 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **June 24, 2025**: Fixed critical JavaScript error in enhanced account form
+  - ✅ Resolved "showInvestmentObjective is not defined" runtime error
+  - ✅ Added missing conditional logic variable to useMemo hook return object
+  - ✅ Updated destructuring assignment to properly expose showInvestmentObjective
+  - ✅ Maintained proper conditional field visibility for Joint accounts
+  - ✅ Application now runs without JavaScript errors
 - **June 23, 2025**: Successfully completed and tested 7-step client onboarding workflow
 - **June 23, 2025**: Implemented comprehensive conditional field visibility for Joint accounts in enhanced account form
   - ✅ ACAT Instructions (Delivering Firm, Contra Account #) hidden for Joint accounts
