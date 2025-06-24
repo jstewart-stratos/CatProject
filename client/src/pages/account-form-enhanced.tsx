@@ -232,7 +232,7 @@ export default function AccountFormEnhanced() {
       },
       'IRA': {
         'Brokerage': ['Beneficiary IRA', 'Beneficiary Roth IRA', 'Beneficiary SIMPLE IRA', 'Guardian IRA', 'Guardian Roth IRA', 'Roth IRA', 'SARSEP', 'SEP IRA', 'SIMPLE IRA', 'Traditional IRA'],
-        'Direct Business': ['Beneficiary IRA', 'Beneficiary Roth IRA', 'Beneficiary SIMPLE IRA', 'Guardian IRA', 'Guardian Roth IRA', 'Roth IRA', 'SARSEP', 'SEP IRA', 'SIMPLE IRA', 'Traditional IRA'],
+        'Direct Business': ['Beneficiary IRA', 'Beneficiary Roth IRA', 'Beneficiary SIMPLE IRA', 'Guardian IRA', 'Guardian Roth IRA', 'Roth IRA', 'SARSEP', 'SEP IRA', 'SIMPLE IRA', 'Traditional IRA', 'TAMP/TPIA Non-Entity N', 'TAMP/TPIA Non-Entity Non-Retirement'],
         'Manager Select': ['Beneficiary IRA', 'Beneficiary Roth IRA', 'Beneficiary SIMPLE IRA', 'Guardian IRA', 'Guardian Roth IRA', 'Roth IRA', 'SARSEP', 'SEP IRA', 'SIMPLE IRA', 'Traditional IRA'],
         'Manager Access Network': ['Beneficiary IRA', 'Beneficiary Roth IRA', 'Beneficiary SIMPLE IRA', 'Guardian IRA', 'Guardian Roth IRA', 'Roth IRA', 'SARSEP', 'SEP IRA', 'SIMPLE IRA', 'Traditional IRA'],
         'Manager Access Select': ['Beneficiary IRA', 'Beneficiary Roth IRA', 'Beneficiary SIMPLE IRA', 'Guardian IRA', 'Guardian Roth IRA', 'Roth IRA', 'SARSEP', 'SEP IRA', 'SIMPLE IRA', 'Traditional IRA'],

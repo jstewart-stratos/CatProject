@@ -823,6 +823,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
           'Beneficiary Roth IRA',
           'SARSEP IRA'
         ],
+        iraRegistrationTypes: [
+          'Beneficiary IRA',
+          'Beneficiary Roth IRA',
+          'Beneficiary SIMPLE IRA',
+          'Guardian IRA',
+          'Guardian Roth IRA',
+          'Roth IRA',
+          'SARSEP',
+          'SEP IRA',
+          'SIMPLE IRA',
+          'Traditional IRA',
+          'TAMP/TPIA Non-Entity N',
+          'TAMP/TPIA Non-Entity Non-Retirement'
+        ],
         'Bene Relation': [
           'Spouse',
           'Child',
