@@ -850,6 +850,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           '5-10 years',
           'More than 10 years',
           'Not sure'
+        ],
+        'Distribution Types': [
+          'Required Minimum Distribution',
+          'Early Distribution', 
+          'Normal Distribution',
+          'Hardship Distribution'
         ]
       };
       res.json(lists);
