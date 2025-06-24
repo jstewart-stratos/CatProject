@@ -203,19 +203,19 @@ export default function AccountFormEnhanced() {
         'SWM': ['Conservatorship', 'Education Savings', 'Guardianship', 'Individual', 'Minor Custodial']
       },
       'Joint': {
-        'Brokerage': ['Joint Tenants with Rights of Survivorship', 'Tenants in Common', 'Joint Tenants in Common', 'Community Property'],
-        'Direct Business': ['Joint Tenants with Rights of Survivorship', 'Tenants in Common', 'Joint Tenants in Common', 'Community Property'],
-        'Manager Access Network': ['Joint Tenants with Rights of Survivorship', 'Tenants in Common', 'Joint Tenants in Common', 'Community Property'],
-        'Manager Access Select': ['Joint Tenants with Rights of Survivorship', 'Tenants in Common', 'Joint Tenants in Common', 'Community Property'],
-        'Manager Select': ['Joint Tenants with Rights of Survivorship', 'Tenants in Common', 'Joint Tenants in Common', 'Community Property'],
-        'MWP': ['Joint Tenants with Rights of Survivorship', 'Tenants in Common', 'Joint Tenants in Common', 'Community Property'],
-        'MWP RIA': ['Joint Tenants with Rights of Survivorship', 'Tenants in Common', 'Joint Tenants in Common', 'Community Property'],
-        'OMP - Advisory': ['Joint Tenants with Rights of Survivorship', 'Tenants in Common', 'Joint Tenants in Common', 'Community Property'],
-        'OMP RIA': ['Joint Tenants with Rights of Survivorship', 'Tenants in Common', 'Joint Tenants in Common', 'Community Property'],
-        'PWP': ['Joint Tenants with Rights of Survivorship', 'Tenants in Common', 'Joint Tenants in Common', 'Community Property'],
-        'PWP RIA': ['Joint Tenants with Rights of Survivorship', 'Tenants in Common', 'Joint Tenants in Common', 'Community Property'],
-        'SAM': ['Joint Tenants with Rights of Survivorship', 'Tenants in Common', 'Joint Tenants in Common', 'Community Property'],
-        'SWM': ['Joint Tenants with Rights of Survivorship', 'Tenants in Common', 'Joint Tenants in Common', 'Community Property']
+        'Brokerage': ['Community Property', 'Community Property with Right of Survivorship', 'Joint Tenants with Right of Survivorship', 'Life Tenant with Remainderman', 'Tenants by Entirety', 'Tenants in Common'],
+        'Direct Business': ['Community Property', 'Community Property with Right of Survivorship', 'Joint Tenants with Right of Survivorship', 'Life Tenant with Remainderman', 'Tenants by Entirety', 'Tenants in Common'],
+        'Manager Access Network': ['Community Property', 'Community Property with Right of Survivorship', 'Joint Tenants with Right of Survivorship', 'Life Tenant with Remainderman', 'Tenants by Entirety', 'Tenants in Common'],
+        'Manager Access Select': ['Community Property', 'Community Property with Right of Survivorship', 'Joint Tenants with Right of Survivorship', 'Life Tenant with Remainderman', 'Tenants by Entirety', 'Tenants in Common'],
+        'Manager Select': ['Community Property', 'Community Property with Right of Survivorship', 'Joint Tenants with Right of Survivorship', 'Life Tenant with Remainderman', 'Tenants by Entirety', 'Tenants in Common'],
+        'MWP': ['Community Property', 'Community Property with Right of Survivorship', 'Joint Tenants with Right of Survivorship', 'Life Tenant with Remainderman', 'Tenants by Entirety', 'Tenants in Common'],
+        'MWP RIA': ['Community Property', 'Community Property with Right of Survivorship', 'Joint Tenants with Right of Survivorship', 'Life Tenant with Remainderman', 'Tenants by Entirety', 'Tenants in Common'],
+        'OMP - Advisory': ['Community Property', 'Community Property with Right of Survivorship', 'Joint Tenants with Right of Survivorship', 'Life Tenant with Remainderman', 'Tenants by Entirety', 'Tenants in Common'],
+        'OMP RIA': ['Community Property', 'Community Property with Right of Survivorship', 'Joint Tenants with Right of Survivorship', 'Life Tenant with Remainderman', 'Tenants by Entirety', 'Tenants in Common'],
+        'PWP': ['Community Property', 'Community Property with Right of Survivorship', 'Joint Tenants with Right of Survivorship', 'Life Tenant with Remainderman', 'Tenants by Entirety', 'Tenants in Common'],
+        'PWP RIA': ['Community Property', 'Community Property with Right of Survivorship', 'Joint Tenants with Right of Survivorship', 'Life Tenant with Remainderman', 'Tenants by Entirety', 'Tenants in Common'],
+        'SAM': ['Community Property', 'Community Property with Right of Survivorship', 'Joint Tenants with Right of Survivorship', 'Life Tenant with Remainderman', 'Tenants by Entirety', 'Tenants in Common'],
+        'SWM': ['Community Property', 'Community Property with Right of Survivorship', 'Joint Tenants with Right of Survivorship', 'Life Tenant with Remainderman', 'Tenants by Entirety', 'Tenants in Common']
       },
       'IRA': {
         'Brokerage': ['Traditional IRA', 'Roth IRA', 'SEP IRA', 'SIMPLE IRA', 'Rollover IRA', 'Beneficiary IRA', 'Beneficiary Roth IRA'],
