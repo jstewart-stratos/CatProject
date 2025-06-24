@@ -134,6 +134,12 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **June 24, 2025**: Enhanced Joint account Suitability section to match business requirements
+  - ✅ Added "Investment Horizon & Liquidity Needs" section for Joint accounts
+  - ✅ Implemented Investment Time Horizon dropdown (4 options: 1-3 years through 10+ years)
+  - ✅ Added Funds Needed In dropdown (3 options: None, 0-3 years, 3+ years)
+  - ✅ Maintained Investment Objective field for Joint accounts
+  - ✅ Form layout now matches screenshot requirements with proper spacing
 - **June 24, 2025**: Fixed critical JavaScript error in enhanced account form
   - ✅ Resolved "showInvestmentObjective is not defined" runtime error
   - ✅ Added missing conditional logic variable to useMemo hook return object
