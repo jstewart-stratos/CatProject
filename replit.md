@@ -134,6 +134,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **June 24, 2025**: Completed Individual account conditional logic implementation
+  - ✅ Fixed duplicate ACAT Instructions sections 
+  - ✅ Implemented 3 program type groups with correct business rules:
+    * Brokerage: ACAT Instructions + Suitability (dropdown) + Transfer on Death (Individual reg only)
+    * Direct Business: Only Suitability (dropdown)
+    * Advisory Programs: ACAT Instructions + Suitability (text input) + Advisory Program + Transfer on Death (Individual reg only)
+  - ✅ All Individual account combinations now follow source system patterns
 - **June 24, 2025**: Enhanced Joint account Suitability section to match business requirements
   - ✅ Added "Investment Horizon & Liquidity Needs" section for Joint accounts
   - ✅ Implemented Investment Time Horizon dropdown (4 options: 1-3 years through 10+ years)
