@@ -335,11 +335,38 @@ export default function AccountFormEnhanced() {
         showAdvisorFee = true;
         showInvestmentObjective = true;
       }
-    }
-
-    // Show IRA Type for IRA accounts
-    if (accountType === 'IRA') {
+    } else if (accountType === 'IRA') {
+      // IRA accounts: Always show IRA Type, simplified conditional logic
       showIraType = true;
+      
+      if (programType === 'Brokerage') {
+        // IRA + Brokerage: ACAT + Suitability (no Transfer on Death for IRAs)
+        showDeliveringFirm = true;
+        showContraAccount = true;
+        showTransferOnDeath = false; // IRAs don't use Transfer on Death
+        showExpectedAccountValue = false;
+        showApproximateAccountValue = true;
+        showAdvisorFee = false;
+        showInvestmentObjective = true;
+      } else if (programType === 'Direct Business') {
+        // IRA + Direct Business: Only Suitability
+        showDeliveringFirm = false;
+        showContraAccount = false;
+        showTransferOnDeath = false;
+        showExpectedAccountValue = false;
+        showApproximateAccountValue = true;
+        showAdvisorFee = false;
+        showInvestmentObjective = true;
+      } else if (advisoryProgramTypes.includes(programType)) {
+        // IRA + Advisory Programs: ACAT + Suitability + Advisory Program (no Transfer on Death)
+        showDeliveringFirm = true;
+        showContraAccount = true;
+        showTransferOnDeath = false; // IRAs don't use Transfer on Death
+        showExpectedAccountValue = true;
+        showApproximateAccountValue = false;
+        showAdvisorFee = true;
+        showInvestmentObjective = true;
+      }
     }
 
     return {
