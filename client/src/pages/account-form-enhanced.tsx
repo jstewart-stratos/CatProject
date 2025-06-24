@@ -390,7 +390,7 @@ export default function AccountFormEnhanced() {
         showAdvisorFee = false;
         showInvestmentObjective = true;
       } else if (advisoryProgramTypes.includes(programType)) {
-        // IRA + Advisory Programs: ACAT + Suitability + Advisory Program + Investment Horizon & Liquidity Needs
+        // IRA + Advisory Programs (Manager Select, etc.): ACAT + Suitability + Advisory Program + Investment Horizon & Liquidity Needs (from screenshots)
         showDeliveringFirm = true;
         showContraAccount = true;
         showTransferOnDeath = false; // IRAs don't use Transfer on Death
