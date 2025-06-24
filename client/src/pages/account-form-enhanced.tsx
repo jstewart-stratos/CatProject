@@ -272,32 +272,44 @@ export default function AccountFormEnhanced() {
       'SWM'
     ];
 
-    // Joint accounts have limited visibility regardless of program type
+    // Business logic based on Account Type and Program Type combinations
     if (accountType === 'Joint') {
+      // Joint accounts: Hide ACAT, Transfer on Death, Advisory sections
       showDeliveringFirm = false;
       showContraAccount = false;
       showTransferOnDeath = false;
       showExpectedAccountValue = false;
-      showApproximateAccountValue = false;
+      showApproximateAccountValue = false; // Joint accounts don't show account value field
       showAdvisorFee = false;
-      showInvestmentObjective = true; // Show only Investment Objective for Joint accounts
-    } else {
-      // For Individual and other account types, show fields based on program type
-      if (advisoryProgramTypes.includes(programType)) {
+      showInvestmentObjective = true; // Show Investment Objective for Joint accounts
+    } else if (accountType === 'Individual') {
+      // Individual accounts: Logic based on Program Type
+      if (programType === 'Brokerage') {
+        // Brokerage: ACAT + Suitability (dropdown) + Transfer on Death (Individual reg only)
         showDeliveringFirm = true;
         showContraAccount = true;
-        showTransferOnDeath = true;
-        showExpectedAccountValue = true;
-        showApproximateAccountValue = false;
-        showAdvisorFee = true;
+        showTransferOnDeath = registrationType === 'Individual';
+        showExpectedAccountValue = false;
+        showApproximateAccountValue = true;
+        showAdvisorFee = false;
         showInvestmentObjective = true;
-      } else if (programType === 'Direct Business' || programType === 'Brokerage') {
+      } else if (programType === 'Direct Business') {
+        // Direct Business: Only Suitability (dropdown)
         showDeliveringFirm = false;
         showContraAccount = false;
         showTransferOnDeath = false;
         showExpectedAccountValue = false;
         showApproximateAccountValue = true;
         showAdvisorFee = false;
+        showInvestmentObjective = true;
+      } else if (advisoryProgramTypes.includes(programType)) {
+        // Advisory programs: ACAT + Suitability (text input) + Advisory Program + Transfer on Death (Individual reg only)
+        showDeliveringFirm = true;
+        showContraAccount = true;
+        showTransferOnDeath = registrationType === 'Individual';
+        showExpectedAccountValue = true;
+        showApproximateAccountValue = false;
+        showAdvisorFee = true;
         showInvestmentObjective = true;
       }
     }
