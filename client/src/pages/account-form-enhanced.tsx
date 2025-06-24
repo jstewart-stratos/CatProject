@@ -255,6 +255,7 @@ export default function AccountFormEnhanced() {
     let showExpectedAccountValue = false;
     let showApproximateAccountValue = false;
     let showAdvisorFee = false;
+    let showInvestmentObjective = true;
 
     // Program types that show ACAT Instructions and Advisory sections
     const advisoryProgramTypes = [
@@ -279,6 +280,7 @@ export default function AccountFormEnhanced() {
       showExpectedAccountValue = false;
       showApproximateAccountValue = false;
       showAdvisorFee = false;
+      showInvestmentObjective = true; // Show only Investment Objective for Joint accounts
     } else {
       // For Individual and other account types, show fields based on program type
       if (advisoryProgramTypes.includes(programType)) {
@@ -288,6 +290,7 @@ export default function AccountFormEnhanced() {
         showExpectedAccountValue = true;
         showApproximateAccountValue = false;
         showAdvisorFee = true;
+        showInvestmentObjective = true;
       } else if (programType === 'Direct Business' || programType === 'Brokerage') {
         showDeliveringFirm = false;
         showContraAccount = false;
@@ -295,6 +298,7 @@ export default function AccountFormEnhanced() {
         showExpectedAccountValue = false;
         showApproximateAccountValue = true;
         showAdvisorFee = false;
+        showInvestmentObjective = true;
       }
     }
 
