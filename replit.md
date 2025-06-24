@@ -141,6 +141,10 @@ Preferred communication style: Simple, everyday language.
     * Direct Business: Only Suitability (dropdown)
     * Advisory Programs: ACAT Instructions + Suitability (text input) + Advisory Program + Transfer on Death (Individual reg only)
   - ✅ All Individual account combinations now follow source system patterns
+- **June 24, 2025**: Updated Joint account conditional logic based on source system screenshots
+  - ✅ Joint + Brokerage: ACAT Instructions + Transfer on Death + Suitability + Investment Horizon & Liquidity Needs
+  - ✅ Joint + Direct Business: Only Suitability + Investment Horizon & Liquidity Needs (confirmed working correctly)
+  - ✅ Joint + Advisory Programs: ACAT Instructions + Transfer on Death + Suitability (Expected Account Value text input) + Advisory Program + Investment Horizon & Liquidity Needs
 - **June 24, 2025**: Enhanced Joint account Suitability section to match business requirements
   - ✅ Added "Investment Horizon & Liquidity Needs" section for Joint accounts
   - ✅ Implemented Investment Time Horizon dropdown (4 options: 1-3 years through 10+ years)
