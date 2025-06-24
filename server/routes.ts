@@ -834,7 +834,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           'SEP IRA',
           'SIMPLE IRA',
           'Traditional IRA',
-          'TAMP/TPIA Non-Entity N',
           'TAMP/TPIA Non-Entity Non-Retirement'
         ],
         'Bene Relation': [
