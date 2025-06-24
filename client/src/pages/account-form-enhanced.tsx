@@ -619,37 +619,7 @@ export default function AccountFormEnhanced() {
         </div>
       )}
 
-      {/* Transfer on Death - Conditionally shown based on account type */}
-      {showTransferOnDeath && (
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Transfer on Death</h3>
-          <p className="font-medium">Include Transfer on Death (TOD)?</p>
-          <div className="inline-flex border rounded-lg overflow-hidden">
-            <button
-              type="button"
-              className={`px-4 py-2 ${
-                transferOnDeath === "No" 
-                  ? "bg-blue-100 text-blue-800" 
-                  : "text-gray-600 hover:bg-blue-100 hover:text-blue-800"
-              }`}
-              onClick={() => toggleTOD("No")}
-            >
-              No
-            </button>
-            <button
-              type="button"
-              className={`px-4 py-2 ${
-                transferOnDeath === "Yes" 
-                  ? "bg-blue-100 text-blue-800" 
-                  : "text-gray-600 hover:bg-blue-100 hover:text-blue-800"
-              }`}
-              onClick={() => toggleTOD("Yes")}
-            >
-              Yes
-            </button>
-          </div>
-        </div>
-      )}
+
 
       {/* Suitability */}
       <div className="space-y-4">
