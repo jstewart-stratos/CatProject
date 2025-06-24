@@ -35,6 +35,9 @@ const accountFormSchema = z.object({
   approximateAccountValue: z.string().optional(),
   expectedAccountValue: z.string().optional(),
   advisoryBillingCycle: z.string().optional(),
+  // IRA-specific fields
+  decedentName: z.string().optional(),
+  distributionTypes: z.string().optional(),
   investmentTimeHorizon: z.string().min(1, "Investment Time Horizon is required"),
   fundsNeededIn: z.string().optional(),
   // ACH Information
@@ -170,10 +173,18 @@ export default function AccountFormEnhanced() {
       ],
       'IRA': [
         'Brokerage',
+        'Direct Business',
+        'Manager Select',
         'Manager Access Network',
         'Manager Access Select',
-        'Manager Select',
-        'Unified Managed Account'
+        'MWP',
+        'MWP RIA',
+        'OMP - Advisory',
+        'OMP RIA',
+        'PWP',
+        'PWP RIA',
+        'SAM',
+        'SWM'
       ]
     };
     
@@ -219,11 +230,19 @@ export default function AccountFormEnhanced() {
         'SWM': ['Community Property', 'Community Property with Right of Survivorship', 'Joint Tenants with Right of Survivorship', 'Life Tenant with Remainderman', 'Tenants by Entirety', 'Tenants in Common']
       },
       'IRA': {
-        'Brokerage': ['Traditional IRA', 'Roth IRA', 'SEP IRA', 'SIMPLE IRA', 'Rollover IRA', 'Beneficiary IRA', 'Beneficiary Roth IRA'],
-        'Manager Access Network': ['Traditional IRA', 'Roth IRA', 'SEP IRA', 'SIMPLE IRA', 'Rollover IRA', 'Beneficiary IRA', 'Beneficiary Roth IRA'],
-        'Manager Access Select': ['Traditional IRA', 'Roth IRA', 'SEP IRA', 'SIMPLE IRA', 'Rollover IRA', 'Beneficiary IRA', 'Beneficiary Roth IRA'],
-        'Manager Select': ['Traditional IRA', 'Roth IRA', 'SEP IRA', 'SIMPLE IRA', 'Rollover IRA', 'Beneficiary IRA', 'Beneficiary Roth IRA'],
-        'Unified Managed Account': ['Traditional IRA', 'Roth IRA', 'SEP IRA', 'SIMPLE IRA', 'Rollover IRA', 'Beneficiary IRA', 'Beneficiary Roth IRA']
+        'Brokerage': ['Beneficiary IRA', 'Beneficiary Roth IRA', 'Beneficiary SIMPLE IRA', 'Guardian IRA', 'Guardian Roth IRA', 'Roth IRA', 'SARSEP', 'SEP IRA', 'SIMPLE IRA', 'Traditional IRA'],
+        'Direct Business': ['Beneficiary IRA', 'Beneficiary Roth IRA', 'Beneficiary SIMPLE IRA', 'Guardian IRA', 'Guardian Roth IRA', 'Roth IRA', 'SARSEP', 'SEP IRA', 'SIMPLE IRA', 'Traditional IRA'],
+        'Manager Select': ['Beneficiary IRA', 'Beneficiary Roth IRA', 'Beneficiary SIMPLE IRA', 'Guardian IRA', 'Guardian Roth IRA', 'Roth IRA', 'SARSEP', 'SEP IRA', 'SIMPLE IRA', 'Traditional IRA'],
+        'Manager Access Network': ['Beneficiary IRA', 'Beneficiary Roth IRA', 'Beneficiary SIMPLE IRA', 'Guardian IRA', 'Guardian Roth IRA', 'Roth IRA', 'SARSEP', 'SEP IRA', 'SIMPLE IRA', 'Traditional IRA'],
+        'Manager Access Select': ['Beneficiary IRA', 'Beneficiary Roth IRA', 'Beneficiary SIMPLE IRA', 'Guardian IRA', 'Guardian Roth IRA', 'Roth IRA', 'SARSEP', 'SEP IRA', 'SIMPLE IRA', 'Traditional IRA'],
+        'MWP': ['Beneficiary IRA', 'Beneficiary Roth IRA', 'Beneficiary SIMPLE IRA', 'Guardian IRA', 'Guardian Roth IRA', 'Roth IRA', 'SARSEP', 'SEP IRA', 'SIMPLE IRA', 'Traditional IRA'],
+        'MWP RIA': ['Beneficiary IRA', 'Beneficiary Roth IRA', 'Beneficiary SIMPLE IRA', 'Guardian IRA', 'Guardian Roth IRA', 'Roth IRA', 'SARSEP', 'SEP IRA', 'SIMPLE IRA', 'Traditional IRA'],
+        'OMP - Advisory': ['Beneficiary IRA', 'Beneficiary Roth IRA', 'Beneficiary SIMPLE IRA', 'Guardian IRA', 'Guardian Roth IRA', 'Roth IRA', 'SARSEP', 'SEP IRA', 'SIMPLE IRA', 'Traditional IRA'],
+        'OMP RIA': ['Beneficiary IRA', 'Beneficiary Roth IRA', 'Beneficiary SIMPLE IRA', 'Guardian IRA', 'Guardian Roth IRA', 'Roth IRA', 'SARSEP', 'SEP IRA', 'SIMPLE IRA', 'Traditional IRA'],
+        'PWP': ['Beneficiary IRA', 'Beneficiary Roth IRA', 'Beneficiary SIMPLE IRA', 'Guardian IRA', 'Guardian Roth IRA', 'Roth IRA', 'SARSEP', 'SEP IRA', 'SIMPLE IRA', 'Traditional IRA'],
+        'PWP RIA': ['Beneficiary IRA', 'Beneficiary Roth IRA', 'Beneficiary SIMPLE IRA', 'Guardian IRA', 'Guardian Roth IRA', 'Roth IRA', 'SARSEP', 'SEP IRA', 'SIMPLE IRA', 'Traditional IRA'],
+        'SAM': ['Beneficiary IRA', 'Beneficiary Roth IRA', 'Beneficiary SIMPLE IRA', 'Guardian IRA', 'Guardian Roth IRA', 'Roth IRA', 'SARSEP', 'SEP IRA', 'SIMPLE IRA', 'Traditional IRA'],
+        'SWM': ['Beneficiary IRA', 'Beneficiary Roth IRA', 'Beneficiary SIMPLE IRA', 'Guardian IRA', 'Guardian Roth IRA', 'Roth IRA', 'SARSEP', 'SEP IRA', 'SIMPLE IRA', 'Traditional IRA']
       }
     };
     
@@ -258,6 +277,8 @@ export default function AccountFormEnhanced() {
     let showAdvisorFee = false;
     let showInvestmentObjective = true;
     let showAdvisoryBillingCycle = false;
+    let showBeneficiaryDetails = false;
+    let showDistributionTypes = false;
 
     // Program types that show ACAT Instructions and Advisory sections
     const advisoryProgramTypes = [
@@ -338,8 +359,16 @@ export default function AccountFormEnhanced() {
         showInvestmentObjective = true;
       }
     } else if (accountType === 'IRA') {
-      // IRA accounts: Always show IRA Type, simplified conditional logic
+      // IRA accounts: Show IRA Type and IRA-specific sections based on registration type
       showIraType = true;
+      
+      // Show Beneficiary Details for Beneficiary IRA types
+      if (registrationType && registrationType.includes('Beneficiary')) {
+        showBeneficiaryDetails = true;
+      }
+      
+      // Show Distribution Types for all IRA types
+      showDistributionTypes = true;
       
       if (programType === 'Brokerage') {
         // IRA + Brokerage: ACAT + Suitability (no Transfer on Death for IRAs)
@@ -386,6 +415,8 @@ export default function AccountFormEnhanced() {
       showAdvisorFee,
       showInvestmentObjective,
       showAdvisoryBillingCycle,
+      showBeneficiaryDetails,
+      showDistributionTypes,
       shouldShowBeneficiaries: regTypesRequireBenef.includes(registrationType),
       shouldShowAdditionalHolder: regTypesRequireHolder.includes(registrationType)
     };
@@ -401,6 +432,8 @@ export default function AccountFormEnhanced() {
     showAdvisorFee,
     showInvestmentObjective,
     showAdvisoryBillingCycle,
+    showBeneficiaryDetails,
+    showDistributionTypes,
     shouldShowBeneficiaries,
     shouldShowAdditionalHolder
   } = fieldVisibility;
@@ -835,6 +868,54 @@ export default function AccountFormEnhanced() {
                     <SelectContent>
                       <SelectItem value="Yes">Yes</SelectItem>
                       <SelectItem value="No">No</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        )}
+
+        {/* Beneficiary IRA Details - Only for Beneficiary IRA types */}
+        {showBeneficiaryDetails && (
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Beneficiary IRA Details</h3>
+            <FormField
+              control={form.control}
+              name="decedentName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Decedent Name</FormLabel>
+                  <FormControl>
+                    <Input {...field} className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400" placeholder="Enter decedent name" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        )}
+
+        {/* Distribution Types - For all IRA accounts */}
+        {showDistributionTypes && (
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Distribution Types</h3>
+            <FormField
+              control={form.control}
+              name="distributionTypes"
+              render={({ field }) => (
+                <FormItem>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {lists?.["Distribution Types"]?.map((type: string) => (
+                        <SelectItem key={type} value={type}>{type}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />
