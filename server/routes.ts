@@ -859,26 +859,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
           'Ten Year'
         ],
         'Source of Funds': [
-          'Earned Income',
-          'Investment Income',
-          'Inheritance',
-          'Gift',
-          'Sale of Business',
-          'Sale of Property',
-          'Retirement Distributions',
-          'Insurance Proceeds',
-          'Legal Settlement',
+          'Funded from Cash/Savings/Liquidation',
+          'Rollover from Another 529 Plan',
+          'Rollover from UGMA/UTMA',
           'Other'
         ],
         'Share Class': [
-          'Class A',
-          'Class B',
-          'Class C',
-          'Class I',
-          'Class R',
-          'Institutional',
-          'Advisor',
-          'No Load'
+          'Class A Share',
+          'Class B Share', 
+          'Class C Share',
+          'Other'
         ],
         'States': [
           'Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut',
@@ -889,6 +879,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island', 'South Carolina', 'South Dakota',
           'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 'West Virginia',
           'Wisconsin', 'Wyoming', 'District of Columbia'
+        ],
+        'Source of Funds': [
+          'Funded from Cash/Savings/Liquidation',
+          'Rollover from Another 529 Plan',
+          'Rollover from UGMA/UTMA',
+          'Other'
         ]
       };
       res.json(lists);
