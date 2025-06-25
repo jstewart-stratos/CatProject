@@ -18,7 +18,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { ArrowLeft, Plus, Trash2, FileText, Users, CreditCard, Settings, Shield, ChevronRight, ChevronLeft, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Sidebar } from "@/components/sidebar";
+import Sidebar from "@/components/sidebar";
 
 // Enhanced form schema based on reference design
 const accountFormSchema = z.object({
@@ -36,6 +36,12 @@ const accountFormSchema = z.object({
   approximateAccountValue: z.string().optional(),
   expectedAccountValue: z.string().optional(),
   advisoryBillingCycle: z.string().optional(),
+  advisorFee: z.string().optional(),
+  // Account Options
+  wantCheckwriting: z.boolean().default(false),
+  accountTypeOption: z.string().optional(),
+  wantDebitCard: z.boolean().default(false),
+  wantCostBasisReporting: z.boolean().default(false),
   // IRA-specific fields
   decedentName: z.string().optional(),
   dateOfDeath: z.string().optional(),
@@ -67,12 +73,24 @@ const accountFormSchema = z.object({
   // Additional Holder
   additionalHolder: z.object({
     firstName: z.string().optional(),
+    middleName: z.string().optional(),
     lastName: z.string().optional(),
+    alias: z.string().optional(),
+    citizenship: z.string().optional(),
+    dateOfBirth: z.string().optional(),
+    ssn: z.string().optional(),
+    legalAddress1: z.string().optional(),
+    legalAddress2: z.string().optional(),
+    city: z.string().optional(),
+    state: z.string().optional(),
+    zip: z.string().optional(),
+    email: z.string().optional(),
     homePhone: z.string().optional(),
     mobilePhone: z.string().optional(),
     businessPhone: z.string().optional(),
     employmentStatus: z.string().optional(),
     industry: z.string().optional(),
+    industryAffiliation: z.string().optional(),
     occupation: z.string().optional(),
     employerName: z.string().optional(),
     useSameAddress: z.boolean().default(false),
@@ -130,7 +148,7 @@ export default function AccountFormEnhanced() {
 
   // Get selected client data
   const selectedClientId = form.watch("clientId");
-  const selectedClient = clientsData?.clients?.find((client: any) => client.id === selectedClientId);
+  const selectedClient = (clientsData as any)?.clients?.find((client: any) => client.id === selectedClientId);
 
   // Watch form values for conditional logic
   const watchedValues = form.watch();
@@ -466,10 +484,7 @@ export default function AccountFormEnhanced() {
   // Submit mutation
   const createAccountMutation = useMutation({
     mutationFn: async (data: AccountFormData) => {
-      return apiRequest("/api/accounts", {
-        method: "POST",
-        body: JSON.stringify(data),
-      });
+      return apiRequest("/api/accounts", "POST", data);
     },
     onSuccess: () => {
       toast({
@@ -519,7 +534,15 @@ export default function AccountFormEnhanced() {
     const currentAccounts = form.getValues("achAccounts") || [];
     form.setValue("achAccounts", [
       ...currentAccounts,
-      { bankName: "", accountNumber: "", routingNumber: "", accountType: "" }
+      { 
+        bankName: "", 
+        accountNumber: "", 
+        routingNumber: "", 
+        accountType: "Checking" as "Checking" | "Savings",
+        bankAccountRegistration: "",
+        onDemand: false,
+        periodic: false
+      }
     ]);
   };
 
@@ -608,7 +631,7 @@ export default function AccountFormEnhanced() {
   const validateAdditionalHolders = () => {
     if (!shouldShowAdditionalHolder) return true; // Not required if section is hidden
     const values = form.getValues();
-    return values.additionalHolders && values.additionalHolders.length > 0;
+    return values.additionalHolder;
   };
 
   const validateBeneficiaries = () => {
@@ -631,7 +654,7 @@ export default function AccountFormEnhanced() {
         isValid = true; // ACH is optional
         break;
       case "additionalHolders":
-        isValid = validateAdditionalHolders();
+        isValid = Boolean(validateAdditionalHolders());
         break;
       case "beneficiaries":
         isValid = validateBeneficiaries();
@@ -746,7 +769,7 @@ export default function AccountFormEnhanced() {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {clientsData?.clients?.map((client: any) => (
+                  {(clientsData as any)?.clients?.map((client: any) => (
                     <SelectItem key={client.id} value={client.id.toString()}>
                       {client.firstName} {client.lastName} (ID: {client.id})
                     </SelectItem>
@@ -811,7 +834,7 @@ export default function AccountFormEnhanced() {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {lists?.["Account Type"]?.map((type: string) => (
+                  {(lists as any)?.["Account Type"]?.map((type: string) => (
                     <SelectItem key={type} value={type}>{type}</SelectItem>
                   ))}
                 </SelectContent>
@@ -916,7 +939,7 @@ export default function AccountFormEnhanced() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {lists?.["IRA Type"]?.map((type: string) => (
+                        {(lists as any)?.["IRA Type"]?.map((type: string) => (
                           <SelectItem key={type} value={type}>{type}</SelectItem>
                         ))}
                       </SelectContent>
@@ -1171,7 +1194,7 @@ export default function AccountFormEnhanced() {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {lists?.["Distribution Types"]?.map((type: string) => (
+                      {(lists as any)?.["Distribution Types"]?.map((type: string) => (
                         <SelectItem key={type} value={type}>{type}</SelectItem>
                       ))}
                     </SelectContent>
@@ -1438,9 +1461,9 @@ export default function AccountFormEnhanced() {
                                   type="radio"
                                   id="checkwriting-no"
                                   name="wantCheckwriting"
-                                  value="no"
-                                  checked={field.value === "no"}
-                                  onChange={() => field.onChange("no")}
+                                  value="false"
+                                  checked={field.value === false}
+                                  onChange={() => field.onChange(false)}
                                   className="w-4 h-4 text-blue-600"
                                 />
                                 <label htmlFor="checkwriting-no" className="text-sm font-medium cursor-pointer bg-blue-100 text-blue-800 px-3 py-1 rounded">
@@ -1452,9 +1475,9 @@ export default function AccountFormEnhanced() {
                                   type="radio"
                                   id="checkwriting-yes"
                                   name="wantCheckwriting"
-                                  value="yes"
-                                  checked={field.value === "yes"}
-                                  onChange={() => field.onChange("yes")}
+                                  value="true"
+                                  checked={field.value === true}
+                                  onChange={() => field.onChange(true)}
                                   className="w-4 h-4 text-blue-600"
                                 />
                                 <label htmlFor="checkwriting-yes" className="text-sm font-medium cursor-pointer bg-gray-100 text-gray-800 px-3 py-1 rounded">
@@ -1469,7 +1492,7 @@ export default function AccountFormEnhanced() {
                     </div>
 
                     {/* Account Type - Only show when checkwriting is Yes */}
-                    {form.watch("wantCheckwriting") === "yes" && (
+                    {form.watch("wantCheckwriting") === true && (
                       <div className="space-y-3">
                         <FormField
                           control={form.control}
@@ -1552,9 +1575,9 @@ export default function AccountFormEnhanced() {
                                     type="radio"
                                     id="debit-card-no"
                                     name="wantDebitCard"
-                                    value="no"
-                                    checked={field.value === "no"}
-                                    onChange={() => field.onChange("no")}
+                                    value="false"
+                                    checked={field.value === false}
+                                    onChange={() => field.onChange(false)}
                                     className="w-4 h-4 text-blue-600"
                                   />
                                   <label htmlFor="debit-card-no" className="text-sm font-medium cursor-pointer bg-blue-100 text-blue-800 px-3 py-1 rounded">
@@ -1566,9 +1589,9 @@ export default function AccountFormEnhanced() {
                                     type="radio"
                                     id="debit-card-yes"
                                     name="wantDebitCard"
-                                    value="yes"
-                                    checked={field.value === "yes"}
-                                    onChange={() => field.onChange("yes")}
+                                    value="true"
+                                    checked={field.value === true}
+                                    onChange={() => field.onChange(true)}
                                     className="w-4 h-4 text-blue-600"
                                   />
                                   <label htmlFor="debit-card-yes" className="text-sm font-medium cursor-pointer bg-gray-100 text-gray-800 px-3 py-1 rounded">
@@ -1597,9 +1620,9 @@ export default function AccountFormEnhanced() {
                                   type="radio"
                                   id="cost-basis-no"
                                   name="wantCostBasisReporting"
-                                  value="no"
-                                  checked={field.value === "no"}
-                                  onChange={() => field.onChange("no")}
+                                  value="false"
+                                  checked={field.value === false}
+                                  onChange={() => field.onChange(false)}
                                   className="w-4 h-4 text-blue-600"
                                 />
                                 <label htmlFor="cost-basis-no" className="text-sm font-medium cursor-pointer bg-blue-100 text-blue-800 px-3 py-1 rounded">
@@ -1611,9 +1634,9 @@ export default function AccountFormEnhanced() {
                                   type="radio"
                                   id="cost-basis-yes"
                                   name="wantCostBasisReporting"
-                                  value="yes"
-                                  checked={field.value === "yes"}
-                                  onChange={() => field.onChange("yes")}
+                                  value="true"
+                                  checked={field.value === true}
+                                  onChange={() => field.onChange(true)}
                                   className="w-4 h-4 text-blue-600"
                                 />
                                 <label htmlFor="cost-basis-yes" className="text-sm font-medium cursor-pointer bg-gray-100 text-gray-800 px-3 py-1 rounded">
@@ -2253,13 +2276,14 @@ export default function AccountFormEnhanced() {
                   <h2 className="text-xl font-semibold border-b pb-2">Beneficiaries</h2>
                   
                   <div className="space-y-6">
-                    {beneficiaries?.map((beneficiary, index) => (
+                    {form.watch("beneficiaries")?.map((beneficiary: any, index: number) => (
                       <div key={index} className="border rounded-lg p-6 space-y-6 relative">
                         {/* Close button */}
                         <button
                           type="button"
                           onClick={() => {
-                            const updated = beneficiaries.filter((_, i) => i !== index);
+                            const current = form.getValues("beneficiaries") || [];
+                            const updated = current.filter((_, i) => i !== index);
                             form.setValue("beneficiaries", updated);
                           }}
                           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl font-bold"
@@ -2282,7 +2306,7 @@ export default function AccountFormEnhanced() {
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
-                                    {(lists?.["Beneficiary Relationship"] || []).map((relationship) => (
+                                    {((lists as any)?.["Beneficiary Relationship"] || []).map((relationship: any) => (
                                       <SelectItem key={relationship} value={relationship}>
                                         {relationship}
                                       </SelectItem>
@@ -2295,7 +2319,7 @@ export default function AccountFormEnhanced() {
                           />
                           <FormField
                             control={form.control}
-                            name={`beneficiaries.${index}.beneficiaryType`}
+                            name={`beneficiaries.${index}.type` as any}
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel className="text-base font-medium">Type</FormLabel>
@@ -2306,7 +2330,7 @@ export default function AccountFormEnhanced() {
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
-                                    {(lists?.["Beneficiary Type"] || []).map((type) => (
+                                    {((lists as any)?.["Beneficiary Type"] || []).map((type: string) => (
                                       <SelectItem key={type} value={type}>
                                         {type}
                                       </SelectItem>
@@ -2425,8 +2449,8 @@ export default function AccountFormEnhanced() {
                           middleName: "",
                           lastName: "",
                           relationship: "",
-                          beneficiaryType: "Primary",
-                          percentage: "",
+                          type: "Primary",
+                          percentage: 0,
                           dateOfBirth: "",
                           ssn: ""
                         }]);
