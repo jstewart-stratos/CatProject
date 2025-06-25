@@ -534,6 +534,34 @@ export default function AccountFormEnhanced() {
     <section className="space-y-6">
       <h2 className="text-xl font-semibold border-b pb-2">Account Information</h2>
 
+      {/* Client Selection */}
+      <div className="grid grid-cols-1 gap-6">
+        <FormField
+          control={form.control}
+          name="clientId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Select Client <span className="text-red-500">*</span></FormLabel>
+              <Select onValueChange={(value) => field.onChange(parseInt(value))} value={field.value?.toString()}>
+                <FormControl>
+                  <SelectTrigger className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
+                    <SelectValue placeholder="Select an existing client" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {clientsData?.clients?.map((client: any) => (
+                    <SelectItem key={client.id} value={client.id.toString()}>
+                      {client.firstName} {client.lastName} (ID: {client.id})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+
       {/* Rep ID & Notes */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <FormField
