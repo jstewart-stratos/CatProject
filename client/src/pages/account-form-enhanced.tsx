@@ -1776,17 +1776,16 @@ export default function AccountFormEnhanced() {
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                               <FormControl>
                                 <SelectTrigger>
-                                  <SelectValue placeholder="Select" />
+                                  <SelectValue placeholder="Select employment status" />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="Employed">Employed</SelectItem>
-                                <SelectItem value="Self-Employed">Self-Employed</SelectItem>
-                                <SelectItem value="Unemployed">Unemployed</SelectItem>
-                                <SelectItem value="Student">Student</SelectItem>
-                                <SelectItem value="Retired">Retired</SelectItem>
-                                <SelectItem value="Homemaker">Homemaker</SelectItem>
-                                <SelectItem value="Minor">Minor</SelectItem>
+                                <SelectItem value="employed">Employed</SelectItem>
+                                <SelectItem value="self_employed">Self-Employed</SelectItem>
+                                <SelectItem value="retired">Retired</SelectItem>
+                                <SelectItem value="student">Student</SelectItem>
+                                <SelectItem value="homemaker">Homemaker</SelectItem>
+                                <SelectItem value="unemployed">Unemployed</SelectItem>
                               </SelectContent>
                             </Select>
                             <FormMessage />
@@ -1820,7 +1819,13 @@ export default function AccountFormEnhanced() {
                                 <SelectItem value="Real Estate">Real Estate</SelectItem>
                                 <SelectItem value="Retail">Retail</SelectItem>
                                 <SelectItem value="Technology">Technology</SelectItem>
+                                <SelectItem value="Transportation">Transportation</SelectItem>
                                 <SelectItem value="Other">Other</SelectItem>
+                                {/* Auto-populated values for certain statuses */}
+                                <SelectItem value="Retired">Retired</SelectItem>
+                                <SelectItem value="Student">Student</SelectItem>
+                                <SelectItem value="Homemaker">Homemaker</SelectItem>
+                                <SelectItem value="Minor">Minor</SelectItem>
                               </SelectContent>
                             </Select>
                             <FormMessage />
