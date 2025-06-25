@@ -2351,7 +2351,7 @@ export default function AccountFormEnhanced() {
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel className="text-base font-medium">Relationship</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <Select onValueChange={field.onChange} value={field.value}>
                                   <FormControl>
                                     <SelectTrigger>
                                       <SelectValue placeholder="Select" />
@@ -2375,7 +2375,7 @@ export default function AccountFormEnhanced() {
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel className="text-base font-medium">Type</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <Select onValueChange={field.onChange} value={field.value}>
                                   <FormControl>
                                     <SelectTrigger>
                                       <SelectValue placeholder="Select" />
