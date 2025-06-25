@@ -126,6 +126,13 @@ const accountFormSchema = z.object({
     accountOrContractNumber: z.string(),
   })).default([]),
   optionsLevel: z.string().optional(),
+  // 529 Plan Disclosure Checklist
+  productSponsorAnd529Plan: z.string().optional(),
+  investmentPortfolioOptionChosen: z.string().optional(),
+  ownerStateOfResidence: z.string().optional(),
+  sourceOfFunds: z.string().optional(),
+  shareClass: z.string().optional(),
+  planAdministrator: z.string().optional(),
 });
 
 type AccountFormData = z.infer<typeof accountFormSchema>;
@@ -137,6 +144,7 @@ const allNavigationSections = [
   { id: "additionalHolders", label: "Additional Account Holders", icon: Users },
   { id: "beneficiaries", label: "Beneficiaries", icon: Users },
   { id: "directOutsideBusiness", label: "Direct/Outside Business", icon: Building },
+  { id: "plan529Disclosure", label: "529 Plan Disclosure Checklist", icon: FileText },
   { id: "powerOfAttorney", label: "Power of Attorney", icon: Shield },
   { id: "tradingAuthority", label: "Trading Authority", icon: Settings },
   { id: "tradingOptions", label: "Trading Options", icon: Settings },
@@ -501,6 +509,9 @@ export default function AccountFormEnhanced() {
     const shouldShowDirectOutsideBusiness = accountType === 'Individual' && 
       (programType === 'Brokerage' || programType === 'Direct Business');
 
+    // 529 Plan Disclosure Checklist is required when registration type is 529 Plan
+    const shouldShow529PlanDisclosure = registrationType === '529 Education Plan';
+
     return {
       showDeliveringFirm,
       showContraAccount,
@@ -517,7 +528,8 @@ export default function AccountFormEnhanced() {
       shouldShowAdditionalHolder: regTypesRequireHolder.includes(registrationType),
       showAdditionalHolders: regTypesRequireHolder.includes(registrationType),
       shouldShowPowerOfAttorney,
-      shouldShowDirectOutsideBusiness
+      shouldShowDirectOutsideBusiness,
+      shouldShow529PlanDisclosure
     };
   }, [accountType, programType, registrationType, form.watch('transferOnDeath')]);
 
@@ -537,7 +549,8 @@ export default function AccountFormEnhanced() {
     shouldShowAdditionalHolder,
     showAdditionalHolders,
     shouldShowPowerOfAttorney,
-    shouldShowDirectOutsideBusiness
+    shouldShowDirectOutsideBusiness,
+    shouldShow529PlanDisclosure
   } = fieldVisibility;
 
   // Filter navigation sections based on business rules
@@ -733,7 +746,7 @@ export default function AccountFormEnhanced() {
 
   // Navigation functions
   const goToNextSection = () => {
-    const sections = ["accountInfo", "achInfo", "additionalHolders", "beneficiaries", "directOutsideBusiness", "powerOfAttorney", "tradingAuthority", "tradingOptions"];
+    const sections = ["accountInfo", "achInfo", "additionalHolders", "beneficiaries", "directOutsideBusiness", "plan529Disclosure", "powerOfAttorney", "tradingAuthority", "tradingOptions"];
     const currentIndex = sections.indexOf(currentSection);
     
     // Mark current section as completed if validation passes
@@ -781,6 +794,12 @@ export default function AccountFormEnhanced() {
           continue;
         }
         
+        // Skip 529 Plan Disclosure if not required
+        if (nextSection === "plan529Disclosure" && !shouldShow529PlanDisclosure) {
+          nextIndex++;
+          continue;
+        }
+        
         // Skip Power of Attorney if not required
         if (nextSection === "powerOfAttorney" && !shouldShowPowerOfAttorney) {
           nextIndex++;
@@ -805,7 +824,7 @@ export default function AccountFormEnhanced() {
   };
 
   const goToPreviousSection = () => {
-    const sections = ["accountInfo", "achInfo", "additionalHolders", "beneficiaries", "directOutsideBusiness", "powerOfAttorney", "tradingAuthority", "tradingOptions"];
+    const sections = ["accountInfo", "achInfo", "additionalHolders", "beneficiaries", "directOutsideBusiness", "plan529Disclosure", "powerOfAttorney", "tradingAuthority", "tradingOptions"];
     const currentIndex = sections.indexOf(currentSection);
     
     // Skip sections that don't apply based on business rules
@@ -827,6 +846,12 @@ export default function AccountFormEnhanced() {
       
       // Skip Direct/Outside Business if not required
       if (prevSection === "directOutsideBusiness" && !shouldShowDirectOutsideBusiness) {
+        prevIndex--;
+        continue;
+      }
+      
+      // Skip 529 Plan Disclosure if not required
+      if (prevSection === "plan529Disclosure" && !shouldShow529PlanDisclosure) {
         prevIndex--;
         continue;
       }
@@ -1475,6 +1500,19 @@ export default function AccountFormEnhanced() {
               onClick={() => setCurrentSection('directOutsideBusiness')}
             >
               Direct / Outside Business
+            </button>
+          )}
+          {shouldShow529PlanDisclosure && (
+            <button
+              type="button"
+              className={`nav-btn w-full text-left px-3 py-2 rounded-r ${
+                currentSection === 'plan529Disclosure'
+                  ? 'bg-white border-l-4 border-blue-800 text-blue-800 font-medium'
+                  : 'text-gray-700 hover:bg-gray-200'
+              }`}
+              onClick={() => setCurrentSection('plan529Disclosure')}
+            >
+              529 Plan Disclosure Checklist
             </button>
           )}
           {shouldShowPowerOfAttorney && (
@@ -2782,6 +2820,149 @@ export default function AccountFormEnhanced() {
                     </button>
 
                     {renderSectionNavigation("directOutsideBusiness", false, false)}
+                  </div>
+                </section>
+              )}
+
+              {currentSection === 'plan529Disclosure' && (
+                <section className="space-y-6">
+                  <h2 className="text-xl font-semibold border-b pb-2">529 Plan Disclosure Checklist</h2>
+                  
+                  <div className="space-y-6">
+                    {/* Name of Product Sponsor & 529 Plan */}
+                    <FormField
+                      control={form.control}
+                      name={"productSponsorAnd529Plan" as any}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-base font-medium">Name of Product Sponsor & 529 Plan</FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              placeholder="Name of Product Sponsor & 529 Plan"
+                              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <div className="grid grid-cols-2 gap-6">
+                      {/* Investment Portfolio / Option Chosen */}
+                      <FormField
+                        control={form.control}
+                        name={"investmentPortfolioOptionChosen" as any}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-base font-medium">Investment Portfolio / Option Chosen</FormLabel>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                placeholder="Investment Portfolio / Option Chosen"
+                                className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      {/* Owner State of Residence */}
+                      <FormField
+                        control={form.control}
+                        name={"ownerStateOfResidence" as any}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-base font-medium">Owner State of Residence</FormLabel>
+                            <Select onValueChange={field.onChange} value={field.value as string}>
+                              <FormControl>
+                                <SelectTrigger className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
+                                  <SelectValue placeholder="Select" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {(lists as any)?.["States"]?.map((state: string) => (
+                                  <SelectItem key={state} value={state}>{state}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-6">
+                      {/* Source of Funds */}
+                      <FormField
+                        control={form.control}
+                        name={"sourceOfFunds" as any}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-base font-medium">Source of Funds</FormLabel>
+                            <Select onValueChange={field.onChange} value={field.value as string}>
+                              <FormControl>
+                                <SelectTrigger className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
+                                  <SelectValue placeholder="Select" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {(lists as any)?.["Source of Funds"]?.map((source: string) => (
+                                  <SelectItem key={source} value={source}>{source}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      {/* Share Class */}
+                      <FormField
+                        control={form.control}
+                        name={"shareClass" as any}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-base font-medium">Share Class</FormLabel>
+                            <Select onValueChange={field.onChange} value={field.value as string}>
+                              <FormControl>
+                                <SelectTrigger className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
+                                  <SelectValue placeholder="Select" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {(lists as any)?.["Share Class"]?.map((shareClass: string) => (
+                                  <SelectItem key={shareClass} value={shareClass}>{shareClass}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    {/* Plan Administrator */}
+                    <FormField
+                      control={form.control}
+                      name={"planAdministrator" as any}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-base font-medium">Plan Administrator</FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              placeholder="Plan Administrator"
+                              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {renderSectionNavigation("plan529Disclosure", false, false)}
                   </div>
                 </section>
               )}

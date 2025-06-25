@@ -857,6 +857,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
           'Five Year',
           'Single Life Expectancy',
           'Ten Year'
+        ],
+        'Source of Funds': [
+          'Earned Income',
+          'Investment Income',
+          'Inheritance',
+          'Gift',
+          'Sale of Business',
+          'Sale of Property',
+          'Retirement Distributions',
+          'Insurance Proceeds',
+          'Legal Settlement',
+          'Other'
+        ],
+        'Share Class': [
+          'Class A',
+          'Class B',
+          'Class C',
+          'Class I',
+          'Class R',
+          'Institutional',
+          'Advisor',
+          'No Load'
+        ],
+        'States': [
+          'Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut',
+          'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa',
+          'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan',
+          'Minnesota', 'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire',
+          'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio',
+          'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island', 'South Carolina', 'South Dakota',
+          'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 'West Virginia',
+          'Wisconsin', 'Wyoming', 'District of Columbia'
         ]
       };
       res.json(lists);
