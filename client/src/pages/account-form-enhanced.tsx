@@ -931,10 +931,11 @@ export default function AccountFormEnhanced() {
 
 
 
-      {/* Suitability */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Suitability</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Suitability - Only show when account type is selected */}
+      {accountType && (
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Suitability</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {showInvestmentObjective && (
             <FormField
               control={form.control}
@@ -1226,7 +1227,8 @@ export default function AccountFormEnhanced() {
             </div>
           </div>
         )}
-      </div>
+        </div>
+      )}
       
       {renderSectionNavigation("accountInfo", true, false)}
     </section>

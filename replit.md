@@ -134,6 +134,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **June 25, 2025**: Enhanced multi-step account creation workflow with address auto-population
+  - ✅ **Fixed JavaScript errors**: Added missing ACH and beneficiary management functions (addACHAccount, updateACHAccount, updateBeneficiary)
+  - ✅ **Made ACH Information optional**: Updated validation logic to allow progression without ACH data entry for all account types
+  - ✅ **Address auto-population**: Implemented client address import for Additional Account Holders section with "Use same address as primary client" checkbox
+  - ✅ **Smart state field handling**: State field dynamically switches between disabled input (when auto-populated) and dropdown select (when manual entry)
+  - ✅ **Progressive form disclosure**: Suitability section now hidden until account type is selected, providing cleaner initial form state
+  - ✅ **Enhanced user experience**: Multi-step workflow with Next/Previous navigation working properly across all 6 sections
 - **June 24, 2025**: Completed comprehensive account form conditional logic for all account types
   - ✅ **Individual accounts**: 3 program groups with correct business rules (Brokerage, Direct Business, Advisory Programs)
   - ✅ **Joint accounts**: Registration-based Transfer on Death logic + fixed duplicate sections + 6 exact registration types
