@@ -12,6 +12,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -106,6 +108,11 @@ const accountFormSchema = z.object({
   grantPowerOfAttorney: z.boolean().default(false),
   authorizedAgentName: z.string().optional(),
   isAgentExistingClient: z.boolean().default(false),
+  // Trading Authority
+  grantTradingAuthority: z.string().optional(),
+  tradingAuthorizedAgentName: z.string().optional(),
+  isTradingAgentExistingClient: z.string().optional(),
+  newTradingAuthorizationType: z.string().optional(),
 });
 
 type AccountFormData = z.infer<typeof accountFormSchema>;
@@ -2703,27 +2710,127 @@ export default function AccountFormEnhanced() {
               {currentSection === 'tradingAuthority' && (
                 <section className="space-y-6">
                   <h2 className="text-xl font-semibold border-b pb-2">Trading Authority</h2>
-                  <div className="space-y-4">
-                    <p className="text-gray-600">Configure trading authority for this account.</p>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Authorization Level</label>
-                        <Select>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select authorization level" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="limited">Limited Trading Authority</SelectItem>
-                            <SelectItem value="full">Full Trading Authority</SelectItem>
-                            <SelectItem value="none">No Trading Authority</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Authorized Person</label>
-                        <Input placeholder="Enter authorized person name" />
-                      </div>
+                  <div className="space-y-6">
+                    {/* Grant Trading Authority Question */}
+                    <div className="space-y-3">
+                      <FormField
+                        control={form.control}
+                        name={"grantTradingAuthority" as any}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-base font-medium">Grant Trading Authority?</FormLabel>
+                            <FormControl>
+                              <RadioGroup
+                                onValueChange={field.onChange}
+                                value={field.value}
+                                className="flex space-x-6"
+                              >
+                                <div className="flex items-center space-x-2">
+                                  <RadioGroupItem value="No" id="trading-no" />
+                                  <Label htmlFor="trading-no">No</Label>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <RadioGroupItem value="Yes" id="trading-yes" />
+                                  <Label htmlFor="trading-yes">Yes</Label>
+                                </div>
+                              </RadioGroup>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                     </div>
+
+                    {/* Conditional fields when Grant Trading Authority = Yes */}
+                    {form.watch('grantTradingAuthority' as any) === 'Yes' && (
+                      <>
+                        {/* Authorized Agent Name */}
+                        <div className="space-y-3">
+                          <FormField
+                            control={form.control}
+                            name={"tradingAuthorizedAgentName" as any}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Authorized Agent Name</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    placeholder="Authorized Agent Name" 
+                                    {...field} 
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
+                        {/* Is agent an existing client Question */}
+                        <div className="space-y-3">
+                          <FormField
+                            control={form.control}
+                            name={"isTradingAgentExistingClient" as any}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-base font-medium">Is agent an existing client?</FormLabel>
+                                <FormControl>
+                                  <RadioGroup
+                                    onValueChange={field.onChange}
+                                    value={field.value}
+                                    className="flex space-x-6"
+                                  >
+                                    <div className="flex items-center space-x-2">
+                                      <RadioGroupItem value="No" id="trading-client-no" />
+                                      <Label htmlFor="trading-client-no">No</Label>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                      <RadioGroupItem value="Yes" id="trading-client-yes" />
+                                      <Label htmlFor="trading-client-yes">Yes</Label>
+                                    </div>
+                                  </RadioGroup>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
+                        {/* Trading Authorization Type */}
+                        <div className="space-y-3">
+                          <FormField
+                            control={form.control}
+                            name={"newTradingAuthorizationType" as any}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-base font-medium">Trading Authorization Type (Select One)</FormLabel>
+                                <FormControl>
+                                  <RadioGroup
+                                    onValueChange={field.onChange}
+                                    value={field.value}
+                                    className="space-y-3"
+                                  >
+                                    <div className="flex items-center space-x-2">
+                                      <RadioGroupItem value="Limited" id="limited-trading" />
+                                      <Label htmlFor="limited-trading" className="flex items-center space-x-2">
+                                        Limited Trading Authority 
+                                        <span className="inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-blue-500 rounded-full ml-1">i</span>
+                                      </Label>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                      <RadioGroupItem value="Full" id="full-trading" />
+                                      <Label htmlFor="full-trading" className="flex items-center space-x-2">
+                                        Full Trading Authorization
+                                        <span className="inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-blue-500 rounded-full ml-1">i</span>
+                                      </Label>
+                                    </div>
+                                  </RadioGroup>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      </>
+                    )}
                   </div>
                   
                   {renderSectionNavigation("tradingAuthority", false, false)}
