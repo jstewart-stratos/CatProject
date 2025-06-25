@@ -2202,7 +2202,22 @@ export default function AccountFormEnhanced() {
                             <FormItem>
                               <FormLabel>Home Phone</FormLabel>
                               <FormControl>
-                                <Input placeholder="e.g. 5551234567" {...field} />
+                                <Input 
+                                  placeholder="(555) 123-4567" 
+                                  {...field}
+                                  onChange={(e) => {
+                                    let value = e.target.value.replace(/\D/g, '');
+                                    if (value.length >= 6) {
+                                      value = value.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
+                                    } else if (value.length >= 3) {
+                                      value = value.replace(/(\d{3})(\d{3})/, '($1) $2');
+                                    } else if (value.length >= 1) {
+                                      value = value.replace(/(\d{3})/, '($1');
+                                    }
+                                    field.onChange(value);
+                                  }}
+                                  maxLength={14}
+                                />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -2215,7 +2230,22 @@ export default function AccountFormEnhanced() {
                             <FormItem>
                               <FormLabel>Mobile Phone</FormLabel>
                               <FormControl>
-                                <Input placeholder="e.g. 5551234567" {...field} />
+                                <Input 
+                                  placeholder="(555) 123-4567" 
+                                  {...field}
+                                  onChange={(e) => {
+                                    let value = e.target.value.replace(/\D/g, '');
+                                    if (value.length >= 6) {
+                                      value = value.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
+                                    } else if (value.length >= 3) {
+                                      value = value.replace(/(\d{3})(\d{3})/, '($1) $2');
+                                    } else if (value.length >= 1) {
+                                      value = value.replace(/(\d{3})/, '($1');
+                                    }
+                                    field.onChange(value);
+                                  }}
+                                  maxLength={14}
+                                />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -2228,7 +2258,22 @@ export default function AccountFormEnhanced() {
                             <FormItem>
                               <FormLabel>Business Phone</FormLabel>
                               <FormControl>
-                                <Input placeholder="e.g. 5551234567" {...field} />
+                                <Input 
+                                  placeholder="(555) 123-4567" 
+                                  {...field}
+                                  onChange={(e) => {
+                                    let value = e.target.value.replace(/\D/g, '');
+                                    if (value.length >= 6) {
+                                      value = value.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
+                                    } else if (value.length >= 3) {
+                                      value = value.replace(/(\d{3})(\d{3})/, '($1) $2');
+                                    } else if (value.length >= 1) {
+                                      value = value.replace(/(\d{3})/, '($1');
+                                    }
+                                    field.onChange(value);
+                                  }}
+                                  maxLength={14}
+                                />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
