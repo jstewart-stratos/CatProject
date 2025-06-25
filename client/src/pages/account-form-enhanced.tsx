@@ -500,6 +500,15 @@ export default function AccountFormEnhanced() {
     // Direct/Outside Business is required when account type is Individual and program type is Brokerage or Direct Business
     const shouldShowDirectOutsideBusiness = accountType === 'Individual' && 
       (programType === 'Brokerage' || programType === 'Direct Business');
+    
+    console.log('Direct/Outside Business Debug:', {
+      accountType,
+      programType,
+      shouldShowDirectOutsideBusiness,
+      condition1: accountType === 'Individual',
+      condition2: programType === 'Brokerage',
+      condition3: programType === 'Direct Business'
+    });
 
     return {
       showDeliveringFirm,
