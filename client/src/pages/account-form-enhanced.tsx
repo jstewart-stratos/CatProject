@@ -436,7 +436,8 @@ export default function AccountFormEnhanced() {
       showBeneficiaryDetails,
       showDistributionTypes,
       shouldShowBeneficiaries: regTypesRequireBenef.includes(registrationType),
-      shouldShowAdditionalHolder: regTypesRequireHolder.includes(registrationType)
+      shouldShowAdditionalHolder: regTypesRequireHolder.includes(registrationType),
+      showAdditionalHolders: regTypesRequireHolder.includes(registrationType)
     };
   }, [accountType, programType, registrationType]);
 
@@ -453,7 +454,8 @@ export default function AccountFormEnhanced() {
     showBeneficiaryDetails,
     showDistributionTypes,
     shouldShowBeneficiaries,
-    shouldShowAdditionalHolder
+    shouldShowAdditionalHolder,
+    showAdditionalHolders
   } = fieldVisibility;
 
   // Submit mutation
@@ -571,7 +573,7 @@ export default function AccountFormEnhanced() {
   };
 
   const validateAdditionalHolders = () => {
-    if (!showAdditionalHolders) return true; // Not required if section is hidden
+    if (!shouldShowAdditionalHolder) return true; // Not required if section is hidden
     const values = form.getValues();
     return values.additionalHolders && values.additionalHolders.length > 0;
   };
@@ -614,7 +616,7 @@ export default function AccountFormEnhanced() {
         const nextSection = sections[nextIndex];
         
         // Skip Additional Holders if not required
-        if (nextSection === "additionalHolders" && !showAdditionalHolders) {
+        if (nextSection === "additionalHolders" && !shouldShowAdditionalHolder) {
           nextIndex++;
           continue;
         }
@@ -1372,7 +1374,7 @@ export default function AccountFormEnhanced() {
                 </section>
               )}
               
-              {currentSection === 'additionalHolders' && showAdditionalHolders && (
+              {currentSection === 'additionalHolders' && shouldShowAdditionalHolder && (
                 <Card>
                   <CardHeader>
                     <CardTitle>Additional Account Holders</CardTitle>
