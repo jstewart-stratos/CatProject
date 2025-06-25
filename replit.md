@@ -134,6 +134,12 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **June 25, 2025**: Completed Direct/Outside Business form with conditional navigation
+  - ✅ **Fixed navigation visibility**: Added missing Direct/Outside Business navigation button in sidebar
+  - ✅ **Implemented conditional logic**: Form appears when Account Type = Individual AND Program Type = Brokerage OR Direct Business
+  - ✅ **Added database support**: Created direct_outside_business_accounts JSONB column for data persistence
+  - ✅ **Enhanced section flow**: Updated navigation sequence to include directOutsideBusiness between beneficiaries and powerOfAttorney
+  - ✅ **Working functionality**: User confirmed form appears correctly in navigation when conditions are met
 - **June 25, 2025**: Completed Trading Options form with comprehensive trading permissions management
   - ✅ **Added Trading Options form section**: Complete trading permissions form with 4 key trading areas and conditional options level selection
   - ✅ **Implemented trading permission questions**: Full Discretionary Trading, Structured Product Trading, Complex ETPs (including cryptocurrency), and Options Trading with No/Yes radio buttons
