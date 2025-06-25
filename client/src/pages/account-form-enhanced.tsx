@@ -567,6 +567,10 @@ export default function AccountFormEnhanced() {
     if (section.id === "powerOfAttorney" && !shouldShowPowerOfAttorney) {
       return false;
     }
+    if (section.id === "plan529Disclosure" && !shouldShow529PlanDisclosure) {
+      return false;
+    }
+    // Trading Options appears for all account types by default
     return true;
   });
 
