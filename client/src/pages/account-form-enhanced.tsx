@@ -568,8 +568,8 @@ export default function AccountFormEnhanced() {
   };
 
   const validateACHInfo = () => {
-    const values = form.getValues();
-    return values.achAccounts && values.achAccounts.length > 0;
+    // ACH Information is optional for all account types
+    return true;
   };
 
   const validateAdditionalHolders = () => {
@@ -595,7 +595,7 @@ export default function AccountFormEnhanced() {
         isValid = validateAccountInfo();
         break;
       case "achInfo":
-        isValid = validateACHInfo();
+        isValid = true; // ACH is optional
         break;
       case "additionalHolders":
         isValid = validateAdditionalHolders();
@@ -647,7 +647,7 @@ export default function AccountFormEnhanced() {
   };
 
   const canCreateAccount = () => {
-    return validateAccountInfo() && validateACHInfo() && validateAdditionalHolders() && validateBeneficiaries();
+    return validateAccountInfo() && validateAdditionalHolders() && validateBeneficiaries();
   };
 
   const renderSectionNavigation = (sectionKey: string, isFirstSection: boolean = false, isLastSection: boolean = false) => (
@@ -673,7 +673,6 @@ export default function AccountFormEnhanced() {
             className="flex items-center gap-2"
             disabled={
               (sectionKey === "accountInfo" && !validateAccountInfo()) ||
-              (sectionKey === "achInfo" && !validateACHInfo()) ||
               (sectionKey === "additionalHolders" && !validateAdditionalHolders()) ||
               (sectionKey === "beneficiaries" && !validateBeneficiaries())
             }
@@ -1302,7 +1301,7 @@ export default function AccountFormEnhanced() {
                 <section className="space-y-6">
                   <h2 className="text-xl font-semibold border-b pb-2">ACH Information</h2>
                   <div className="space-y-4">
-                    <p className="text-gray-600">Configure ACH banking information for this account.</p>
+                    <p className="text-gray-600">Configure ACH banking information for this account (optional).</p>
                     <Button
                       type="button"
                       onClick={addACHAccount}
