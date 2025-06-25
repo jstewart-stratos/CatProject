@@ -514,7 +514,6 @@ export default function AccountFormEnhanced() {
 
     // Trading Options is required for all Brokerage program types
     const shouldShowTradingOptions = programType === 'Brokerage';
-    console.log('Trading Options Debug - Program Type:', programType, 'Should Show:', shouldShowTradingOptions);
 
     return {
       showDeliveringFirm,
@@ -577,13 +576,10 @@ export default function AccountFormEnhanced() {
       return false;
     }
     if (section.id === "tradingOptions" && !shouldShowTradingOptions) {
-      console.log('Trading Options filtered out - shouldShowTradingOptions:', shouldShowTradingOptions);
       return false;
     }
     return true;
   });
-  
-  console.log('Filtered navigation sections:', navigationSections.map(s => s.id));
 
   // Submit mutation
   const createAccountMutation = useMutation({
@@ -3190,7 +3186,7 @@ export default function AccountFormEnhanced() {
                 </section>
               )}
               
-              {currentSection === 'tradingOptions' && (
+              {currentSection === 'tradingOptions' && shouldShowTradingOptions && (
                 <section className="space-y-6">
                   <h2 className="text-xl font-semibold border-b pb-2">Trading Options</h2>
                   <div className="space-y-6">
