@@ -21,7 +21,7 @@ import { Sidebar } from "@/components/sidebar";
 
 // Enhanced form schema based on reference design
 const accountFormSchema = z.object({
-  clientId: z.number().optional(),
+  clientId: z.number().min(1, "Client selection is required"),
   repId: z.string().min(1, "Rep ID is required"),
   notes: z.string().optional(),
   accountType: z.string().min(1, "Account Type is required"),
@@ -109,7 +109,7 @@ export default function AccountFormEnhanced() {
   const form = useForm<AccountFormData>({
     resolver: zodResolver(accountFormSchema),
     defaultValues: {
-      clientId,
+      clientId: clientId || undefined,
       transferOnDeath: "No",
       achAccounts: [],
       beneficiaries: [],
@@ -119,6 +119,11 @@ export default function AccountFormEnhanced() {
   // Fetch dropdown lists
   const { data: lists } = useQuery({
     queryKey: ["/api/lists"],
+  });
+
+  // Fetch clients for selection
+  const { data: clientsData } = useQuery({
+    queryKey: ["/api/clients"],
   });
 
   // Watch form values for conditional logic
