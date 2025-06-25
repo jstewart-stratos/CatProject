@@ -113,6 +113,12 @@ const accountFormSchema = z.object({
   tradingAuthorizedAgentName: z.string().optional(),
   isTradingAgentExistingClient: z.string().optional(),
   newTradingAuthorizationType: z.string().optional(),
+  // Trading Options
+  addFullDiscretionaryTrading: z.string().optional(),
+  addStructuredProductTrading: z.string().optional(),
+  tradeComplexETPs: z.string().optional(),
+  addOptionsTrading: z.string().optional(),
+  optionsLevel: z.string().optional(),
 });
 
 type AccountFormData = z.infer<typeof accountFormSchema>;
@@ -123,8 +129,10 @@ const allNavigationSections = [
   { id: "achInfo", label: "ACH Information", icon: CreditCard },
   { id: "additionalHolders", label: "Additional Account Holders", icon: Users },
   { id: "beneficiaries", label: "Beneficiaries", icon: Users },
-  { id: "tradingAuthority", label: "Trading Authority", icon: Shield },
-  { id: "specialAccounts", label: "Special Accounts", icon: Settings },
+  { id: "powerOfAttorney", label: "Power of Attorney", icon: Shield },
+  { id: "tradingAuthority", label: "Trading Authority", icon: Settings },
+  { id: "tradingOptions", label: "Trading Options", icon: Settings },
+  { id: "specialAccounts", label: "Special Accounts", icon: FileText },
 ];
 
 export default function AccountFormEnhanced() {
@@ -2834,6 +2842,166 @@ export default function AccountFormEnhanced() {
                   </div>
                   
                   {renderSectionNavigation("tradingAuthority", false, false)}
+                </section>
+              )}
+              
+              {currentSection === 'tradingOptions' && (
+                <section className="space-y-6">
+                  <h2 className="text-xl font-semibold border-b pb-2">Trading Options</h2>
+                  <div className="space-y-6">
+                    {/* Full Discretionary Trading */}
+                    <div className="space-y-3">
+                      <FormField
+                        control={form.control}
+                        name={"addFullDiscretionaryTrading" as any}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-base font-medium">Would you like to add Full Discretionary Trading?</FormLabel>
+                            <FormControl>
+                              <RadioGroup
+                                onValueChange={field.onChange}
+                                value={field.value}
+                                className="flex space-x-6"
+                              >
+                                <div className="flex items-center space-x-2">
+                                  <RadioGroupItem value="No" id="discretionary-no" />
+                                  <Label htmlFor="discretionary-no">No</Label>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <RadioGroupItem value="Yes" id="discretionary-yes" />
+                                  <Label htmlFor="discretionary-yes">Yes</Label>
+                                </div>
+                              </RadioGroup>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    {/* Structured Product Trading */}
+                    <div className="space-y-3">
+                      <FormField
+                        control={form.control}
+                        name={"addStructuredProductTrading" as any}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-base font-medium">Would you like to add Structured Product Trading to this Account?</FormLabel>
+                            <FormControl>
+                              <RadioGroup
+                                onValueChange={field.onChange}
+                                value={field.value}
+                                className="flex space-x-6"
+                              >
+                                <div className="flex items-center space-x-2">
+                                  <RadioGroupItem value="No" id="structured-no" />
+                                  <Label htmlFor="structured-no">No</Label>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <RadioGroupItem value="Yes" id="structured-yes" />
+                                  <Label htmlFor="structured-yes">Yes</Label>
+                                </div>
+                              </RadioGroup>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    {/* Complex ETPs Trading */}
+                    <div className="space-y-3">
+                      <FormField
+                        control={form.control}
+                        name={"tradeComplexETPs" as any}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-base font-medium">Would you like to trade complex ETPs (including cryptocurrency)?</FormLabel>
+                            <FormControl>
+                              <RadioGroup
+                                onValueChange={field.onChange}
+                                value={field.value}
+                                className="flex space-x-6"
+                              >
+                                <div className="flex items-center space-x-2">
+                                  <RadioGroupItem value="No" id="complex-etps-no" />
+                                  <Label htmlFor="complex-etps-no">No</Label>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <RadioGroupItem value="Yes" id="complex-etps-yes" />
+                                  <Label htmlFor="complex-etps-yes">Yes</Label>
+                                </div>
+                              </RadioGroup>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    {/* Options Trading */}
+                    <div className="space-y-3">
+                      <FormField
+                        control={form.control}
+                        name={"addOptionsTrading" as any}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-base font-medium">Would you like to add Options Trading to this account?</FormLabel>
+                            <FormControl>
+                              <RadioGroup
+                                onValueChange={field.onChange}
+                                value={field.value}
+                                className="flex space-x-6"
+                              >
+                                <div className="flex items-center space-x-2">
+                                  <RadioGroupItem value="No" id="options-no" />
+                                  <Label htmlFor="options-no">No</Label>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <RadioGroupItem value="Yes" id="options-yes" />
+                                  <Label htmlFor="options-yes">Yes</Label>
+                                </div>
+                              </RadioGroup>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    {/* Options Level - conditional on Options Trading = Yes */}
+                    {form.watch('addOptionsTrading' as any) === 'Yes' && (
+                      <div className="space-y-3">
+                        <FormField
+                          control={form.control}
+                          name={"optionsLevel" as any}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-base font-medium">Select Options Trading Level:</FormLabel>
+                              <FormControl>
+                                <RadioGroup
+                                  onValueChange={field.onChange}
+                                  value={field.value}
+                                  className="space-y-3"
+                                >
+                                  <div className="flex items-center space-x-2">
+                                    <RadioGroupItem value="Level 1" id="options-level-1" />
+                                    <Label htmlFor="options-level-1" className="flex items-center space-x-2">
+                                      Level 1
+                                      <span className="inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-blue-500 rounded-full ml-1">i</span>
+                                    </Label>
+                                  </div>
+                                </RadioGroup>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    )}
+                  </div>
+                  
+                  {renderSectionNavigation("tradingOptions", false, false)}
                 </section>
               )}
               

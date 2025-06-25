@@ -134,12 +134,18 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
-- **June 25, 2025**: Completed Power of Attorney form with intelligent conditional logic based on financial industry standards
+- **June 25, 2025**: Completed Trading Options form with comprehensive trading permissions management
+  - ✅ **Added Trading Options form section**: Complete trading permissions form with 4 key trading areas and conditional options level selection
+  - ✅ **Implemented trading permission questions**: Full Discretionary Trading, Structured Product Trading, Complex ETPs (including cryptocurrency), and Options Trading with No/Yes radio buttons
+  - ✅ **Added conditional Options Level selection**: Options trading level appears when Options Trading is enabled, with Level 1 option and info icon
+  - ✅ **Enhanced form workflow**: Trading Options positioned between Trading Authority and Special Accounts in sidebar navigation
+  - ✅ **Database schema updated**: Added all Trading Options fields to accounts table for data persistence
+- **June 25, 2025**: Completed Trading Authority and Power of Attorney forms with intelligent conditional logic
+  - ✅ **Added Trading Authority form section**: Grant Trading Authority question with conditional authorized agent fields and Limited/Full authorization type selection
   - ✅ **Added Power of Attorney form section**: Grant Power of Attorney question with No/Yes radio buttons and conditional authorized agent fields
-  - ✅ **Implemented smart business rules**: Section automatically appears for Trust accounts (trustee management), Business accounts (authorized signers), Custodial accounts (parent/guardian authority), Estate accounts (executor authority), and 529 Education Plans (minor beneficiary authority)
-  - ✅ **Enhanced dynamic sidebar navigation**: Power of Attorney section conditionally appears/disappears based on account type and registration requirements
-  - ✅ **Applied financial industry standards**: Logic follows standard practices for when Power of Attorney is legally required or commonly needed
-  - ✅ **Integrated form workflow**: Seamless navigation with conditional field display and proper form validation
+  - ✅ **Implemented smart business rules**: Power of Attorney section automatically appears for Trust accounts, Business accounts, Custodial accounts, Estate accounts, and 529 Education Plans
+  - ✅ **Enhanced dynamic sidebar navigation**: Both sections conditionally appear/disappear based on account type and registration requirements
+  - ✅ **Applied financial industry standards**: Logic follows standard practices for when legal authority is typically required
 - **June 25, 2025**: Completed beneficiaries form conditional logic and dropdown auto-population
   - ✅ **Fixed beneficiaries conditional display**: Beneficiaries section now only appears for IRA account types and when Transfer on Death = "Yes"
   - ✅ **Implemented dynamic sidebar navigation**: Beneficiaries and Additional Account Holders sections conditionally appear/disappear based on business rules

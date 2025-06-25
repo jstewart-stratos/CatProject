@@ -209,6 +209,12 @@ export const accounts = pgTable("accounts", {
   isTradingAgentExistingClient: varchar("is_trading_agent_existing_client"), // No, Yes
   newTradingAuthorizationType: varchar("new_trading_authorization_type"), // Limited, Full
   
+  // Trading Options
+  addFullDiscretionaryTrading: varchar("add_full_discretionary_trading"), // No, Yes
+  addStructuredProductTrading: varchar("add_structured_product_trading"), // No, Yes
+  tradeComplexETPs: varchar("trade_complex_etps"), // No, Yes
+  addOptionsTrading: varchar("add_options_trading"), // No, Yes
+  
   // Status
   isLocked: boolean("is_locked").default(false),
   status: varchar("status").default("active"), // active, inactive, closed
