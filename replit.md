@@ -137,11 +137,13 @@ Preferred communication style: Simple, everyday language.
 - **June 25, 2025**: Completed beneficiaries form conditional logic and dropdown auto-population
   - ✅ **Fixed beneficiaries conditional display**: Beneficiaries section now only appears for IRA account types and when Transfer on Death = "Yes"
   - ✅ **Implemented dynamic sidebar navigation**: Beneficiaries and Additional Account Holders sections conditionally appear/disappear based on business rules
-  - ✅ **Added complete beneficiary dropdown options**: Server now provides 3 relationship options (Spouse, Relative/Friend, Non-Person) and 2 type options (Primary, Contingent)
+  - ✅ **Added correct beneficiary dropdown options**: Server provides 3 relationship options (Spouse, Relative/Friend, Non-Person) and 2 type options (Primary, Contingent)
   - ✅ **Fixed dropdown auto-population**: Form correctly fetches and displays relationship and type options from server lists endpoint
-  - ✅ **Enhanced conditional field logic**: Non-Person selection switches to Entity Name and TIN fields instead of person fields
+  - ✅ **Enhanced conditional field logic**: Non-Person selection switches to Entity Name and TIN fields; Person selection shows First Name, Last Name, Date of Birth, SSN fields
   - ✅ **Smart navigation flow**: Form automatically skips beneficiaries section when not required, with proper Next/Previous button handling
-  - ✅ **Complete business rule compliance**: Beneficiaries required for all IRA registration types (Traditional IRA, Roth IRA, SEP IRA, SIMPLE IRA, Beneficiary IRA, etc.) and Individual accounts with Transfer on Death enabled
+  - ✅ **Complete business rule compliance**: Beneficiaries required for all IRA registration types and Individual accounts with Transfer on Death enabled
+  - ✅ **Fixed Select component binding**: Changed from defaultValue to value for proper controlled component behavior
+  - ✅ **Validated complete workflow**: User confirmed all conditional field switching works correctly
 - **June 25, 2025**: Enhanced multi-step account creation workflow with address auto-population
   - ✅ **Fixed JavaScript errors**: Added missing ACH and beneficiary management functions (addACHAccount, updateACHAccount, updateBeneficiary)
   - ✅ **Made ACH Information optional**: Updated validation logic to allow progression without ACH data entry for all account types

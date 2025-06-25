@@ -278,9 +278,7 @@ export default function AccountFormEnhanced() {
     };
     
     const registrationTypes = registrationTypeMap[accountType]?.[programType] || [];
-    console.log('Account Type:', accountType);
-    console.log('Program Type:', programType);
-    console.log('Filtered Registration Types:', registrationTypes);
+
     return registrationTypes;
   }, [accountType, programType]);
 
