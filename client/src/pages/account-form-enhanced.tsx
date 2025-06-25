@@ -1981,7 +1981,22 @@ export default function AccountFormEnhanced() {
                         <FormItem>
                           <FormLabel>SSN</FormLabel>
                           <FormControl>
-                            <Input placeholder="123456789" {...field} />
+                            <Input 
+                              placeholder="123-45-6789" 
+                              {...field}
+                              onChange={(e) => {
+                                let value = e.target.value.replace(/\D/g, '');
+                                if (value.length >= 6) {
+                                  value = value.replace(/(\d{3})(\d{2})(\d{4})/, '$1-$2-$3');
+                                } else if (value.length >= 4) {
+                                  value = value.replace(/(\d{3})(\d{2})/, '$1-$2');
+                                } else if (value.length >= 1) {
+                                  value = value.replace(/(\d{3})/, '$1');
+                                }
+                                field.onChange(value);
+                              }}
+                              maxLength={11}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
