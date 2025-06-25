@@ -500,15 +500,6 @@ export default function AccountFormEnhanced() {
     // Direct/Outside Business is required when account type is Individual and program type is Brokerage or Direct Business
     const shouldShowDirectOutsideBusiness = accountType === 'Individual' && 
       (programType === 'Brokerage' || programType === 'Direct Business');
-    
-    console.log('Direct/Outside Business Debug:', {
-      accountType,
-      programType,
-      shouldShowDirectOutsideBusiness,
-      condition1: accountType === 'Individual',
-      condition2: programType === 'Brokerage',
-      condition3: programType === 'Direct Business'
-    });
 
     return {
       showDeliveringFirm,
@@ -742,7 +733,7 @@ export default function AccountFormEnhanced() {
 
   // Navigation functions
   const goToNextSection = () => {
-    const sections = ["accountInfo", "achInfo", "additionalHolders", "beneficiaries", "powerOfAttorney", "tradingAuthority", "specialAccounts"];
+    const sections = ["accountInfo", "achInfo", "additionalHolders", "beneficiaries", "directOutsideBusiness", "powerOfAttorney", "tradingAuthority", "tradingOptions"];
     const currentIndex = sections.indexOf(currentSection);
     
     // Mark current section as completed if validation passes
@@ -784,6 +775,18 @@ export default function AccountFormEnhanced() {
           continue;
         }
         
+        // Skip Direct/Outside Business if not required
+        if (nextSection === "directOutsideBusiness" && !shouldShowDirectOutsideBusiness) {
+          nextIndex++;
+          continue;
+        }
+        
+        // Skip Power of Attorney if not required
+        if (nextSection === "powerOfAttorney" && !shouldShowPowerOfAttorney) {
+          nextIndex++;
+          continue;
+        }
+        
         setCurrentSection(nextSection);
         return;
       }
@@ -802,7 +805,7 @@ export default function AccountFormEnhanced() {
   };
 
   const goToPreviousSection = () => {
-    const sections = ["accountInfo", "achInfo", "additionalHolders", "beneficiaries", "powerOfAttorney", "tradingAuthority", "specialAccounts"];
+    const sections = ["accountInfo", "achInfo", "additionalHolders", "beneficiaries", "directOutsideBusiness", "powerOfAttorney", "tradingAuthority", "tradingOptions"];
     const currentIndex = sections.indexOf(currentSection);
     
     // Skip sections that don't apply based on business rules
@@ -818,6 +821,18 @@ export default function AccountFormEnhanced() {
       
       // Skip Beneficiaries if not required
       if (prevSection === "beneficiaries" && !shouldShowBeneficiaries) {
+        prevIndex--;
+        continue;
+      }
+      
+      // Skip Direct/Outside Business if not required
+      if (prevSection === "directOutsideBusiness" && !shouldShowDirectOutsideBusiness) {
+        prevIndex--;
+        continue;
+      }
+      
+      // Skip Power of Attorney if not required
+      if (prevSection === "powerOfAttorney" && !shouldShowPowerOfAttorney) {
         prevIndex--;
         continue;
       }
@@ -1449,17 +1464,33 @@ export default function AccountFormEnhanced() {
               Beneficiaries
             </button>
           )}
-          <button
-            type="button"
-            className={`nav-btn w-full text-left px-3 py-2 rounded-r ${
-              currentSection === 'powerOfAttorney'
-                ? 'bg-white border-l-4 border-blue-800 text-blue-800 font-medium'
-                : 'text-gray-700 hover:bg-gray-200'
-            }`}
-            onClick={() => setCurrentSection('powerOfAttorney')}
-          >
-            Power of Attorney
-          </button>
+          {shouldShowDirectOutsideBusiness && (
+            <button
+              type="button"
+              className={`nav-btn w-full text-left px-3 py-2 rounded-r ${
+                currentSection === 'directOutsideBusiness'
+                  ? 'bg-white border-l-4 border-blue-800 text-blue-800 font-medium'
+                  : 'text-gray-700 hover:bg-gray-200'
+              }`}
+              onClick={() => setCurrentSection('directOutsideBusiness')}
+            >
+              Direct / Outside Business
+            </button>
+          )}
+          {shouldShowPowerOfAttorney && (
+            <button
+              type="button"
+              className={`nav-btn w-full text-left px-3 py-2 rounded-r ${
+                currentSection === 'powerOfAttorney'
+                  ? 'bg-white border-l-4 border-blue-800 text-blue-800 font-medium'
+                  : 'text-gray-700 hover:bg-gray-200'
+              }`}
+              onClick={() => setCurrentSection('powerOfAttorney')}
+            >
+              Power of Attorney
+            </button>
+          )}
+
           <button
             type="button"
             className={`nav-btn w-full text-left px-3 py-2 rounded-r ${
