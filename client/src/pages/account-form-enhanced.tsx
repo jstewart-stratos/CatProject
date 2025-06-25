@@ -62,10 +62,11 @@ const accountFormSchema = z.object({
   beneficiaries: z.array(z.object({
     relationship: z.string(),
     type: z.string(),
-    firstName: z.string(),
+    firstName: z.string().optional(),
     middleName: z.string().optional(),
-    lastName: z.string(),
+    lastName: z.string().optional(),
     entityName: z.string().optional(),
+    tin: z.string().optional(),
     percentage: z.number().min(0).max(100),
     dateOfBirth: z.string().optional(),
     ssn: z.string().optional(),
@@ -2343,48 +2344,81 @@ export default function AccountFormEnhanced() {
                           />
                         </div>
 
-                        {/* Name row */}
-                        <div className="grid grid-cols-3 gap-6">
-                          <FormField
-                            control={form.control}
-                            name={`beneficiaries.${index}.firstName`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-base font-medium">First Name</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="First Name" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name={`beneficiaries.${index}.middleName`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-base font-medium">Middle Name</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="Middle Name" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name={`beneficiaries.${index}.lastName`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-base font-medium">Last Name</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="Last Name" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
+                        {/* Conditional fields based on relationship type */}
+                        {form.watch(`beneficiaries.${index}.relationship`) === "Non-Person" ? (
+                          // Non-Person fields: Entity Name and TIN
+                          <div className="grid grid-cols-2 gap-6">
+                            <FormField
+                              control={form.control}
+                              name={`beneficiaries.${index}.entityName` as any}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-base font-medium">Entity Name</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="Entity Name" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name={`beneficiaries.${index}.tin` as any}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-base font-medium">TIN</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="TIN" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                        ) : (
+                          // Person fields: Name row
+                          <div className="grid grid-cols-3 gap-6">
+                            <FormField
+                              control={form.control}
+                              name={`beneficiaries.${index}.firstName`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-base font-medium">First Name</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="First Name" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name={`beneficiaries.${index}.middleName`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-base font-medium">Middle Name</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="Middle Name" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name={`beneficiaries.${index}.lastName`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-base font-medium">Last Name</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="Last Name" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                        )}
 
                         {/* Percentage row */}
                         <div className="grid grid-cols-2 gap-6">
