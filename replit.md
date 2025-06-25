@@ -137,7 +137,7 @@ Preferred communication style: Simple, everyday language.
 - **June 25, 2025**: Completed beneficiaries form conditional logic and dropdown auto-population
   - ✅ **Fixed beneficiaries conditional display**: Beneficiaries section now only appears for IRA account types and when Transfer on Death = "Yes"
   - ✅ **Implemented dynamic sidebar navigation**: Beneficiaries and Additional Account Holders sections conditionally appear/disappear based on business rules
-  - ✅ **Added complete beneficiary dropdown options**: Server now provides 12 relationship options (including Non-Person) and 4 type options (Primary, Contingent, Per Stirpes, Per Capita)
+  - ✅ **Added complete beneficiary dropdown options**: Server now provides 3 relationship options (Spouse, Relative/Friend, Non-Person) and 2 type options (Primary, Contingent)
   - ✅ **Fixed dropdown auto-population**: Form correctly fetches and displays relationship and type options from server lists endpoint
   - ✅ **Enhanced conditional field logic**: Non-Person selection switches to Entity Name and TIN fields instead of person fields
   - ✅ **Smart navigation flow**: Form automatically skips beneficiaries section when not required, with proper Next/Previous button handling

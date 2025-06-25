@@ -838,23 +838,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ],
         'Bene Relation': [
           'Spouse',
-          'Child',
-          'Parent',
-          'Sibling',
-          'Grandchild',
-          'Grandparent',
-          'Other Relative',
-          'Friend',
-          'Trust',
-          'Estate',
-          'Charity',
+          'Relative/Friend',
           'Non-Person'
         ],
         'Bene Type': [
           'Primary',
-          'Contingent',
-          'Per Stirpes',
-          'Per Capita'
+          'Contingent'
         ],
         'Funds Needed In': [
           'Less than 1 year',
