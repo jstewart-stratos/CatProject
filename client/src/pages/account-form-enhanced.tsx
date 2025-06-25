@@ -132,7 +132,6 @@ const allNavigationSections = [
   { id: "powerOfAttorney", label: "Power of Attorney", icon: Shield },
   { id: "tradingAuthority", label: "Trading Authority", icon: Settings },
   { id: "tradingOptions", label: "Trading Options", icon: Settings },
-  { id: "specialAccounts", label: "Special Accounts", icon: FileText },
 ];
 
 export default function AccountFormEnhanced() {
@@ -3001,36 +3000,11 @@ export default function AccountFormEnhanced() {
                     )}
                   </div>
                   
-                  {renderSectionNavigation("tradingOptions", false, false)}
+                  {renderSectionNavigation("tradingOptions", false, true)}
                 </section>
               )}
               
-              {currentSection === 'specialAccounts' && (
-                <section className="space-y-6">
-                  <h2 className="text-xl font-semibold border-b pb-2">Special Accounts</h2>
-                  <div className="space-y-4">
-                    <p className="text-gray-600">Additional configuration for special account types.</p>
-                    <div className="grid grid-cols-1 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Special Account Type</label>
-                        <Select>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select special account type" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="trust">Trust Account</SelectItem>
-                            <SelectItem value="529">529 Education Plan</SelectItem>
-                            <SelectItem value="custodial">Custodial Account</SelectItem>
-                            <SelectItem value="corporate">Corporate Account</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {renderSectionNavigation("specialAccounts", false, true)}
-                </section>
-              )}
+
             </form>
           </Form>
         </div>
