@@ -2492,35 +2492,37 @@ export default function AccountFormEnhanced() {
                           <div></div>
                         </div>
 
-                        {/* Date of Birth and SSN row */}
-                        <div className="grid grid-cols-2 gap-6">
-                          <FormField
-                            control={form.control}
-                            name={`beneficiaries.${index}.dateOfBirth`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-base font-medium">Date Of Birth</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="mm/dd/yyyy" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name={`beneficiaries.${index}.ssn`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-base font-medium">SSN</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="123456789" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
+                        {/* Date of Birth and SSN row - only for persons */}
+                        {form.watch(`beneficiaries.${index}.relationship`) !== "Non-Person" && (
+                          <div className="grid grid-cols-2 gap-6">
+                            <FormField
+                              control={form.control}
+                              name={`beneficiaries.${index}.dateOfBirth`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-base font-medium">Date Of Birth</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="mm/dd/yyyy" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name={`beneficiaries.${index}.ssn`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-base font-medium">SSN</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="123456789" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                        )}
                       </div>
                     ))}
 
