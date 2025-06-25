@@ -141,6 +141,7 @@ type AccountFormData = z.infer<typeof accountFormSchema>;
 const allNavigationSections = [
   { id: "accountInfo", label: "Account Information", icon: FileText },
   { id: "achInfo", label: "ACH Information", icon: CreditCard },
+  { id: "accountOptions", label: "Account Options", icon: Settings },
   { id: "additionalHolders", label: "Additional Account Holders", icon: Users },
   { id: "beneficiaries", label: "Beneficiaries", icon: Users },
   { id: "directOutsideBusiness", label: "Direct/Outside Business", icon: Building },
@@ -514,7 +515,6 @@ export default function AccountFormEnhanced() {
 
     // Trading Options is required for all Brokerage program types
     const shouldShowTradingOptions = programType === 'Brokerage';
-    console.log('Program Type:', programType, 'Should Show Trading Options:', shouldShowTradingOptions);
 
     return {
       showDeliveringFirm,
@@ -577,16 +577,10 @@ export default function AccountFormEnhanced() {
       return false;
     }
     if (section.id === "tradingOptions" && !shouldShowTradingOptions) {
-      console.log('Trading Options filtered out - shouldShowTradingOptions:', shouldShowTradingOptions);
       return false;
-    }
-    if (section.id === "tradingOptions") {
-      console.log('Trading Options included - shouldShowTradingOptions:', shouldShowTradingOptions);
     }
     return true;
   });
-  
-  console.log('Navigation sections after filtering:', navigationSections.map(s => s.id));
 
   // Submit mutation
   const createAccountMutation = useMutation({
@@ -1448,116 +1442,20 @@ export default function AccountFormEnhanced() {
       <div className="max-w-5xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden flex">
         {/* Sidebar Navigation */}
         <nav className="w-1/4 bg-gray-100 p-6 space-y-2 sticky top-0">
-          <button
-            type="button"
-            className={`nav-btn w-full text-left px-3 py-2 rounded-r ${
-              currentSection === 'accountInfo'
-                ? 'bg-white border-l-4 border-blue-800 text-blue-800 font-medium'
-                : 'text-gray-700 hover:bg-gray-200'
-            }`}
-            onClick={() => setCurrentSection('accountInfo')}
-          >
-            Account Information
-          </button>
-          <button
-            type="button"
-            className={`nav-btn w-full text-left px-3 py-2 rounded-r ${
-              currentSection === 'achInfo'
-                ? 'bg-white border-l-4 border-blue-800 text-blue-800 font-medium'
-                : 'text-gray-700 hover:bg-gray-200'
-            }`}
-            onClick={() => setCurrentSection('achInfo')}
-          >
-            ACH Information
-          </button>
-          {shouldShowAdditionalHolder && (
+          {navigationSections.map((section) => (
             <button
+              key={section.id}
               type="button"
               className={`nav-btn w-full text-left px-3 py-2 rounded-r ${
-                currentSection === 'additionalHolders'
+                currentSection === section.id
                   ? 'bg-white border-l-4 border-blue-800 text-blue-800 font-medium'
                   : 'text-gray-700 hover:bg-gray-200'
               }`}
-              onClick={() => setCurrentSection('additionalHolders')}
+              onClick={() => setCurrentSection(section.id)}
             >
-              Additional Account Holders
+              {section.label}
             </button>
-          )}
-          <button
-            type="button"
-            className={`nav-btn w-full text-left px-3 py-2 rounded-r ${
-              currentSection === 'accountOptions'
-                ? 'bg-white border-l-4 border-blue-800 text-blue-800 font-medium'
-                : 'text-gray-700 hover:bg-gray-200'
-            }`}
-            onClick={() => setCurrentSection('accountOptions')}
-          >
-            Account Options
-          </button>
-          {shouldShowBeneficiaries && (
-            <button
-              type="button"
-              className={`nav-btn w-full text-left px-3 py-2 rounded-r ${
-                currentSection === 'beneficiaries'
-                  ? 'bg-white border-l-4 border-blue-800 text-blue-800 font-medium'
-                  : 'text-gray-700 hover:bg-gray-200'
-              }`}
-              onClick={() => setCurrentSection('beneficiaries')}
-            >
-              Beneficiaries
-            </button>
-          )}
-          {shouldShowDirectOutsideBusiness && (
-            <button
-              type="button"
-              className={`nav-btn w-full text-left px-3 py-2 rounded-r ${
-                currentSection === 'directOutsideBusiness'
-                  ? 'bg-white border-l-4 border-blue-800 text-blue-800 font-medium'
-                  : 'text-gray-700 hover:bg-gray-200'
-              }`}
-              onClick={() => setCurrentSection('directOutsideBusiness')}
-            >
-              Direct / Outside Business
-            </button>
-          )}
-          {shouldShow529PlanDisclosure && (
-            <button
-              type="button"
-              className={`nav-btn w-full text-left px-3 py-2 rounded-r ${
-                currentSection === 'plan529Disclosure'
-                  ? 'bg-white border-l-4 border-blue-800 text-blue-800 font-medium'
-                  : 'text-gray-700 hover:bg-gray-200'
-              }`}
-              onClick={() => setCurrentSection('plan529Disclosure')}
-            >
-              529 Plan Disclosure Checklist
-            </button>
-          )}
-          {shouldShowPowerOfAttorney && (
-            <button
-              type="button"
-              className={`nav-btn w-full text-left px-3 py-2 rounded-r ${
-                currentSection === 'powerOfAttorney'
-                  ? 'bg-white border-l-4 border-blue-800 text-blue-800 font-medium'
-                  : 'text-gray-700 hover:bg-gray-200'
-              }`}
-              onClick={() => setCurrentSection('powerOfAttorney')}
-            >
-              Power of Attorney
-            </button>
-          )}
-
-          <button
-            type="button"
-            className={`nav-btn w-full text-left px-3 py-2 rounded-r ${
-              currentSection === 'tradingAuthority'
-                ? 'bg-white border-l-4 border-blue-800 text-blue-800 font-medium'
-                : 'text-gray-700 hover:bg-gray-200'
-            }`}
-            onClick={() => setCurrentSection('tradingAuthority')}
-          >
-            Trading Authority
-          </button>
+          ))}
           <button
             type="button"
             className={`nav-btn w-full text-left px-3 py-2 rounded-r ${
