@@ -1477,9 +1477,27 @@ export default function AccountFormEnhanced() {
                             <FormItem>
                               <div className="flex items-center gap-2">
                                 <FormLabel className="text-base font-medium">Account Type</FormLabel>
-                                <div className="w-4 h-4 bg-blue-500 text-white rounded text-xs flex items-center justify-center font-bold">
-                                  i
-                                </div>
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <div className="w-4 h-4 bg-blue-500 text-white rounded text-xs flex items-center justify-center font-bold cursor-help">
+                                        i
+                                      </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent className="max-w-sm p-3 bg-gray-800 text-white">
+                                      <div className="space-y-2">
+                                        <div>
+                                          <p className="font-medium">Premier:</p>
+                                          <p className="text-sm">Free, wallet-size checks. Initial checkbook includes 40 checks.</p>
+                                        </div>
+                                        <div>
+                                          <p className="font-medium">Premier Plus:</p>
+                                          <p className="text-sm">Same benefits as Premier, Business Checks available upon request and also offers an optional VISA Platinum debit card.</p>
+                                        </div>
+                                      </div>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
                               </div>
                               <div className="flex gap-4 mt-2">
                                 <div className="flex items-center space-x-2">
