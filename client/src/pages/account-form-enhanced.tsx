@@ -2251,79 +2251,193 @@ export default function AccountFormEnhanced() {
               {currentSection === 'beneficiaries' && (
                 <section className="space-y-6">
                   <h2 className="text-xl font-semibold border-b pb-2">Beneficiaries</h2>
-                  <div className="space-y-4">
-                    <Button
-                      type="button"
-                      onClick={addBeneficiary}
-                      className="flex items-center gap-2"
-                    >
-                      <Plus className="w-4 h-4" />
-                      Add Beneficiary
-                    </Button>
-                    
-                    {form.watch("beneficiaries")?.map((beneficiary, index) => (
-                      <Card key={index} className="p-4">
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm font-medium mb-1">First Name</label>
-                            <Input
-                              value={beneficiary.firstName}
-                              onChange={(e) => updateBeneficiary(index, 'firstName', e.target.value)}
-                              placeholder="Enter first name"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium mb-1">Last Name</label>
-                            <Input
-                              value={beneficiary.lastName}
-                              onChange={(e) => updateBeneficiary(index, 'lastName', e.target.value)}
-                              placeholder="Enter last name"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium mb-1">Relationship</label>
-                            <Select
-                              value={beneficiary.relationship}
-                              onValueChange={(value) => updateBeneficiary(index, 'relationship', value)}
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select relationship" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {lists?.["Beneficiary Relationship"]?.map((rel: string) => (
-                                  <SelectItem key={rel} value={rel}>{rel}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium mb-1">Percentage</label>
-                            <Input
-                              type="number"
-                              min="0"
-                              max="100"
-                              value={beneficiary.percentage}
-                              onChange={(e) => updateBeneficiary(index, 'percentage', parseInt(e.target.value))}
-                              placeholder="Enter percentage"
-                            />
-                          </div>
-                        </div>
-                        <div className="mt-4 flex justify-end">
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => removeBeneficiary(index)}
-                          >
-                            <Trash2 className="w-4 h-4 mr-2" />
-                            Remove
-                          </Button>
-                        </div>
-                      </Card>
-                    ))}
-                  </div>
                   
-                  {renderSectionNavigation("beneficiaries", false, false)}
+                  <div className="space-y-6">
+                    {beneficiaries?.map((beneficiary, index) => (
+                      <div key={index} className="border rounded-lg p-6 space-y-6 relative">
+                        {/* Close button */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = beneficiaries.filter((_, i) => i !== index);
+                            form.setValue("beneficiaries", updated);
+                          }}
+                          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl font-bold"
+                        >
+                          ×
+                        </button>
+
+                        {/* Relationship and Type row */}
+                        <div className="grid grid-cols-2 gap-6">
+                          <FormField
+                            control={form.control}
+                            name={`beneficiaries.${index}.relationship`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-base font-medium">Relationship</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {(lists?.["Beneficiary Relationship"] || []).map((relationship) => (
+                                      <SelectItem key={relationship} value={relationship}>
+                                        {relationship}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`beneficiaries.${index}.beneficiaryType`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-base font-medium">Type</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {(lists?.["Beneficiary Type"] || []).map((type) => (
+                                      <SelectItem key={type} value={type}>
+                                        {type}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
+                        {/* Name row */}
+                        <div className="grid grid-cols-3 gap-6">
+                          <FormField
+                            control={form.control}
+                            name={`beneficiaries.${index}.firstName`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-base font-medium">First Name</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="First Name" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`beneficiaries.${index}.middleName`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-base font-medium">Middle Name</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Middle Name" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`beneficiaries.${index}.lastName`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-base font-medium">Last Name</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Last Name" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
+                        {/* Percentage row */}
+                        <div className="grid grid-cols-2 gap-6">
+                          <FormField
+                            control={form.control}
+                            name={`beneficiaries.${index}.percentage`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-base font-medium">Percentage</FormLabel>
+                                <div className="flex gap-2">
+                                  <FormControl>
+                                    <Input placeholder="%" {...field} className="w-20" />
+                                  </FormControl>
+                                  <span className="flex items-center text-gray-500">%</span>
+                                </div>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <div></div>
+                        </div>
+
+                        {/* Date of Birth and SSN row */}
+                        <div className="grid grid-cols-2 gap-6">
+                          <FormField
+                            control={form.control}
+                            name={`beneficiaries.${index}.dateOfBirth`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-base font-medium">Date Of Birth</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="mm/dd/yyyy" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`beneficiaries.${index}.ssn`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-base font-medium">SSN</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="123456789" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      </div>
+                    ))}
+
+                    {/* Add Another Beneficiary button */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const current = form.getValues("beneficiaries") || [];
+                        form.setValue("beneficiaries", [...current, {
+                          firstName: "",
+                          middleName: "",
+                          lastName: "",
+                          relationship: "",
+                          beneficiaryType: "Primary",
+                          percentage: "",
+                          dateOfBirth: "",
+                          ssn: ""
+                        }]);
+                      }}
+                      className="text-blue-600 hover:text-blue-800 font-medium"
+                    >
+                      + Add Another Beneficiary
+                    </button>
+
+                    {renderSectionNavigation("beneficiaries", false, false)}
+                  </div>
                 </section>
               )}
               
