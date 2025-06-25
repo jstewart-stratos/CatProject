@@ -141,6 +141,7 @@ Preferred communication style: Simple, everyday language.
   - ✅ **Smart state field handling**: State field dynamically switches between disabled input (when auto-populated) and dropdown select (when manual entry)
   - ✅ **Progressive form disclosure**: Suitability section now hidden until account type is selected, providing cleaner initial form state
   - ✅ **Enhanced user experience**: Multi-step workflow with Next/Previous navigation working properly across all 6 sections
+  - ✅ **Employment field consistency**: Updated Additional Account Holders employment fields to match client creation picklists (status, industry, affiliation)
 - **June 24, 2025**: Completed comprehensive account form conditional logic for all account types
   - ✅ **Individual accounts**: 3 program groups with correct business rules (Brokerage, Direct Business, Advisory Programs)
   - ✅ **Joint accounts**: Registration-based Transfer on Death logic + fixed duplicate sections + 6 exact registration types

@@ -1849,6 +1849,32 @@ export default function AccountFormEnhanced() {
 
                       <FormField
                         control={form.control}
+                        name="additionalHolder.industryAffiliation"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Industry Affiliation</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="lpl_rep_employee_sales_assistant">LPL Rep/Employee/Sales Assistant</SelectItem>
+                                <SelectItem value="relative_of_lpl_rep_employee">Relative of LPL Rep/Employee</SelectItem>
+                                <SelectItem value="employee_relative_other_securities_firm">Employee/Relative of Other Securities Firm</SelectItem>
+                                <SelectItem value="employee_relative_other_financial_institution">Employee/Relative of Other Financial Institution</SelectItem>
+                                <SelectItem value="employee_relative_finra_employee">Employee/Relative of FINRA Employee</SelectItem>
+                                <SelectItem value="none">None</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
                         name="additionalHolder.excludeEmployerAddress"
                         render={({ field }) => (
                           <FormItem className="flex flex-row items-start space-x-3 space-y-0">
