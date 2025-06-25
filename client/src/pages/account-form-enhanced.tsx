@@ -106,12 +106,12 @@ const accountFormSchema = z.object({
 
 type AccountFormData = z.infer<typeof accountFormSchema>;
 
-// Navigation sections for sidebar
-const navigationSections = [
+// Navigation sections for sidebar - will be filtered based on business rules
+const allNavigationSections = [
   { id: "accountInfo", label: "Account Information", icon: FileText },
   { id: "achInfo", label: "ACH Information", icon: CreditCard },
+  { id: "additionalHolders", label: "Additional Account Holders", icon: Users },
   { id: "beneficiaries", label: "Beneficiaries", icon: Users },
-  { id: "additionalHolder", label: "Additional Holder", icon: Users },
   { id: "tradingAuthority", label: "Trading Authority", icon: Shield },
   { id: "specialAccounts", label: "Special Accounts", icon: Settings },
 ];
@@ -447,6 +447,13 @@ export default function AccountFormEnhanced() {
       showAdvisoryBillingCycle = true;
     }
 
+    // Beneficiaries are required when:
+    // 1. Registration type is an IRA type
+    // 2. Transfer on Death is "Yes" (for Individual accounts)
+    const transferOnDeathValue = form.watch('transferOnDeath');
+    const shouldShowBeneficiaries = regTypesRequireBenef.includes(registrationType) || 
+                                   (transferOnDeathValue === 'Yes');
+
     return {
       showDeliveringFirm,
       showContraAccount,
@@ -459,11 +466,11 @@ export default function AccountFormEnhanced() {
       showAdvisoryBillingCycle,
       showBeneficiaryDetails,
       showDistributionTypes,
-      shouldShowBeneficiaries: regTypesRequireBenef.includes(registrationType),
+      shouldShowBeneficiaries,
       shouldShowAdditionalHolder: regTypesRequireHolder.includes(registrationType),
       showAdditionalHolders: regTypesRequireHolder.includes(registrationType)
     };
-  }, [accountType, programType, registrationType]);
+  }, [accountType, programType, registrationType, form.watch('transferOnDeath')]);
 
   const {
     showDeliveringFirm,
@@ -481,6 +488,17 @@ export default function AccountFormEnhanced() {
     shouldShowAdditionalHolder,
     showAdditionalHolders
   } = fieldVisibility;
+
+  // Filter navigation sections based on business rules
+  const navigationSections = allNavigationSections.filter(section => {
+    if (section.id === "additionalHolders" && !shouldShowAdditionalHolder) {
+      return false;
+    }
+    if (section.id === "beneficiaries" && !shouldShowBeneficiaries) {
+      return false;
+    }
+    return true;
+  });
 
   // Submit mutation
   const createAccountMutation = useMutation({
@@ -636,6 +654,7 @@ export default function AccountFormEnhanced() {
   };
 
   const validateBeneficiaries = () => {
+    if (!shouldShowBeneficiaries) return true; // Not required if section is hidden
     const values = form.getValues();
     return values.beneficiaries && values.beneficiaries.length > 0;
   };
@@ -678,6 +697,12 @@ export default function AccountFormEnhanced() {
           continue;
         }
         
+        // Skip Beneficiaries if not required
+        if (nextSection === "beneficiaries" && !shouldShowBeneficiaries) {
+          nextIndex++;
+          continue;
+        }
+        
         setCurrentSection(nextSection);
         return;
       }
@@ -698,9 +723,29 @@ export default function AccountFormEnhanced() {
   const goToPreviousSection = () => {
     const sections = ["accountInfo", "achInfo", "additionalHolders", "beneficiaries", "tradingAuthority", "specialAccounts"];
     const currentIndex = sections.indexOf(currentSection);
-    if (currentIndex > 0) {
-      setCurrentSection(sections[currentIndex - 1]);
+    
+    // Skip sections that don't apply based on business rules
+    let prevIndex = currentIndex - 1;
+    while (prevIndex >= 0) {
+      const prevSection = sections[prevIndex];
+      
+      // Skip Additional Holders if not required
+      if (prevSection === "additionalHolders" && !shouldShowAdditionalHolder) {
+        prevIndex--;
+        continue;
+      }
+      
+      // Skip Beneficiaries if not required
+      if (prevSection === "beneficiaries" && !shouldShowBeneficiaries) {
+        prevIndex--;
+        continue;
+      }
+      
+      setCurrentSection(prevSection);
+      return;
     }
+    
+    // If we can't find a valid previous section, stay on current
   };
 
   const canCreateAccount = () => {
