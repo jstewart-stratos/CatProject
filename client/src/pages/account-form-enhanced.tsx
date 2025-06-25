@@ -514,6 +514,7 @@ export default function AccountFormEnhanced() {
 
     // Trading Options is required for all Brokerage program types
     const shouldShowTradingOptions = programType === 'Brokerage';
+    console.log('Program Type:', programType, 'Should Show Trading Options:', shouldShowTradingOptions);
 
     return {
       showDeliveringFirm,
@@ -576,10 +577,16 @@ export default function AccountFormEnhanced() {
       return false;
     }
     if (section.id === "tradingOptions" && !shouldShowTradingOptions) {
+      console.log('Trading Options filtered out - shouldShowTradingOptions:', shouldShowTradingOptions);
       return false;
+    }
+    if (section.id === "tradingOptions") {
+      console.log('Trading Options included - shouldShowTradingOptions:', shouldShowTradingOptions);
     }
     return true;
   });
+  
+  console.log('Navigation sections after filtering:', navigationSections.map(s => s.id));
 
   // Submit mutation
   const createAccountMutation = useMutation({
