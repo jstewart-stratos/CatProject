@@ -127,6 +127,10 @@ export default function AccountFormEnhanced() {
     queryKey: ["/api/clients"],
   });
 
+  // Get selected client data
+  const selectedClientId = form.watch("clientId");
+  const selectedClient = clientsData?.clients?.find((client: any) => client.id === selectedClientId);
+
   // Watch form values for conditional logic
   const watchedValues = form.watch();
   const accountType = watchedValues.accountType;
@@ -555,6 +559,34 @@ export default function AccountFormEnhanced() {
     updatedBeneficiaries[index] = { ...updatedBeneficiaries[index], [field]: value };
     form.setValue("beneficiaries", updatedBeneficiaries);
   };
+
+  // Function to populate address from selected client
+  const populateAddressFromClient = () => {
+    if (selectedClient) {
+      form.setValue("additionalHolder.legalAddress1", selectedClient.legalAddress1 || "");
+      form.setValue("additionalHolder.legalAddress2", selectedClient.legalAddress2 || "");
+      form.setValue("additionalHolder.city", selectedClient.city || "");
+      form.setValue("additionalHolder.state", selectedClient.state || "");
+      form.setValue("additionalHolder.zip", selectedClient.zipCode || "");
+    }
+  };
+
+  // Watch for changes to "Use same address as primary" checkbox
+  const useSameAddress = form.watch("additionalHolder.useSameAddress");
+  
+  // Auto-populate address when checkbox is checked
+  useEffect(() => {
+    if (useSameAddress && selectedClient) {
+      populateAddressFromClient();
+    } else if (!useSameAddress) {
+      // Clear address fields when unchecked
+      form.setValue("additionalHolder.legalAddress1", "");
+      form.setValue("additionalHolder.legalAddress2", "");
+      form.setValue("additionalHolder.city", "");
+      form.setValue("additionalHolder.state", "");
+      form.setValue("additionalHolder.zip", "");
+    }
+  }, [useSameAddress, selectedClient]);
 
   // Toggle TOD function
   const toggleTOD = (value: "Yes" | "No") => {
@@ -1510,7 +1542,7 @@ export default function AccountFormEnhanced() {
                                 onCheckedChange={field.onChange}
                               />
                             </FormControl>
-                            <FormLabel>Use same address as primary</FormLabel>
+                            <FormLabel>Use same address as primary client</FormLabel>
                           </FormItem>
                         )}
                       />
@@ -1523,7 +1555,11 @@ export default function AccountFormEnhanced() {
                             <FormItem>
                               <FormLabel>Legal Address Line 1</FormLabel>
                               <FormControl>
-                                <Input placeholder="Legal Address Line 1" {...field} />
+                                <Input 
+                                  placeholder="Legal Address Line 1" 
+                                  {...field} 
+                                  disabled={useSameAddress}
+                                />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -1536,7 +1572,11 @@ export default function AccountFormEnhanced() {
                             <FormItem>
                               <FormLabel>Legal Address Line 2</FormLabel>
                               <FormControl>
-                                <Input placeholder="Legal Address Line 2" {...field} />
+                                <Input 
+                                  placeholder="Legal Address Line 2" 
+                                  {...field} 
+                                  disabled={useSameAddress}
+                                />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -1552,7 +1592,11 @@ export default function AccountFormEnhanced() {
                             <FormItem>
                               <FormLabel>City</FormLabel>
                               <FormControl>
-                                <Input placeholder="City" {...field} />
+                                <Input 
+                                  placeholder="City" 
+                                  {...field} 
+                                  disabled={useSameAddress}
+                                />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -1564,7 +1608,7 @@ export default function AccountFormEnhanced() {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>State</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <Select onValueChange={field.onChange} defaultValue={field.value} disabled={useSameAddress}>
                                 <FormControl>
                                   <SelectTrigger>
                                     <SelectValue placeholder="Select" />
@@ -1634,7 +1678,11 @@ export default function AccountFormEnhanced() {
                             <FormItem>
                               <FormLabel>Zip</FormLabel>
                               <FormControl>
-                                <Input placeholder="12345" {...field} />
+                                <Input 
+                                  placeholder="12345" 
+                                  {...field} 
+                                  disabled={useSameAddress}
+                                />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
