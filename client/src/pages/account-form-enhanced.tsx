@@ -456,7 +456,23 @@ export default function AccountFormEnhanced() {
     const shouldShowBeneficiaries = regTypesRequireBenef.includes(registrationType) || 
                                    (transferOnDeathValue === 'Yes');
     
-
+    // Power of Attorney is commonly required/applicable for:
+    // 1. Trust accounts (trustee management)
+    // 2. Guardian/Conservatorship accounts (legal authority)
+    // 3. Business accounts (authorized signers)
+    // 4. Custodial accounts (parent/guardian authority)
+    // 5. Estate accounts (executor authority)
+    // 6. Advisory program accounts with high asset values (delegation of trading authority)
+    const trustRegistrationTypes = [
+      'Trust', 'Revocable Trust', 'Irrevocable Trust', 'Estate', 
+      'Guardianship', 'Conservatorship', 'Custodial Account', 'Minor Custodial'
+    ];
+    const businessRegistrationTypes = ['Corporation', 'LLC', 'Partnership'];
+    
+    const shouldShowPowerOfAttorney = 
+      trustRegistrationTypes.includes(registrationType) ||
+      businessRegistrationTypes.includes(registrationType) ||
+      registrationType === '529 Education Plan'; // Parent/guardian for minor beneficiary
 
     return {
       showDeliveringFirm,
@@ -472,7 +488,8 @@ export default function AccountFormEnhanced() {
       showDistributionTypes,
       shouldShowBeneficiaries,
       shouldShowAdditionalHolder: regTypesRequireHolder.includes(registrationType),
-      showAdditionalHolders: regTypesRequireHolder.includes(registrationType)
+      showAdditionalHolders: regTypesRequireHolder.includes(registrationType),
+      shouldShowPowerOfAttorney
     };
   }, [accountType, programType, registrationType, form.watch('transferOnDeath')]);
 
@@ -490,7 +507,8 @@ export default function AccountFormEnhanced() {
     showDistributionTypes,
     shouldShowBeneficiaries,
     shouldShowAdditionalHolder,
-    showAdditionalHolders
+    showAdditionalHolders,
+    shouldShowPowerOfAttorney
   } = fieldVisibility;
 
   // Filter navigation sections based on business rules
@@ -499,6 +517,9 @@ export default function AccountFormEnhanced() {
       return false;
     }
     if (section.id === "beneficiaries" && !shouldShowBeneficiaries) {
+      return false;
+    }
+    if (section.id === "powerOfAttorney" && !shouldShowPowerOfAttorney) {
       return false;
     }
     return true;
