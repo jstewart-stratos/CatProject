@@ -215,6 +215,14 @@ export const accounts = pgTable("accounts", {
   tradeComplexETPs: varchar("trade_complex_etps"), // No, Yes
   addOptionsTrading: varchar("add_options_trading"), // No, Yes
   
+  // Direct/Outside Business Accounts (JSON array)
+  directOutsideBusinessAccounts: jsonb("direct_outside_business_accounts").$type<{
+    typeOfAccount: string;
+    fullNameOfSponsor: string;
+    productName: string;
+    accountOrContractNumber: string;
+  }[]>().default([]),
+  
   // Status
   isLocked: boolean("is_locked").default(false),
   status: varchar("status").default("active"), // active, inactive, closed

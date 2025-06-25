@@ -17,7 +17,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { ArrowLeft, Plus, Trash2, FileText, Users, CreditCard, Settings, Shield, ChevronRight, ChevronLeft, Check } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, FileText, Users, CreditCard, Settings, Shield, ChevronRight, ChevronLeft, Check, Building } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import Sidebar from "@/components/sidebar";
@@ -118,6 +118,13 @@ const accountFormSchema = z.object({
   addStructuredProductTrading: z.string().optional(),
   tradeComplexETPs: z.string().optional(),
   addOptionsTrading: z.string().optional(),
+  // Direct/Outside Business Accounts
+  directOutsideBusinessAccounts: z.array(z.object({
+    typeOfAccount: z.string(),
+    fullNameOfSponsor: z.string(),
+    productName: z.string(),
+    accountOrContractNumber: z.string(),
+  })).default([]),
   optionsLevel: z.string().optional(),
 });
 
@@ -129,6 +136,7 @@ const allNavigationSections = [
   { id: "achInfo", label: "ACH Information", icon: CreditCard },
   { id: "additionalHolders", label: "Additional Account Holders", icon: Users },
   { id: "beneficiaries", label: "Beneficiaries", icon: Users },
+  { id: "directOutsideBusiness", label: "Direct/Outside Business", icon: Building },
   { id: "powerOfAttorney", label: "Power of Attorney", icon: Shield },
   { id: "tradingAuthority", label: "Trading Authority", icon: Settings },
   { id: "tradingOptions", label: "Trading Options", icon: Settings },
@@ -152,6 +160,7 @@ export default function AccountFormEnhanced() {
       transferOnDeath: "No",
       achAccounts: [],
       beneficiaries: [],
+      directOutsideBusinessAccounts: [],
     },
   });
 
@@ -488,6 +497,10 @@ export default function AccountFormEnhanced() {
       businessRegistrationTypes.includes(registrationType) ||
       registrationType === '529 Education Plan'; // Parent/guardian for minor beneficiary
 
+    // Direct/Outside Business is required when account type is Individual and program type is Brokerage or Direct Business
+    const shouldShowDirectOutsideBusiness = accountType === 'Individual' && 
+      (programType === 'Brokerage' || programType === 'Direct Business');
+
     return {
       showDeliveringFirm,
       showContraAccount,
@@ -503,7 +516,8 @@ export default function AccountFormEnhanced() {
       shouldShowBeneficiaries,
       shouldShowAdditionalHolder: regTypesRequireHolder.includes(registrationType),
       showAdditionalHolders: regTypesRequireHolder.includes(registrationType),
-      shouldShowPowerOfAttorney
+      shouldShowPowerOfAttorney,
+      shouldShowDirectOutsideBusiness
     };
   }, [accountType, programType, registrationType, form.watch('transferOnDeath')]);
 
@@ -522,7 +536,8 @@ export default function AccountFormEnhanced() {
     shouldShowBeneficiaries,
     shouldShowAdditionalHolder,
     showAdditionalHolders,
-    shouldShowPowerOfAttorney
+    shouldShowPowerOfAttorney,
+    shouldShowDirectOutsideBusiness
   } = fieldVisibility;
 
   // Filter navigation sections based on business rules
@@ -531,6 +546,9 @@ export default function AccountFormEnhanced() {
       return false;
     }
     if (section.id === "beneficiaries" && !shouldShowBeneficiaries) {
+      return false;
+    }
+    if (section.id === "directOutsideBusiness" && !shouldShowDirectOutsideBusiness) {
       return false;
     }
     if (section.id === "powerOfAttorney" && !shouldShowPowerOfAttorney) {
@@ -564,6 +582,21 @@ export default function AccountFormEnhanced() {
   const onSubmit = (data: AccountFormData) => {
     createAccountMutation.mutate(data);
   };
+
+  // Initialize Direct/Outside Business accounts when section becomes visible
+  useEffect(() => {
+    if (shouldShowDirectOutsideBusiness) {
+      const currentAccounts = form.getValues("directOutsideBusinessAccounts");
+      if (!currentAccounts || currentAccounts.length === 0) {
+        form.setValue("directOutsideBusinessAccounts", [{
+          typeOfAccount: "",
+          fullNameOfSponsor: "",
+          productName: "",
+          accountOrContractNumber: ""
+        }]);
+      }
+    }
+  }, [shouldShowDirectOutsideBusiness, form]);
 
   // Helper functions for dynamic arrays
   const addAchAccount = () => {
@@ -2596,6 +2629,119 @@ export default function AccountFormEnhanced() {
                     </button>
 
                     {renderSectionNavigation("beneficiaries", false, false)}
+                  </div>
+                </section>
+              )}
+              
+              {currentSection === 'directOutsideBusiness' && (
+                <section className="space-y-6">
+                  <h2 className="text-xl font-semibold border-b pb-2">Direct/Outside Business</h2>
+                  
+                  <div className="space-y-6">
+                    {((form.watch("directOutsideBusinessAccounts") as any) || []).map((_: any, index: number) => (
+                      <div key={index} className="border border-gray-200 rounded-lg p-6 space-y-6 relative">
+                        {/* Remove button */}
+                        {index > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const current = form.getValues("directOutsideBusinessAccounts" as any) || [];
+                              form.setValue("directOutsideBusinessAccounts" as any, current.filter((_: any, i: number) => i !== index));
+                            }}
+                            className="absolute top-3 right-3 text-red-500 hover:text-red-700 text-xl font-bold w-8 h-8 flex items-center justify-center"
+                          >
+                            ×
+                          </button>
+                        )}
+
+                        {/* Form fields grid */}
+                        <div className="grid grid-cols-2 gap-6">
+                          <FormField
+                            control={form.control}
+                            name={`directOutsideBusinessAccounts.${index}.typeOfAccount` as any}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-base font-medium">Type of Account</FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    <SelectItem value="Individual">Individual</SelectItem>
+                                    <SelectItem value="Joint">Joint</SelectItem>
+                                    <SelectItem value="IRA">IRA</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`directOutsideBusinessAccounts.${index}.fullNameOfSponsor` as any}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-base font-medium">Full Name of Sponsor</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Full Name of Sponsor" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-6">
+                          <FormField
+                            control={form.control}
+                            name={`directOutsideBusinessAccounts.${index}.productName` as any}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-base font-medium">Product Name</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Product Name" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`directOutsideBusinessAccounts.${index}.accountOrContractNumber` as any}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-base font-medium">Account or Contract/Policy Number</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Account or Contract/Policy Number" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      </div>
+                    ))}
+
+                    {/* Add Another Direct / Outside Business button */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const current = form.getValues("directOutsideBusinessAccounts" as any) || [];
+                        form.setValue("directOutsideBusinessAccounts" as any, [...current, {
+                          typeOfAccount: "",
+                          fullNameOfSponsor: "",
+                          productName: "",
+                          accountOrContractNumber: ""
+                        }]);
+                      }}
+                      className="text-blue-600 hover:text-blue-800 font-medium"
+                    >
+                      + Add Another Direct / Outside Business
+                    </button>
+
+                    {renderSectionNavigation("directOutsideBusiness", false, false)}
                   </div>
                 </section>
               )}
