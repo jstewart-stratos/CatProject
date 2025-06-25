@@ -453,6 +453,8 @@ export default function AccountFormEnhanced() {
     const transferOnDeathValue = form.watch('transferOnDeath');
     const shouldShowBeneficiaries = regTypesRequireBenef.includes(registrationType) || 
                                    (transferOnDeathValue === 'Yes');
+    
+
 
     return {
       showDeliveringFirm,
@@ -1331,17 +1333,19 @@ export default function AccountFormEnhanced() {
           >
             ACH Information
           </button>
-          <button
-            type="button"
-            className={`nav-btn w-full text-left px-3 py-2 rounded-r ${
-              currentSection === 'additionalHolders'
-                ? 'bg-white border-l-4 border-blue-800 text-blue-800 font-medium'
-                : 'text-gray-700 hover:bg-gray-200'
-            }`}
-            onClick={() => setCurrentSection('additionalHolders')}
-          >
-            Additional Account Holders
-          </button>
+          {shouldShowAdditionalHolder && (
+            <button
+              type="button"
+              className={`nav-btn w-full text-left px-3 py-2 rounded-r ${
+                currentSection === 'additionalHolders'
+                  ? 'bg-white border-l-4 border-blue-800 text-blue-800 font-medium'
+                  : 'text-gray-700 hover:bg-gray-200'
+              }`}
+              onClick={() => setCurrentSection('additionalHolders')}
+            >
+              Additional Account Holders
+            </button>
+          )}
           <button
             type="button"
             className={`nav-btn w-full text-left px-3 py-2 rounded-r ${
@@ -1353,17 +1357,19 @@ export default function AccountFormEnhanced() {
           >
             Account Options
           </button>
-          <button
-            type="button"
-            className={`nav-btn w-full text-left px-3 py-2 rounded-r ${
-              currentSection === 'beneficiaries'
-                ? 'bg-white border-l-4 border-blue-800 text-blue-800 font-medium'
-                : 'text-gray-700 hover:bg-gray-200'
-            }`}
-            onClick={() => setCurrentSection('beneficiaries')}
-          >
-            Beneficiaries
-          </button>
+          {shouldShowBeneficiaries && (
+            <button
+              type="button"
+              className={`nav-btn w-full text-left px-3 py-2 rounded-r ${
+                currentSection === 'beneficiaries'
+                  ? 'bg-white border-l-4 border-blue-800 text-blue-800 font-medium'
+                  : 'text-gray-700 hover:bg-gray-200'
+              }`}
+              onClick={() => setCurrentSection('beneficiaries')}
+            >
+              Beneficiaries
+            </button>
+          )}
           <button
             type="button"
             className={`nav-btn w-full text-left px-3 py-2 rounded-r ${

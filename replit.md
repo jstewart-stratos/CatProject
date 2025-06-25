@@ -134,6 +134,14 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **June 25, 2025**: Completed beneficiaries form conditional logic and dropdown auto-population
+  - ✅ **Fixed beneficiaries conditional display**: Beneficiaries section now only appears for IRA account types and when Transfer on Death = "Yes"
+  - ✅ **Implemented dynamic sidebar navigation**: Beneficiaries and Additional Account Holders sections conditionally appear/disappear based on business rules
+  - ✅ **Added complete beneficiary dropdown options**: Server now provides 12 relationship options (including Non-Person) and 4 type options (Primary, Contingent, Per Stirpes, Per Capita)
+  - ✅ **Fixed dropdown auto-population**: Form correctly fetches and displays relationship and type options from server lists endpoint
+  - ✅ **Enhanced conditional field logic**: Non-Person selection switches to Entity Name and TIN fields instead of person fields
+  - ✅ **Smart navigation flow**: Form automatically skips beneficiaries section when not required, with proper Next/Previous button handling
+  - ✅ **Complete business rule compliance**: Beneficiaries required for all IRA registration types (Traditional IRA, Roth IRA, SEP IRA, SIMPLE IRA, Beneficiary IRA, etc.) and Individual accounts with Transfer on Death enabled
 - **June 25, 2025**: Enhanced multi-step account creation workflow with address auto-population
   - ✅ **Fixed JavaScript errors**: Added missing ACH and beneficiary management functions (addACHAccount, updateACHAccount, updateBeneficiary)
   - ✅ **Made ACH Information optional**: Updated validation logic to allow progression without ACH data entry for all account types
