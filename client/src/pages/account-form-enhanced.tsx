@@ -488,23 +488,22 @@ export default function AccountFormEnhanced() {
     const shouldShowBeneficiaries = regTypesRequireBenef.includes(registrationType) || 
                                    (transferOnDeathValue === 'Yes');
     
-    // Power of Attorney is commonly required/applicable for:
+    // Power of Attorney is required/applicable for:
     // 1. Trust accounts (trustee management)
-    // 2. Guardian/Conservatorship accounts (legal authority)
-    // 3. Business accounts (authorized signers)
-    // 4. Custodial accounts (parent/guardian authority)
-    // 5. Estate accounts (executor authority)
-    // 6. Advisory program accounts with high asset values (delegation of trading authority)
+    // 2. Business accounts (authorized signers)
+    // 3. Estate accounts (executor authority)
+    // 4. 529 Education Plans (parent/guardian for minor beneficiary)
+    // Note: Guardianship, Conservatorship, and Minor Custodial accounts have legal authority 
+    // established through court orders and do not require additional Power of Attorney
     const trustRegistrationTypes = [
-      'Trust', 'Revocable Trust', 'Irrevocable Trust', 'Estate', 
-      'Guardianship', 'Conservatorship', 'Custodial Account', 'Minor Custodial'
+      'Trust', 'Revocable Trust', 'Irrevocable Trust', 'Estate'
     ];
     const businessRegistrationTypes = ['Corporation', 'LLC', 'Partnership'];
     
     const shouldShowPowerOfAttorney = 
       trustRegistrationTypes.includes(registrationType) ||
       businessRegistrationTypes.includes(registrationType) ||
-      registrationType === '529 Education Plan'; // Parent/guardian for minor beneficiary
+      registrationType === '529 Education Plan';
 
     // Direct/Outside Business is required when account type is Individual and program type is Brokerage or Direct Business
     const shouldShowDirectOutsideBusiness = accountType === 'Individual' && 
