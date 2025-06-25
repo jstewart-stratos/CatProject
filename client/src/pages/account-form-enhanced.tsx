@@ -757,7 +757,7 @@ export default function AccountFormEnhanced() {
 
   // Navigation functions
   const goToNextSection = () => {
-    const sections = ["accountInfo", "achInfo", "additionalHolders", "beneficiaries", "directOutsideBusiness", "plan529Disclosure", "powerOfAttorney", "tradingAuthority", "tradingOptions"];
+    const sections = navigationSections.map(s => s.id).concat(["specialAccounts"]);
     const currentIndex = sections.indexOf(currentSection);
     
     // Mark current section as completed if validation passes
@@ -835,7 +835,7 @@ export default function AccountFormEnhanced() {
   };
 
   const goToPreviousSection = () => {
-    const sections = ["accountInfo", "achInfo", "additionalHolders", "beneficiaries", "directOutsideBusiness", "plan529Disclosure", "powerOfAttorney", "tradingAuthority", "tradingOptions"];
+    const sections = navigationSections.map(s => s.id).concat(["specialAccounts"]);
     const currentIndex = sections.indexOf(currentSection);
     
     // Skip sections that don't apply based on business rules
@@ -884,7 +884,12 @@ export default function AccountFormEnhanced() {
     return validateAccountInfo() && validateAdditionalHolders() && validateBeneficiaries();
   };
 
-  const renderSectionNavigation = (sectionKey: string, isFirstSection: boolean = false, isLastSection: boolean = false) => (
+  const renderSectionNavigation = (sectionKey: string, isFirstSection: boolean = false, isLastSection: boolean = false) => {
+    // Dynamically determine if this is the last section based on filtered navigation
+    const allSections = navigationSections.map(s => s.id).concat(["specialAccounts"]);
+    const actuallyLastSection = sectionKey === allSections[allSections.length - 1];
+    
+    return (
     <div className="flex justify-between pt-6 border-t">
       <div>
         {!isFirstSection && (
@@ -900,7 +905,7 @@ export default function AccountFormEnhanced() {
         )}
       </div>
       <div>
-        {!isLastSection ? (
+        {!actuallyLastSection ? (
           <Button
             type="button"
             onClick={goToNextSection}
@@ -926,7 +931,8 @@ export default function AccountFormEnhanced() {
         )}
       </div>
     </div>
-  );
+    );
+  };
 
   const renderAccountInfoSection = () => (
     <section className="space-y-6">
@@ -3342,10 +3348,20 @@ export default function AccountFormEnhanced() {
                     )}
                   </div>
                   
-                  {renderSectionNavigation("tradingOptions", false, true)}
+                  {renderSectionNavigation("tradingOptions", false, false)}
                 </section>
               )}
               
+              {currentSection === 'specialAccounts' && (
+                <section className="space-y-6">
+                  <h2 className="text-xl font-semibold border-b pb-2">Special Accounts</h2>
+                  <div className="space-y-4">
+                    <p className="text-gray-600">Special account configuration and final review.</p>
+                  </div>
+                  
+                  {renderSectionNavigation("specialAccounts", false, true)}
+                </section>
+              )}
 
             </form>
           </Form>
