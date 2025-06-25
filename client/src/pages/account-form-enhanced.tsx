@@ -2352,7 +2352,7 @@ export default function AccountFormEnhanced() {
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
-                                    {((lists as any)?.["Beneficiary Relationship"] || []).map((relationship: any) => (
+                                    {((lists as any)?.["Bene Relation"] || []).map((relationship: any) => (
                                       <SelectItem key={relationship} value={relationship}>
                                         {relationship}
                                       </SelectItem>
@@ -2376,7 +2376,7 @@ export default function AccountFormEnhanced() {
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
-                                    {((lists as any)?.["Beneficiary Type"] || []).map((type: string) => (
+                                    {((lists as any)?.["Bene Type"] || []).map((type: string) => (
                                       <SelectItem key={type} value={type}>
                                         {type}
                                       </SelectItem>

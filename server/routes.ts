@@ -848,7 +848,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           'Trust',
           'Estate',
           'Charity',
-          'Other'
+          'Non-Person'
         ],
         'Bene Type': [
           'Primary',
