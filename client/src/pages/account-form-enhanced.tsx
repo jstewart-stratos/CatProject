@@ -1467,8 +1467,8 @@ export default function AccountFormEnhanced() {
                       />
                     </div>
 
-                    {/* Account Type - Only show for certain conditions */}
-                    {(accountType === 'Individual' && ['SAM', 'SWM', 'PWP', 'PWP RIA'].includes(programType || '')) && (
+                    {/* Account Type - Only show when checkwriting is Yes */}
+                    {form.watch("wantCheckwriting") === "yes" && (
                       <div className="space-y-3">
                         <FormField
                           control={form.control}
@@ -1518,8 +1518,8 @@ export default function AccountFormEnhanced() {
                       </div>
                     )}
 
-                    {/* Debit Card Question - Only show for certain account types */}
-                    {(accountType === 'Individual' && ['SAM', 'SWM', 'PWP', 'PWP RIA'].includes(programType || '')) && (
+                    {/* Debit Card Question - Only show when Premier + is selected */}
+                    {form.watch("accountTypeOption") === "Premier +" && (
                       <div className="space-y-3">
                         <FormField
                           control={form.control}
