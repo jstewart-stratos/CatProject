@@ -198,6 +198,11 @@ export const accounts = pgTable("accounts", {
   grantorDecedentNames: varchar("grantor_decedent_names"),
   trustDate: date("trust_date"),
   
+  // Power of Attorney
+  grantPowerOfAttorney: boolean("grant_power_of_attorney").default(false),
+  authorizedAgentName: varchar("authorized_agent_name"),
+  isAgentExistingClient: boolean("is_agent_existing_client").default(false),
+  
   // Status
   isLocked: boolean("is_locked").default(false),
   status: varchar("status").default("active"), // active, inactive, closed

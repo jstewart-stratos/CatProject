@@ -102,6 +102,10 @@ const accountFormSchema = z.object({
     employerState: z.string().optional(),
     employerZip: z.string().optional(),
   }).optional(),
+  // Power of Attorney
+  grantPowerOfAttorney: z.boolean().default(false),
+  authorizedAgentName: z.string().optional(),
+  isAgentExistingClient: z.boolean().default(false),
 });
 
 type AccountFormData = z.infer<typeof accountFormSchema>;
@@ -661,7 +665,7 @@ export default function AccountFormEnhanced() {
 
   // Navigation functions
   const goToNextSection = () => {
-    const sections = ["accountInfo", "achInfo", "additionalHolders", "beneficiaries", "tradingAuthority", "specialAccounts"];
+    const sections = ["accountInfo", "achInfo", "additionalHolders", "beneficiaries", "powerOfAttorney", "tradingAuthority", "specialAccounts"];
     const currentIndex = sections.indexOf(currentSection);
     
     // Mark current section as completed if validation passes
@@ -721,7 +725,7 @@ export default function AccountFormEnhanced() {
   };
 
   const goToPreviousSection = () => {
-    const sections = ["accountInfo", "achInfo", "additionalHolders", "beneficiaries", "tradingAuthority", "specialAccounts"];
+    const sections = ["accountInfo", "achInfo", "additionalHolders", "beneficiaries", "powerOfAttorney", "tradingAuthority", "specialAccounts"];
     const currentIndex = sections.indexOf(currentSection);
     
     // Skip sections that don't apply based on business rules
@@ -1368,6 +1372,17 @@ export default function AccountFormEnhanced() {
               Beneficiaries
             </button>
           )}
+          <button
+            type="button"
+            className={`nav-btn w-full text-left px-3 py-2 rounded-r ${
+              currentSection === 'powerOfAttorney'
+                ? 'bg-white border-l-4 border-blue-800 text-blue-800 font-medium'
+                : 'text-gray-700 hover:bg-gray-200'
+            }`}
+            onClick={() => setCurrentSection('powerOfAttorney')}
+          >
+            Power of Attorney
+          </button>
           <button
             type="button"
             className={`nav-btn w-full text-left px-3 py-2 rounded-r ${
@@ -2547,6 +2562,120 @@ export default function AccountFormEnhanced() {
 
                     {renderSectionNavigation("beneficiaries", false, false)}
                   </div>
+                </section>
+              )}
+              
+              {currentSection === 'powerOfAttorney' && (
+                <section className="space-y-6">
+                  <h2 className="text-xl font-semibold border-b pb-2">Power of Attorney</h2>
+                  
+                  <div className="space-y-6">
+                    {/* Grant Power of Attorney Question */}
+                    <div className="space-y-3">
+                      <FormField
+                        control={form.control}
+                        name={"grantPowerOfAttorney" as any}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-base font-medium">Grant Power of Attorney?</FormLabel>
+                            <FormControl>
+                              <div className="flex space-x-4">
+                                <button
+                                  type="button"
+                                  className={`px-4 py-2 rounded-md border ${
+                                    field.value === false
+                                      ? 'bg-blue-50 border-blue-300 text-blue-700'
+                                      : 'bg-gray-50 border-gray-300 text-gray-700'
+                                  }`}
+                                  onClick={() => field.onChange(false)}
+                                >
+                                  No
+                                </button>
+                                <button
+                                  type="button"
+                                  className={`px-4 py-2 rounded-md border ${
+                                    field.value === true
+                                      ? 'bg-blue-50 border-blue-300 text-blue-700'
+                                      : 'bg-gray-50 border-gray-300 text-gray-700'
+                                  }`}
+                                  onClick={() => field.onChange(true)}
+                                >
+                                  Yes
+                                </button>
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    {/* Conditional fields when Power of Attorney is granted */}
+                    {(form.watch('grantPowerOfAttorney' as any)) === true && (
+                      <div className="space-y-6">
+                        {/* Authorized Agent Name */}
+                        <FormField
+                          control={form.control}
+                          name={"authorizedAgentName" as any}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-base font-medium">Authorized Agent Name</FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  placeholder="Authorized Agent Name"
+                                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        {/* Is agent an existing client Question */}
+                        <div className="space-y-3">
+                          <FormField
+                            control={form.control}
+                            name={"isAgentExistingClient" as any}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-base font-medium">Is agent an existing client?</FormLabel>
+                                <FormControl>
+                                  <div className="flex space-x-4">
+                                    <button
+                                      type="button"
+                                      className={`px-4 py-2 rounded-md border ${
+                                        field.value === false
+                                          ? 'bg-blue-50 border-blue-300 text-blue-700'
+                                          : 'bg-gray-50 border-gray-300 text-gray-700'
+                                      }`}
+                                      onClick={() => field.onChange(false)}
+                                    >
+                                      No
+                                    </button>
+                                    <button
+                                      type="button"
+                                      className={`px-4 py-2 rounded-md border ${
+                                        field.value === true
+                                          ? 'bg-blue-50 border-blue-300 text-blue-700'
+                                          : 'bg-gray-50 border-gray-300 text-gray-700'
+                                      }`}
+                                      onClick={() => field.onChange(true)}
+                                    >
+                                      Yes
+                                    </button>
+                                  </div>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {renderSectionNavigation("powerOfAttorney", false, false)}
                 </section>
               )}
               
