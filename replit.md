@@ -141,7 +141,7 @@ Preferred communication style: Simple, everyday language.
   - ✅ **Implemented proper business rules**: Trading Options conditional logic working correctly for Brokerage program types
   - ✅ **Enhanced phone number formatting**: Added (555) 123-4567 formatting to all Additional Account Holder phone fields (Home, Mobile, Business)
   - ✅ **Cleaned up debugging code**: Removed console logs for production-ready implementation
-  - ✅ **Updated Power of Attorney business rules**: Removed Guardianship, Conservatorship, and Minor Custodial from Power of Attorney requirements as these have legal authority established through court orders
+  - ✅ **Updated Power of Attorney business rules**: Removed Guardianship, Conservatorship, and Minor Custodial from Power of Attorney requirements as these have legal authority established through court orders; maintained 529 Plan requirement for parent/guardian authorization
 - **June 25, 2025**: Completed 529 Plan Disclosure Checklist form with conditional logic for 529 Education Plan registration type
   - ✅ **Added 529 Plan Disclosure Checklist form**: Complete form with 6 essential fields (Product Sponsor, Investment Portfolio, Owner State, Source of Funds, Share Class, Plan Administrator)
   - ✅ **Implemented conditional visibility logic**: Form appears when Registration Type = "529 Plan" 

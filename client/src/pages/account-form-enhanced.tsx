@@ -492,7 +492,7 @@ export default function AccountFormEnhanced() {
     // 1. Trust accounts (trustee management)
     // 2. Business accounts (authorized signers)
     // 3. Estate accounts (executor authority)
-    // 4. 529 Education Plans (parent/guardian for minor beneficiary)
+    // 4. 529 Plan registration type (parent/guardian for minor beneficiary)
     // Note: Guardianship, Conservatorship, and Minor Custodial accounts have legal authority 
     // established through court orders and do not require additional Power of Attorney
     const trustRegistrationTypes = [
@@ -503,7 +503,7 @@ export default function AccountFormEnhanced() {
     const shouldShowPowerOfAttorney = 
       trustRegistrationTypes.includes(registrationType) ||
       businessRegistrationTypes.includes(registrationType) ||
-      registrationType === '529 Education Plan';
+      registrationType === '529 Plan';
 
     // Direct/Outside Business is required when account type is Individual and program type is Brokerage or Direct Business
     const shouldShowDirectOutsideBusiness = accountType === 'Individual' && 
