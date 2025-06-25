@@ -510,7 +510,7 @@ export default function AccountFormEnhanced() {
       (programType === 'Brokerage' || programType === 'Direct Business');
 
     // 529 Plan Disclosure Checklist is required when registration type is 529 Plan
-    const shouldShow529PlanDisclosure = registrationType === '529 Education Plan';
+    const shouldShow529PlanDisclosure = registrationType === '529 Plan' || form.watch('registrationType') === '529 Plan';
 
     return {
       showDeliveringFirm,
