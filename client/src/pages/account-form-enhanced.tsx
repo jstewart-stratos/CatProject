@@ -1275,6 +1275,17 @@ export default function AccountFormEnhanced() {
           <button
             type="button"
             className={`nav-btn w-full text-left px-3 py-2 rounded-r ${
+              currentSection === 'accountOptions'
+                ? 'bg-white border-l-4 border-blue-800 text-blue-800 font-medium'
+                : 'text-gray-700 hover:bg-gray-200'
+            }`}
+            onClick={() => setCurrentSection('accountOptions')}
+          >
+            Account Options
+          </button>
+          <button
+            type="button"
+            className={`nav-btn w-full text-left px-3 py-2 rounded-r ${
               currentSection === 'beneficiaries'
                 ? 'bg-white border-l-4 border-blue-800 text-blue-800 font-medium'
                 : 'text-gray-700 hover:bg-gray-200'
@@ -1407,6 +1418,201 @@ export default function AccountFormEnhanced() {
                 </section>
               )}
               
+              {currentSection === 'accountOptions' && (
+                <section className="space-y-6">
+                  <h2 className="text-xl font-semibold border-b pb-2">Account Options</h2>
+                  
+                  <div className="space-y-6">
+                    {/* Checkwriting Question */}
+                    <div className="space-y-3">
+                      <FormField
+                        control={form.control}
+                        name="wantCheckwriting"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-base font-medium">Do you want checkwriting for this account?</FormLabel>
+                            <div className="flex gap-4 mt-2">
+                              <div className="flex items-center space-x-2">
+                                <input
+                                  type="radio"
+                                  id="checkwriting-no"
+                                  name="wantCheckwriting"
+                                  value="no"
+                                  checked={field.value === "no"}
+                                  onChange={() => field.onChange("no")}
+                                  className="w-4 h-4 text-blue-600"
+                                />
+                                <label htmlFor="checkwriting-no" className="text-sm font-medium cursor-pointer bg-blue-100 text-blue-800 px-3 py-1 rounded">
+                                  No
+                                </label>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <input
+                                  type="radio"
+                                  id="checkwriting-yes"
+                                  name="wantCheckwriting"
+                                  value="yes"
+                                  checked={field.value === "yes"}
+                                  onChange={() => field.onChange("yes")}
+                                  className="w-4 h-4 text-blue-600"
+                                />
+                                <label htmlFor="checkwriting-yes" className="text-sm font-medium cursor-pointer bg-gray-100 text-gray-800 px-3 py-1 rounded">
+                                  Yes
+                                </label>
+                              </div>
+                            </div>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    {/* Account Type - Only show for certain conditions */}
+                    {(accountType === 'Individual' && ['SAM', 'SWM', 'PWP', 'PWP RIA'].includes(programType || '')) && (
+                      <div className="space-y-3">
+                        <FormField
+                          control={form.control}
+                          name="accountTypeOption"
+                          render={({ field }) => (
+                            <FormItem>
+                              <div className="flex items-center gap-2">
+                                <FormLabel className="text-base font-medium">Account Type</FormLabel>
+                                <div className="w-4 h-4 bg-blue-500 text-white rounded text-xs flex items-center justify-center font-bold">
+                                  i
+                                </div>
+                              </div>
+                              <div className="flex gap-4 mt-2">
+                                <div className="flex items-center space-x-2">
+                                  <input
+                                    type="radio"
+                                    id="account-type-premier"
+                                    name="accountTypeOption"
+                                    value="Premier"
+                                    checked={field.value === "Premier"}
+                                    onChange={() => field.onChange("Premier")}
+                                    className="w-4 h-4 text-blue-600"
+                                  />
+                                  <label htmlFor="account-type-premier" className="text-sm font-medium cursor-pointer bg-blue-100 text-blue-800 px-3 py-1 rounded">
+                                    Premier
+                                  </label>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <input
+                                    type="radio"
+                                    id="account-type-premier-plus"
+                                    name="accountTypeOption"
+                                    value="Premier +"
+                                    checked={field.value === "Premier +"}
+                                    onChange={() => field.onChange("Premier +")}
+                                    className="w-4 h-4 text-blue-600"
+                                  />
+                                  <label htmlFor="account-type-premier-plus" className="text-sm font-medium cursor-pointer bg-gray-100 text-gray-800 px-3 py-1 rounded">
+                                    Premier +
+                                  </label>
+                                </div>
+                              </div>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    )}
+
+                    {/* Debit Card Question - Only show for certain account types */}
+                    {(accountType === 'Individual' && ['SAM', 'SWM', 'PWP', 'PWP RIA'].includes(programType || '')) && (
+                      <div className="space-y-3">
+                        <FormField
+                          control={form.control}
+                          name="wantDebitCard"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-base font-medium">Do you want a debit card for this account?</FormLabel>
+                              <div className="flex gap-4 mt-2">
+                                <div className="flex items-center space-x-2">
+                                  <input
+                                    type="radio"
+                                    id="debit-card-no"
+                                    name="wantDebitCard"
+                                    value="no"
+                                    checked={field.value === "no"}
+                                    onChange={() => field.onChange("no")}
+                                    className="w-4 h-4 text-blue-600"
+                                  />
+                                  <label htmlFor="debit-card-no" className="text-sm font-medium cursor-pointer bg-blue-100 text-blue-800 px-3 py-1 rounded">
+                                    No
+                                  </label>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <input
+                                    type="radio"
+                                    id="debit-card-yes"
+                                    name="wantDebitCard"
+                                    value="yes"
+                                    checked={field.value === "yes"}
+                                    onChange={() => field.onChange("yes")}
+                                    className="w-4 h-4 text-blue-600"
+                                  />
+                                  <label htmlFor="debit-card-yes" className="text-sm font-medium cursor-pointer bg-gray-100 text-gray-800 px-3 py-1 rounded">
+                                    Yes
+                                  </label>
+                                </div>
+                              </div>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    )}
+
+                    {/* Cost-basis Reporting Question */}
+                    <div className="space-y-3">
+                      <FormField
+                        control={form.control}
+                        name="wantCostBasisReporting"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-base font-medium">Does client want cost-basis reporting on LPL Statement?</FormLabel>
+                            <div className="flex gap-4 mt-2">
+                              <div className="flex items-center space-x-2">
+                                <input
+                                  type="radio"
+                                  id="cost-basis-no"
+                                  name="wantCostBasisReporting"
+                                  value="no"
+                                  checked={field.value === "no"}
+                                  onChange={() => field.onChange("no")}
+                                  className="w-4 h-4 text-blue-600"
+                                />
+                                <label htmlFor="cost-basis-no" className="text-sm font-medium cursor-pointer bg-blue-100 text-blue-800 px-3 py-1 rounded">
+                                  No
+                                </label>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <input
+                                  type="radio"
+                                  id="cost-basis-yes"
+                                  name="wantCostBasisReporting"
+                                  value="yes"
+                                  checked={field.value === "yes"}
+                                  onChange={() => field.onChange("yes")}
+                                  className="w-4 h-4 text-blue-600"
+                                />
+                                <label htmlFor="cost-basis-yes" className="text-sm font-medium cursor-pointer bg-gray-100 text-gray-800 px-3 py-1 rounded">
+                                  Yes
+                                </label>
+                              </div>
+                            </div>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+                  
+                  {renderSectionNavigation("accountOptions", false, false)}
+                </section>
+              )}
+
               {currentSection === 'additionalHolders' && shouldShowAdditionalHolder && (
                 <Card>
                   <CardHeader>
