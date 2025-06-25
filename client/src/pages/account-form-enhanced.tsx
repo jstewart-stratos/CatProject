@@ -1097,6 +1097,563 @@ export default function AccountFormEnhanced() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-12">
               {currentSection === 'accountInfo' && renderAccountInfoSection()}
+              
+              {currentSection === 'additionalHolders' && shouldShowAdditionalHolder && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Additional Account Holders</CardTitle>
+                    <CardDescription>
+                      Required fields for this selection
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    {/* Name Fields */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="additionalHolder.firstName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>First Name</FormLabel>
+                            <FormControl>
+                              <Input placeholder="First Name" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="additionalHolder.middleName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Middle Name</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Middle Name" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="additionalHolder.lastName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Last Name</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Last Name" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="additionalHolder.alias"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Alias</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Nickname (optional)" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    {/* Citizenship and Personal Info */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="additionalHolder.citizenship"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Citizenship / Legal Establishment</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="US Citizen">US Citizen</SelectItem>
+                                <SelectItem value="US Resident Alien">US Resident Alien</SelectItem>
+                                <SelectItem value="Non-US Person">Non-US Person</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="additionalHolder.dateOfBirth"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Date of Birth</FormLabel>
+                            <FormControl>
+                              <Input type="date" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    {/* SSN */}
+                    <FormField
+                      control={form.control}
+                      name="additionalHolder.ssn"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>SSN</FormLabel>
+                          <FormControl>
+                            <Input placeholder="123456789" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* Contact Information */}
+                    <div className="space-y-4">
+                      <h4 className="font-medium">Contact Information</h4>
+                      
+                      <FormField
+                        control={form.control}
+                        name="additionalHolder.useSameAddress"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                            <FormControl>
+                              <Checkbox
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                            <FormLabel>Use same address as primary</FormLabel>
+                          </FormItem>
+                        )}
+                      />
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="additionalHolder.legalAddress1"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Legal Address Line 1</FormLabel>
+                              <FormControl>
+                                <Input placeholder="Legal Address Line 1" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="additionalHolder.legalAddress2"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Legal Address Line 2</FormLabel>
+                              <FormControl>
+                                <Input placeholder="Legal Address Line 2" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="additionalHolder.city"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>City</FormLabel>
+                              <FormControl>
+                                <Input placeholder="City" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="additionalHolder.state"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>State</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="AL">Alabama</SelectItem>
+                                  <SelectItem value="AK">Alaska</SelectItem>
+                                  <SelectItem value="AZ">Arizona</SelectItem>
+                                  <SelectItem value="AR">Arkansas</SelectItem>
+                                  <SelectItem value="CA">California</SelectItem>
+                                  <SelectItem value="CO">Colorado</SelectItem>
+                                  <SelectItem value="CT">Connecticut</SelectItem>
+                                  <SelectItem value="DE">Delaware</SelectItem>
+                                  <SelectItem value="FL">Florida</SelectItem>
+                                  <SelectItem value="GA">Georgia</SelectItem>
+                                  <SelectItem value="HI">Hawaii</SelectItem>
+                                  <SelectItem value="ID">Idaho</SelectItem>
+                                  <SelectItem value="IL">Illinois</SelectItem>
+                                  <SelectItem value="IN">Indiana</SelectItem>
+                                  <SelectItem value="IA">Iowa</SelectItem>
+                                  <SelectItem value="KS">Kansas</SelectItem>
+                                  <SelectItem value="KY">Kentucky</SelectItem>
+                                  <SelectItem value="LA">Louisiana</SelectItem>
+                                  <SelectItem value="ME">Maine</SelectItem>
+                                  <SelectItem value="MD">Maryland</SelectItem>
+                                  <SelectItem value="MA">Massachusetts</SelectItem>
+                                  <SelectItem value="MI">Michigan</SelectItem>
+                                  <SelectItem value="MN">Minnesota</SelectItem>
+                                  <SelectItem value="MS">Mississippi</SelectItem>
+                                  <SelectItem value="MO">Missouri</SelectItem>
+                                  <SelectItem value="MT">Montana</SelectItem>
+                                  <SelectItem value="NE">Nebraska</SelectItem>
+                                  <SelectItem value="NV">Nevada</SelectItem>
+                                  <SelectItem value="NH">New Hampshire</SelectItem>
+                                  <SelectItem value="NJ">New Jersey</SelectItem>
+                                  <SelectItem value="NM">New Mexico</SelectItem>
+                                  <SelectItem value="NY">New York</SelectItem>
+                                  <SelectItem value="NC">North Carolina</SelectItem>
+                                  <SelectItem value="ND">North Dakota</SelectItem>
+                                  <SelectItem value="OH">Ohio</SelectItem>
+                                  <SelectItem value="OK">Oklahoma</SelectItem>
+                                  <SelectItem value="OR">Oregon</SelectItem>
+                                  <SelectItem value="PA">Pennsylvania</SelectItem>
+                                  <SelectItem value="RI">Rhode Island</SelectItem>
+                                  <SelectItem value="SC">South Carolina</SelectItem>
+                                  <SelectItem value="SD">South Dakota</SelectItem>
+                                  <SelectItem value="TN">Tennessee</SelectItem>
+                                  <SelectItem value="TX">Texas</SelectItem>
+                                  <SelectItem value="UT">Utah</SelectItem>
+                                  <SelectItem value="VT">Vermont</SelectItem>
+                                  <SelectItem value="VA">Virginia</SelectItem>
+                                  <SelectItem value="WA">Washington</SelectItem>
+                                  <SelectItem value="WV">West Virginia</SelectItem>
+                                  <SelectItem value="WI">Wisconsin</SelectItem>
+                                  <SelectItem value="WY">Wyoming</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="additionalHolder.zip"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Zip</FormLabel>
+                              <FormControl>
+                                <Input placeholder="12345" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      <FormField
+                        control={form.control}
+                        name="additionalHolder.email"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Email</FormLabel>
+                            <FormControl>
+                              <Input type="email" placeholder="name@example.com" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    {/* Phone Information */}
+                    <div className="space-y-4">
+                      <h4 className="font-medium">Phone Information</h4>
+                      <div className="grid grid-cols-3 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="additionalHolder.homePhone"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Home Phone</FormLabel>
+                              <FormControl>
+                                <Input placeholder="e.g. 5551234567" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="additionalHolder.mobilePhone"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Mobile Phone</FormLabel>
+                              <FormControl>
+                                <Input placeholder="e.g. 5551234567" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="additionalHolder.businessPhone"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Business Phone</FormLabel>
+                              <FormControl>
+                                <Input placeholder="e.g. 5551234567" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Employment Information */}
+                    <div className="space-y-4">
+                      <h4 className="font-medium">Employment Information</h4>
+                      
+                      <FormField
+                        control={form.control}
+                        name="additionalHolder.employmentStatus"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Employment Status</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="Employed">Employed</SelectItem>
+                                <SelectItem value="Self-Employed">Self-Employed</SelectItem>
+                                <SelectItem value="Unemployed">Unemployed</SelectItem>
+                                <SelectItem value="Student">Student</SelectItem>
+                                <SelectItem value="Retired">Retired</SelectItem>
+                                <SelectItem value="Homemaker">Homemaker</SelectItem>
+                                <SelectItem value="Minor">Minor</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="additionalHolder.industry"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Industry</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="Agriculture">Agriculture</SelectItem>
+                                <SelectItem value="Banking">Banking</SelectItem>
+                                <SelectItem value="Construction">Construction</SelectItem>
+                                <SelectItem value="Education">Education</SelectItem>
+                                <SelectItem value="Finance">Finance</SelectItem>
+                                <SelectItem value="Government">Government</SelectItem>
+                                <SelectItem value="Healthcare">Healthcare</SelectItem>
+                                <SelectItem value="Insurance">Insurance</SelectItem>
+                                <SelectItem value="Legal">Legal</SelectItem>
+                                <SelectItem value="Manufacturing">Manufacturing</SelectItem>
+                                <SelectItem value="Real Estate">Real Estate</SelectItem>
+                                <SelectItem value="Retail">Retail</SelectItem>
+                                <SelectItem value="Technology">Technology</SelectItem>
+                                <SelectItem value="Other">Other</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="additionalHolder.occupation"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Occupation</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Occupation" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="additionalHolder.excludeEmployerAddress"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                            <FormControl>
+                              <Checkbox
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                            <FormLabel>Exclude Employer Address</FormLabel>
+                          </FormItem>
+                        )}
+                      />
+
+                      {!form.watch('additionalHolder.excludeEmployerAddress') && (
+                        <div className="space-y-4 pl-6">
+                          <FormField
+                            control={form.control}
+                            name="additionalHolder.employerAddress1"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Employer Address Line 1</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Employer Address Line 1" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="additionalHolder.employerAddress2"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Employer Address Line 2</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Employer Address Line 2" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <div className="grid grid-cols-3 gap-4">
+                            <FormField
+                              control={form.control}
+                              name="additionalHolder.employerCity"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>City</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="City" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="additionalHolder.employerState"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>State</FormLabel>
+                                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      <SelectItem value="AL">Alabama</SelectItem>
+                                      <SelectItem value="AK">Alaska</SelectItem>
+                                      <SelectItem value="AZ">Arizona</SelectItem>
+                                      <SelectItem value="AR">Arkansas</SelectItem>
+                                      <SelectItem value="CA">California</SelectItem>
+                                      <SelectItem value="CO">Colorado</SelectItem>
+                                      <SelectItem value="CT">Connecticut</SelectItem>
+                                      <SelectItem value="DE">Delaware</SelectItem>
+                                      <SelectItem value="FL">Florida</SelectItem>
+                                      <SelectItem value="GA">Georgia</SelectItem>
+                                      <SelectItem value="HI">Hawaii</SelectItem>
+                                      <SelectItem value="ID">Idaho</SelectItem>
+                                      <SelectItem value="IL">Illinois</SelectItem>
+                                      <SelectItem value="IN">Indiana</SelectItem>
+                                      <SelectItem value="IA">Iowa</SelectItem>
+                                      <SelectItem value="KS">Kansas</SelectItem>
+                                      <SelectItem value="KY">Kentucky</SelectItem>
+                                      <SelectItem value="LA">Louisiana</SelectItem>
+                                      <SelectItem value="ME">Maine</SelectItem>
+                                      <SelectItem value="MD">Maryland</SelectItem>
+                                      <SelectItem value="MA">Massachusetts</SelectItem>
+                                      <SelectItem value="MI">Michigan</SelectItem>
+                                      <SelectItem value="MN">Minnesota</SelectItem>
+                                      <SelectItem value="MS">Mississippi</SelectItem>
+                                      <SelectItem value="MO">Missouri</SelectItem>
+                                      <SelectItem value="MT">Montana</SelectItem>
+                                      <SelectItem value="NE">Nebraska</SelectItem>
+                                      <SelectItem value="NV">Nevada</SelectItem>
+                                      <SelectItem value="NH">New Hampshire</SelectItem>
+                                      <SelectItem value="NJ">New Jersey</SelectItem>
+                                      <SelectItem value="NM">New Mexico</SelectItem>
+                                      <SelectItem value="NY">New York</SelectItem>
+                                      <SelectItem value="NC">North Carolina</SelectItem>
+                                      <SelectItem value="ND">North Dakota</SelectItem>
+                                      <SelectItem value="OH">Ohio</SelectItem>
+                                      <SelectItem value="OK">Oklahoma</SelectItem>
+                                      <SelectItem value="OR">Oregon</SelectItem>
+                                      <SelectItem value="PA">Pennsylvania</SelectItem>
+                                      <SelectItem value="RI">Rhode Island</SelectItem>
+                                      <SelectItem value="SC">South Carolina</SelectItem>
+                                      <SelectItem value="SD">South Dakota</SelectItem>
+                                      <SelectItem value="TN">Tennessee</SelectItem>
+                                      <SelectItem value="TX">Texas</SelectItem>
+                                      <SelectItem value="UT">Utah</SelectItem>
+                                      <SelectItem value="VT">Vermont</SelectItem>
+                                      <SelectItem value="VA">Virginia</SelectItem>
+                                      <SelectItem value="WA">Washington</SelectItem>
+                                      <SelectItem value="WV">West Virginia</SelectItem>
+                                      <SelectItem value="WI">Wisconsin</SelectItem>
+                                      <SelectItem value="WY">Wyoming</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="additionalHolder.employerZip"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Zip</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="12345" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Submit Button */}
               <div className="flex justify-end gap-4 pt-6 border-t">
