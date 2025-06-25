@@ -512,6 +512,9 @@ export default function AccountFormEnhanced() {
     // 529 Plan Disclosure Checklist is required when registration type is 529 Plan
     const shouldShow529PlanDisclosure = registrationType === '529 Plan' || form.watch('registrationType') === '529 Plan';
 
+    // Trading Options is required for all Brokerage program types
+    const shouldShowTradingOptions = programType === 'Brokerage';
+
     return {
       showDeliveringFirm,
       showContraAccount,
@@ -529,7 +532,8 @@ export default function AccountFormEnhanced() {
       showAdditionalHolders: regTypesRequireHolder.includes(registrationType),
       shouldShowPowerOfAttorney,
       shouldShowDirectOutsideBusiness,
-      shouldShow529PlanDisclosure
+      shouldShow529PlanDisclosure,
+      shouldShowTradingOptions
     };
   }, [accountType, programType, registrationType, form.watch('transferOnDeath')]);
 
@@ -550,7 +554,8 @@ export default function AccountFormEnhanced() {
     showAdditionalHolders,
     shouldShowPowerOfAttorney,
     shouldShowDirectOutsideBusiness,
-    shouldShow529PlanDisclosure
+    shouldShow529PlanDisclosure,
+    shouldShowTradingOptions
   } = fieldVisibility;
 
   // Filter navigation sections based on business rules
@@ -570,7 +575,9 @@ export default function AccountFormEnhanced() {
     if (section.id === "plan529Disclosure" && !shouldShow529PlanDisclosure) {
       return false;
     }
-    // Trading Options appears for all account types by default
+    if (section.id === "tradingOptions" && !shouldShowTradingOptions) {
+      return false;
+    }
     return true;
   });
 
