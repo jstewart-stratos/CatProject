@@ -507,6 +507,27 @@ export default function AccountFormEnhanced() {
     form.setValue("achAccounts", currentAccounts.filter((_, i) => i !== index));
   };
 
+  // Additional functions for ACH section
+  const addACHAccount = () => {
+    const currentAccounts = form.getValues("achAccounts") || [];
+    form.setValue("achAccounts", [
+      ...currentAccounts,
+      { bankName: "", accountNumber: "", routingNumber: "", accountType: "" }
+    ]);
+  };
+
+  const removeACHAccount = (index: number) => {
+    const currentAccounts = form.getValues("achAccounts");
+    form.setValue("achAccounts", currentAccounts.filter((_, i) => i !== index));
+  };
+
+  const updateACHAccount = (index: number, field: string, value: string) => {
+    const currentAccounts = form.getValues("achAccounts");
+    const updatedAccounts = [...currentAccounts];
+    updatedAccounts[index] = { ...updatedAccounts[index], [field]: value };
+    form.setValue("achAccounts", updatedAccounts);
+  };
+
   const addBeneficiary = () => {
     const currentBeneficiaries = form.getValues("beneficiaries");
     form.setValue("beneficiaries", [
@@ -524,6 +545,13 @@ export default function AccountFormEnhanced() {
   const removeBeneficiary = (index: number) => {
     const currentBeneficiaries = form.getValues("beneficiaries");
     form.setValue("beneficiaries", currentBeneficiaries.filter((_, i) => i !== index));
+  };
+
+  const updateBeneficiary = (index: number, field: string, value: any) => {
+    const currentBeneficiaries = form.getValues("beneficiaries");
+    const updatedBeneficiaries = [...currentBeneficiaries];
+    updatedBeneficiaries[index] = { ...updatedBeneficiaries[index], [field]: value };
+    form.setValue("beneficiaries", updatedBeneficiaries);
   };
 
   // Toggle TOD function
@@ -592,7 +620,12 @@ export default function AccountFormEnhanced() {
         }
         
         setCurrentSection(nextSection);
-        break;
+        return;
+      }
+      
+      // If we've reached the end without finding a valid section, stay on current
+      if (nextIndex >= sections.length && currentIndex < sections.length - 1) {
+        setCurrentSection(sections[sections.length - 1]);
       }
     } else {
       toast({
@@ -2033,22 +2066,6 @@ export default function AccountFormEnhanced() {
                   {renderSectionNavigation("specialAccounts", false, true)}
                 </section>
               )}
-
-              {/* Submit Button */}
-              <div className="flex justify-end gap-4 pt-6 border-t">
-                <Link href="/accounts">
-                  <Button type="button" variant="outline">
-                    Cancel
-                  </Button>
-                </Link>
-                <Button 
-                  type="submit" 
-                  className="bg-blue-600 hover:bg-blue-700"
-                  disabled={createAccountMutation.isPending}
-                >
-                  {createAccountMutation.isPending ? "Creating..." : "Create Account"}
-                </Button>
-              </div>
             </form>
           </Form>
         </div>
