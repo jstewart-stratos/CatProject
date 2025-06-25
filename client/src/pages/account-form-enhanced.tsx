@@ -14,7 +14,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ArrowLeft, Plus, Trash2, FileText, Users, CreditCard, Settings, Shield, ChevronRight } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, FileText, Users, CreditCard, Settings, Shield, ChevronRight, ChevronLeft, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Sidebar } from "@/components/sidebar";
@@ -101,6 +101,7 @@ export default function AccountFormEnhanced() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [currentSection, setCurrentSection] = useState("accountInfo");
+  const [completedSections, setCompletedSections] = useState<string[]>([]);
   
   // Get clientId from URL params
   const params = new URLSearchParams(window.location.search);
@@ -529,6 +530,135 @@ export default function AccountFormEnhanced() {
   const toggleTOD = (value: "Yes" | "No") => {
     form.setValue("transferOnDeath", value);
   };
+
+  // Section validation functions
+  const validateAccountInfo = () => {
+    const values = form.getValues();
+    return !!(values.clientId && values.repId && values.accountType && values.programType && values.registrationType);
+  };
+
+  const validateACHInfo = () => {
+    const values = form.getValues();
+    return values.achAccounts && values.achAccounts.length > 0;
+  };
+
+  const validateAdditionalHolders = () => {
+    if (!showAdditionalHolders) return true; // Not required if section is hidden
+    const values = form.getValues();
+    return values.additionalHolders && values.additionalHolders.length > 0;
+  };
+
+  const validateBeneficiaries = () => {
+    const values = form.getValues();
+    return values.beneficiaries && values.beneficiaries.length > 0;
+  };
+
+  // Navigation functions
+  const goToNextSection = () => {
+    const sections = ["accountInfo", "achInfo", "additionalHolders", "beneficiaries", "tradingAuthority", "specialAccounts"];
+    const currentIndex = sections.indexOf(currentSection);
+    
+    // Mark current section as completed if validation passes
+    let isValid = false;
+    switch (currentSection) {
+      case "accountInfo":
+        isValid = validateAccountInfo();
+        break;
+      case "achInfo":
+        isValid = validateACHInfo();
+        break;
+      case "additionalHolders":
+        isValid = validateAdditionalHolders();
+        break;
+      case "beneficiaries":
+        isValid = validateBeneficiaries();
+        break;
+      default:
+        isValid = true;
+    }
+
+    if (isValid) {
+      setCompletedSections(prev => [...prev.filter(s => s !== currentSection), currentSection]);
+      
+      // Skip sections that don't apply based on business rules
+      let nextIndex = currentIndex + 1;
+      while (nextIndex < sections.length) {
+        const nextSection = sections[nextIndex];
+        
+        // Skip Additional Holders if not required
+        if (nextSection === "additionalHolders" && !showAdditionalHolders) {
+          nextIndex++;
+          continue;
+        }
+        
+        setCurrentSection(nextSection);
+        break;
+      }
+    } else {
+      toast({
+        title: "Incomplete Section",
+        description: "Please complete all required fields in this section before proceeding.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const goToPreviousSection = () => {
+    const sections = ["accountInfo", "achInfo", "additionalHolders", "beneficiaries", "tradingAuthority", "specialAccounts"];
+    const currentIndex = sections.indexOf(currentSection);
+    if (currentIndex > 0) {
+      setCurrentSection(sections[currentIndex - 1]);
+    }
+  };
+
+  const canCreateAccount = () => {
+    return validateAccountInfo() && validateACHInfo() && validateAdditionalHolders() && validateBeneficiaries();
+  };
+
+  const renderSectionNavigation = (sectionKey: string, isFirstSection: boolean = false, isLastSection: boolean = false) => (
+    <div className="flex justify-between pt-6 border-t">
+      <div>
+        {!isFirstSection && (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={goToPreviousSection}
+            className="flex items-center gap-2"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            Previous
+          </Button>
+        )}
+      </div>
+      <div>
+        {!isLastSection ? (
+          <Button
+            type="button"
+            onClick={goToNextSection}
+            className="flex items-center gap-2"
+            disabled={
+              (sectionKey === "accountInfo" && !validateAccountInfo()) ||
+              (sectionKey === "achInfo" && !validateACHInfo()) ||
+              (sectionKey === "additionalHolders" && !validateAdditionalHolders()) ||
+              (sectionKey === "beneficiaries" && !validateBeneficiaries())
+            }
+          >
+            Next
+            <ChevronRight className="w-4 h-4" />
+          </Button>
+        ) : (
+          <Button
+            type="submit"
+            disabled={!canCreateAccount()}
+            className="flex items-center gap-2"
+          >
+            Create Account
+            <Check className="w-4 h-4" />
+          </Button>
+        )}
+      </div>
+    </div>
+  );
 
   const renderAccountInfoSection = () => (
     <section className="space-y-6">
@@ -1031,6 +1161,8 @@ export default function AccountFormEnhanced() {
           </div>
         )}
       </div>
+      
+      {renderSectionNavigation("accountInfo", true, false)}
     </section>
   );
 
@@ -1131,7 +1263,83 @@ export default function AccountFormEnhanced() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-12">
               {currentSection === 'accountInfo' && renderAccountInfoSection()}
               
-              {currentSection === 'additionalHolders' && shouldShowAdditionalHolder && (
+              {currentSection === 'achInfo' && (
+                <section className="space-y-6">
+                  <h2 className="text-xl font-semibold border-b pb-2">ACH Information</h2>
+                  <div className="space-y-4">
+                    <p className="text-gray-600">Configure ACH banking information for this account.</p>
+                    <Button
+                      type="button"
+                      onClick={addACHAccount}
+                      className="flex items-center gap-2"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Add ACH Account
+                    </Button>
+                    
+                    {form.watch("achAccounts")?.map((account, index) => (
+                      <Card key={index} className="p-4">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium mb-1">Bank Name</label>
+                            <Input
+                              value={account.bankName}
+                              onChange={(e) => updateACHAccount(index, 'bankName', e.target.value)}
+                              placeholder="Enter bank name"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium mb-1">Account Number</label>
+                            <Input
+                              value={account.accountNumber}
+                              onChange={(e) => updateACHAccount(index, 'accountNumber', e.target.value)}
+                              placeholder="Enter account number"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium mb-1">Routing Number</label>
+                            <Input
+                              value={account.routingNumber}
+                              onChange={(e) => updateACHAccount(index, 'routingNumber', e.target.value)}
+                              placeholder="Enter routing number"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium mb-1">Account Type</label>
+                            <Select
+                              value={account.accountType}
+                              onValueChange={(value) => updateACHAccount(index, 'accountType', value)}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select type" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="checking">Checking</SelectItem>
+                                <SelectItem value="savings">Savings</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                        <div className="mt-4 flex justify-end">
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => removeACHAccount(index)}
+                          >
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            Remove
+                          </Button>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                  
+                  {renderSectionNavigation("achInfo", false, false)}
+                </section>
+              )}
+              
+              {currentSection === 'additionalHolders' && showAdditionalHolders && (
                 <Card>
                   <CardHeader>
                     <CardTitle>Additional Account Holders</CardTitle>
@@ -1685,7 +1893,145 @@ export default function AccountFormEnhanced() {
                       )}
                     </div>
                   </CardContent>
+                  
+                  {renderSectionNavigation("additionalHolders", false, false)}
                 </Card>
+              )}
+              
+              {currentSection === 'beneficiaries' && (
+                <section className="space-y-6">
+                  <h2 className="text-xl font-semibold border-b pb-2">Beneficiaries</h2>
+                  <div className="space-y-4">
+                    <Button
+                      type="button"
+                      onClick={addBeneficiary}
+                      className="flex items-center gap-2"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Add Beneficiary
+                    </Button>
+                    
+                    {form.watch("beneficiaries")?.map((beneficiary, index) => (
+                      <Card key={index} className="p-4">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium mb-1">First Name</label>
+                            <Input
+                              value={beneficiary.firstName}
+                              onChange={(e) => updateBeneficiary(index, 'firstName', e.target.value)}
+                              placeholder="Enter first name"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium mb-1">Last Name</label>
+                            <Input
+                              value={beneficiary.lastName}
+                              onChange={(e) => updateBeneficiary(index, 'lastName', e.target.value)}
+                              placeholder="Enter last name"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium mb-1">Relationship</label>
+                            <Select
+                              value={beneficiary.relationship}
+                              onValueChange={(value) => updateBeneficiary(index, 'relationship', value)}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select relationship" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {lists?.["Beneficiary Relationship"]?.map((rel: string) => (
+                                  <SelectItem key={rel} value={rel}>{rel}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium mb-1">Percentage</label>
+                            <Input
+                              type="number"
+                              min="0"
+                              max="100"
+                              value={beneficiary.percentage}
+                              onChange={(e) => updateBeneficiary(index, 'percentage', parseInt(e.target.value))}
+                              placeholder="Enter percentage"
+                            />
+                          </div>
+                        </div>
+                        <div className="mt-4 flex justify-end">
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => removeBeneficiary(index)}
+                          >
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            Remove
+                          </Button>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                  
+                  {renderSectionNavigation("beneficiaries", false, false)}
+                </section>
+              )}
+              
+              {currentSection === 'tradingAuthority' && (
+                <section className="space-y-6">
+                  <h2 className="text-xl font-semibold border-b pb-2">Trading Authority</h2>
+                  <div className="space-y-4">
+                    <p className="text-gray-600">Configure trading authority for this account.</p>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Authorization Level</label>
+                        <Select>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select authorization level" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="limited">Limited Trading Authority</SelectItem>
+                            <SelectItem value="full">Full Trading Authority</SelectItem>
+                            <SelectItem value="none">No Trading Authority</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Authorized Person</label>
+                        <Input placeholder="Enter authorized person name" />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {renderSectionNavigation("tradingAuthority", false, false)}
+                </section>
+              )}
+              
+              {currentSection === 'specialAccounts' && (
+                <section className="space-y-6">
+                  <h2 className="text-xl font-semibold border-b pb-2">Special Accounts</h2>
+                  <div className="space-y-4">
+                    <p className="text-gray-600">Additional configuration for special account types.</p>
+                    <div className="grid grid-cols-1 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Special Account Type</label>
+                        <Select>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select special account type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="trust">Trust Account</SelectItem>
+                            <SelectItem value="529">529 Education Plan</SelectItem>
+                            <SelectItem value="custodial">Custodial Account</SelectItem>
+                            <SelectItem value="corporate">Corporate Account</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {renderSectionNavigation("specialAccounts", false, true)}
+                </section>
               )}
 
               {/* Submit Button */}
