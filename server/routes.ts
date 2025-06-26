@@ -408,6 +408,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get('/api/accounts/by-client/:clientId', isAuthenticated, async (req, res) => {
+    try {
+      const { clientId } = req.params;
+      const accounts = await storage.getAccountsByClient(parseInt(clientId));
+      res.json(accounts);
+    } catch (error) {
+      console.error("Error fetching accounts by client:", error);
+      res.status(500).json({ message: "Failed to fetch accounts for client" });
+    }
+  });
+
   app.get('/api/accounts/:id', isAuthenticated, async (req, res) => {
     try {
       const { id } = req.params;
