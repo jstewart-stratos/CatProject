@@ -584,7 +584,7 @@ export default function AccountFormEnhanced() {
   // Submit mutation
   const createAccountMutation = useMutation({
     mutationFn: async (data: AccountFormData) => {
-      return apiRequest("/api/accounts", "POST", data);
+      return apiRequest("POST", "/api/accounts", data);
     },
     onSuccess: () => {
       toast({
