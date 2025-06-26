@@ -204,9 +204,9 @@ export const accounts = pgTable("accounts", {
   isAgentExistingClient: boolean("is_agent_existing_client").default(false),
   
   // Trading Authority (New fields)
-  grantTradingAuthority: varchar("grant_trading_authority"), // No, Yes
+  grantTradingAuthority: boolean("grant_trading_authority").default(false),
   tradingAuthorizedAgentName: varchar("trading_authorized_agent_name"),
-  isTradingAgentExistingClient: varchar("is_trading_agent_existing_client"), // No, Yes
+  isTradingAgentExistingClient: boolean("is_trading_agent_existing_client").default(false),
   newTradingAuthorizationType: varchar("new_trading_authorization_type"), // Limited, Full
   
   // Trading Options
