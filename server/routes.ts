@@ -785,12 +785,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: 'Draft onboarding not found' });
       }
 
-      // Ensure user can only access their own drafts
-      if (draft.userId !== req.user?.claims?.sub) {
-        return res.status(403).json({ message: 'Access denied' });
+      // Apply group-based access control instead of user-only access
+      if (req.userRole === 'admin') {
+        // Admins can access any draft
+        res.json(draft);
+      } else {
+        // Check if user can access this draft through group membership
+        const groupIds = req.userGroups.map((g: any) => g.id);
+        const accessibleDrafts = await storage.getDraftOnboardingsByGroups(groupIds);
+        const canAccess = accessibleDrafts.some(d => d.id === id);
+        
+        if (!canAccess) {
+          return res.status(403).json({ message: 'Access denied' });
+        }
+        
+        res.json(draft);
       }
-
-      res.json(draft);
     } catch (error) {
       console.error('Error fetching draft onboarding:', error);
       res.status(500).json({ message: 'Failed to fetch draft onboarding' });
@@ -806,13 +816,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: 'Draft onboarding not found' });
       }
 
-      // Ensure user can only update their own drafts
-      if (existingDraft.userId !== req.user?.claims?.sub) {
-        return res.status(403).json({ message: 'Access denied' });
+      // Apply group-based access control instead of user-only access
+      if (req.userRole === 'admin') {
+        // Admins can update any draft
+        const updatedDraft = await storage.updateDraftOnboarding(id, req.body);
+        res.json(updatedDraft);
+      } else {
+        // Check if user can access this draft through group membership
+        const groupIds = req.userGroups.map((g: any) => g.id);
+        const accessibleDrafts = await storage.getDraftOnboardingsByGroups(groupIds);
+        const canAccess = accessibleDrafts.some(d => d.id === id);
+        
+        if (!canAccess) {
+          return res.status(403).json({ message: 'Access denied' });
+        }
+        
+        const updatedDraft = await storage.updateDraftOnboarding(id, req.body);
+        res.json(updatedDraft);
       }
-
-      const updatedDraft = await storage.updateDraftOnboarding(id, req.body);
-      res.json(updatedDraft);
     } catch (error) {
       console.error('Error updating draft onboarding:', error);
       res.status(500).json({ message: 'Failed to update draft onboarding' });
@@ -936,12 +957,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: 'Draft account not found' });
       }
 
-      // Ensure user can only access their own drafts
-      if (draft.userId !== req.user?.claims?.sub) {
-        return res.status(403).json({ message: 'Access denied' });
+      // Apply group-based access control instead of user-only access
+      if (req.userRole === 'admin') {
+        // Admins can access any draft
+        res.json(draft);
+      } else {
+        // Check if user can access this draft through group membership
+        const groupIds = req.userGroups.map((g: any) => g.id);
+        const accessibleDrafts = await storage.getDraftAccountsByGroups(groupIds);
+        const canAccess = accessibleDrafts.some(d => d.id === id);
+        
+        if (!canAccess) {
+          return res.status(403).json({ message: 'Access denied' });
+        }
+        
+        res.json(draft);
       }
-
-      res.json(draft);
     } catch (error) {
       console.error('Error fetching draft account:', error);
       res.status(500).json({ message: 'Failed to fetch draft account' });
@@ -957,13 +988,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: 'Draft account not found' });
       }
 
-      // Ensure user can only update their own drafts
-      if (existingDraft.userId !== req.user?.claims?.sub) {
-        return res.status(403).json({ message: 'Access denied' });
+      // Apply group-based access control instead of user-only access
+      if (req.userRole === 'admin') {
+        // Admins can update any draft
+        const updatedDraft = await storage.updateDraftAccount(id, req.body);
+        res.json(updatedDraft);
+      } else {
+        // Check if user can access this draft through group membership
+        const groupIds = req.userGroups.map((g: any) => g.id);
+        const accessibleDrafts = await storage.getDraftAccountsByGroups(groupIds);
+        const canAccess = accessibleDrafts.some(d => d.id === id);
+        
+        if (!canAccess) {
+          return res.status(403).json({ message: 'Access denied' });
+        }
+        
+        const updatedDraft = await storage.updateDraftAccount(id, req.body);
+        res.json(updatedDraft);
       }
-
-      const updatedDraft = await storage.updateDraftAccount(id, req.body);
-      res.json(updatedDraft);
     } catch (error) {
       console.error('Error updating draft account:', error);
       res.status(500).json({ message: 'Failed to update draft account' });
