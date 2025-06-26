@@ -30,6 +30,9 @@ import {
   draftOnboarding,
   type InsertDraftOnboarding,
   type DraftOnboarding,
+  draftAccounts,
+  type InsertDraftAccount,
+  type DraftAccount,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, like, desc, asc, sql, ilike, or } from "drizzle-orm";
@@ -535,6 +538,46 @@ export class DatabaseStorage implements IStorage {
     await db
       .delete(draftOnboarding)
       .where(eq(draftOnboarding.id, id));
+  }
+
+  // Draft account operations
+  async createDraftAccount(draft: InsertDraftAccount): Promise<DraftAccount> {
+    const [newDraft] = await db
+      .insert(draftAccounts)
+      .values(draft)
+      .returning();
+    return newDraft;
+  }
+
+  async getDraftAccount(id: number): Promise<DraftAccount | undefined> {
+    const [draft] = await db
+      .select()
+      .from(draftAccounts)
+      .where(eq(draftAccounts.id, id));
+    return draft;
+  }
+
+  async getUserDraftAccounts(userId: string): Promise<DraftAccount[]> {
+    return await db
+      .select()
+      .from(draftAccounts)
+      .where(eq(draftAccounts.userId, userId))
+      .orderBy(desc(draftAccounts.lastModified));
+  }
+
+  async updateDraftAccount(id: number, data: Partial<DraftAccount>): Promise<DraftAccount> {
+    const [updatedDraft] = await db
+      .update(draftAccounts)
+      .set({ ...data, lastModified: new Date() })
+      .where(eq(draftAccounts.id, id))
+      .returning();
+    return updatedDraft;
+  }
+
+  async deleteDraftAccount(id: number): Promise<void> {
+    await db
+      .delete(draftAccounts)
+      .where(eq(draftAccounts.id, id));
   }
 }
 

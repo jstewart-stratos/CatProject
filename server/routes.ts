@@ -709,6 +709,130 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Draft account routes
+  app.post('/api/draft-accounts', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const draftData = {
+        ...req.body,
+        userId,
+      };
+
+      // Check if user already has a draft with similar account data
+      const existingDrafts = await storage.getUserDraftAccounts(userId);
+      const formData = draftData.formData || {};
+      
+      // Look for existing draft with matching client and account data
+      const existingDraft = existingDrafts.find((draft: any) => {
+        const existingFormData = draft.formData || {};
+        
+        // Normalize values for comparison
+        const normalizeValue = (val: any) => val?.toString().trim() || '';
+        
+        const currentClientId = normalizeValue(formData.clientId);
+        const currentAccountType = normalizeValue(formData.accountType);
+        
+        const existingClientId = normalizeValue(existingFormData.clientId);
+        const existingAccountType = normalizeValue(existingFormData.accountType);
+        
+        // Match if client ID and account type are the same
+        const hasValidData = currentClientId && currentAccountType;
+        const dataMatches = currentClientId === existingClientId && currentAccountType === existingAccountType;
+        
+        return hasValidData && dataMatches;
+      });
+
+      if (existingDraft) {
+        // Update existing draft instead of creating new one
+        const updatedDraft = await storage.updateDraftAccount(existingDraft.id, draftData);
+        res.json(updatedDraft);
+      } else {
+        // Create new draft only if no match found
+        const draft = await storage.createDraftAccount(draftData);
+        res.json(draft);
+      }
+    } catch (error) {
+      console.error('Error creating draft account:', error);
+      res.status(500).json({ message: 'Failed to create draft account' });
+    }
+  });
+
+  app.get('/api/draft-accounts', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const drafts = await storage.getUserDraftAccounts(userId);
+      res.json(drafts);
+    } catch (error) {
+      console.error('Error fetching draft accounts:', error);
+      res.status(500).json({ message: 'Failed to fetch draft accounts' });
+    }
+  });
+
+  app.get('/api/draft-accounts/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const draft = await storage.getDraftAccount(id);
+      
+      if (!draft) {
+        return res.status(404).json({ message: 'Draft account not found' });
+      }
+
+      // Ensure user can only access their own drafts
+      if (draft.userId !== req.user?.claims?.sub) {
+        return res.status(403).json({ message: 'Access denied' });
+      }
+
+      res.json(draft);
+    } catch (error) {
+      console.error('Error fetching draft account:', error);
+      res.status(500).json({ message: 'Failed to fetch draft account' });
+    }
+  });
+
+  app.put('/api/draft-accounts/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const existingDraft = await storage.getDraftAccount(id);
+      
+      if (!existingDraft) {
+        return res.status(404).json({ message: 'Draft account not found' });
+      }
+
+      // Ensure user can only update their own drafts
+      if (existingDraft.userId !== req.user?.claims?.sub) {
+        return res.status(403).json({ message: 'Access denied' });
+      }
+
+      const updatedDraft = await storage.updateDraftAccount(id, req.body);
+      res.json(updatedDraft);
+    } catch (error) {
+      console.error('Error updating draft account:', error);
+      res.status(500).json({ message: 'Failed to update draft account' });
+    }
+  });
+
+  app.delete('/api/draft-accounts/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const existingDraft = await storage.getDraftAccount(id);
+      
+      if (!existingDraft) {
+        return res.status(404).json({ message: 'Draft account not found' });
+      }
+
+      // Ensure user can only delete their own drafts
+      if (existingDraft.userId !== req.user?.claims?.sub) {
+        return res.status(403).json({ message: 'Access denied' });
+      }
+
+      await storage.deleteDraftAccount(id);
+      res.json({ message: 'Draft account deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting draft account:', error);
+      res.status(500).json({ message: 'Failed to delete draft account' });
+    }
+  });
+
   // Cleanup duplicate drafts endpoint
   app.post('/api/draft-onboarding/cleanup-duplicates', isAuthenticated, async (req: any, res) => {
     try {

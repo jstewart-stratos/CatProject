@@ -17,7 +17,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { ArrowLeft, Plus, Trash2, FileText, Users, CreditCard, Settings, Shield, ChevronRight, ChevronLeft, Check, Building } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, FileText, Users, CreditCard, Settings, Shield, ChevronRight, ChevronLeft, Check, Building, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import Sidebar from "@/components/sidebar";
@@ -161,10 +161,20 @@ export default function AccountFormEnhanced() {
   const { isAuthenticated, isLoading } = useAuth();
   const [currentSection, setCurrentSection] = useState("accountInfo");
   const [completedSections, setCompletedSections] = useState<string[]>([]);
+  const [currentDraftId, setCurrentDraftId] = useState<number | null>(null);
+  const [draftName, setDraftName] = useState("");
   
-  // Get clientId from URL params
+  // Get clientId and draftId from URL params
   const params = new URLSearchParams(window.location.search);
   const clientId = params.get('clientId') ? parseInt(params.get('clientId')!) : undefined;
+  const draftId = params.get('draftId') ? parseInt(params.get('draftId')!) : null;
+
+  // Set draft ID from URL on component mount
+  useEffect(() => {
+    if (draftId) {
+      setCurrentDraftId(draftId);
+    }
+  }, [draftId]);
 
   // Authentication check
   useEffect(() => {
@@ -201,6 +211,45 @@ export default function AccountFormEnhanced() {
   const { data: clientsData } = useQuery({
     queryKey: ["/api/clients"],
   });
+
+  // Query for user's draft accounts
+  const { data: userDrafts, refetch: refetchDrafts } = useQuery({
+    queryKey: ["/api/draft-accounts"],
+    retry: false,
+  });
+
+  // Query for specific draft when draftId is provided
+  const { data: specificDraft, isLoading: isDraftLoading } = useQuery({
+    queryKey: ["/api/draft-accounts", currentDraftId],
+    queryFn: async () => {
+      if (!currentDraftId) return null;
+      const response = await apiRequest("GET", `/api/draft-accounts/${currentDraftId}`);
+      return await response.json();
+    },
+    enabled: !!currentDraftId,
+    retry: false,
+  });
+
+  // Load draft data when specificDraft is fetched
+  useEffect(() => {
+    if (specificDraft && specificDraft.formData) {
+      const formData = specificDraft.formData;
+      
+      // Populate form with draft data
+      form.reset(formData);
+      
+      // Set current section to the saved section
+      if (specificDraft.currentSection) {
+        setCurrentSection(specificDraft.currentSection);
+      }
+      
+      // Show toast to indicate draft was loaded
+      toast({
+        title: "Draft Loaded",
+        description: `Continuing from ${specificDraft.currentSection || 'account information'} section`,
+      });
+    }
+  }, [specificDraft, form, toast]);
 
   // Get selected client data
   const selectedClientId = form.watch("clientId");
@@ -608,6 +657,10 @@ export default function AccountFormEnhanced() {
       return apiRequest("POST", "/api/accounts", data);
     },
     onSuccess: () => {
+      // Delete the draft if it was loaded from a draft
+      if (currentDraftId) {
+        deleteDraftMutation.mutate(currentDraftId);
+      }
       toast({
         title: "Success",
         description: "Account created successfully",
@@ -624,6 +677,63 @@ export default function AccountFormEnhanced() {
     },
   });
 
+  // Mutation for creating/updating draft account
+  const saveDraftMutation = useMutation({
+    mutationFn: async ({ name, data }: { name: string; data: Partial<AccountFormData> }) => {
+      const draftData = {
+        draftName: name,
+        formData: data,
+        currentSection,
+      };
+
+      if (currentDraftId) {
+        const response = await apiRequest("PUT", `/api/draft-accounts/${currentDraftId}`, draftData);
+        return await response.json();
+      } else {
+        const response = await apiRequest("POST", "/api/draft-accounts", draftData);
+        return await response.json();
+      }
+    },
+    onSuccess: (data) => {
+      setCurrentDraftId(data.id);
+      refetchDrafts();
+      toast({
+        title: "Draft Saved",
+        description: "Your progress has been saved successfully.",
+      });
+    },
+    onError: (error) => {
+      console.error("Save draft error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save draft. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Mutation for deleting draft account
+  const deleteDraftMutation = useMutation({
+    mutationFn: async (draftId: number) => {
+      return apiRequest("DELETE", `/api/draft-accounts/${draftId}`);
+    },
+    onSuccess: () => {
+      refetchDrafts();
+      toast({
+        title: "Draft Deleted",
+        description: "Draft has been deleted successfully.",
+      });
+    },
+    onError: (error) => {
+      console.error("Delete draft error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete draft. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const onSubmit = (data: AccountFormData) => {
     console.log('Form submission triggered with data:', data);
     console.log('Form validation state:', form.formState.isValid);
@@ -631,6 +741,19 @@ export default function AccountFormEnhanced() {
     
     // Submit the data directly without complex transformations for now
     createAccountMutation.mutate(data);
+  };
+
+  // Save draft handler
+  const handleSaveDraft = () => {
+    const formData = form.getValues();
+    const selectedClientName = selectedClient ? `${selectedClient.firstName} ${selectedClient.lastName}` : `Client ${selectedClientId}`;
+    const accountTypeLabel = formData.accountType || "Unknown";
+    const draftTitle = draftName || `${selectedClientName} - ${accountTypeLabel} Account`;
+    
+    saveDraftMutation.mutate({
+      name: draftTitle,
+      data: formData,
+    });
   };
 
   // Initialize Direct/Outside Business accounts when section becomes visible
@@ -930,7 +1053,19 @@ export default function AccountFormEnhanced() {
           </Button>
         )}
       </div>
-      <div>
+      <div className="flex items-center gap-3">
+        {/* Save Progress Button */}
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleSaveDraft}
+          disabled={saveDraftMutation.isPending}
+          className="flex items-center gap-2"
+        >
+          <Save className="w-4 h-4" />
+          {saveDraftMutation.isPending ? "Saving..." : "Save Progress"}
+        </Button>
+        
         {!actuallyLastSection ? (
           <Button
             type="button"

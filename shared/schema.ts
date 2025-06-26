@@ -577,3 +577,17 @@ export const draftOnboarding = pgTable("draft_onboarding", {
 
 export type InsertDraftOnboarding = typeof draftOnboarding.$inferInsert;
 export type DraftOnboarding = typeof draftOnboarding.$inferSelect;
+
+// Draft account creation records for incomplete submissions
+export const draftAccounts = pgTable("draft_accounts", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }),
+  draftName: varchar("draft_name", { length: 255 }),
+  currentSection: varchar("current_section").default("accountInformation"),
+  formData: jsonb("form_data"),
+  lastModified: timestamp("last_modified").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type InsertDraftAccount = typeof draftAccounts.$inferInsert;
+export type DraftAccount = typeof draftAccounts.$inferSelect;
