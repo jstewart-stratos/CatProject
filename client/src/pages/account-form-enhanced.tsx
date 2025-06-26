@@ -1474,8 +1474,8 @@ export default function AccountFormEnhanced() {
       <Sidebar currentView="accounts" />
       <div className="flex-1 flex flex-col">
         <TopBar title="Create New Account" subtitle="Enhanced account creation form" />
-        <main className="flex-1 overflow-auto p-6">
-          <div className="max-w-7xl mx-auto space-y-6">
+        <main className="flex-1 overflow-auto p-4">
+          <div className="w-full space-y-4">
             {/* Header */}
             <div className="flex items-center justify-between">
               <h1 className="text-2xl font-bold text-foreground">Create New Account</h1>
@@ -1496,13 +1496,13 @@ export default function AccountFormEnhanced() {
 
             <div className="bg-card shadow-lg rounded-lg overflow-hidden">
               {/* Top Navigation Steps */}
-              <div className="bg-muted border-b p-4">
-                <div className="flex flex-wrap gap-2">
+              <div className="bg-muted border-b p-3">
+                <div className="flex flex-wrap gap-1">
                   {navigationSections.map((section, index) => (
                     <button
                       key={section.id}
                       type="button"
-                      className={`px-3 py-2 text-sm rounded-md transition-colors ${
+                      className={`px-2 py-1 text-xs rounded transition-colors ${
                         currentSection === section.id
                           ? 'bg-primary text-primary-foreground font-medium'
                           : completedSections.includes(section.id)
@@ -1511,7 +1511,7 @@ export default function AccountFormEnhanced() {
                       }`}
                       onClick={() => setCurrentSection(section.id)}
                     >
-                      <span className="mr-2">{index + 1}.</span>
+                      <span className="mr-1">{index + 1}.</span>
                       {section.label}
                     </button>
                   ))}
@@ -1519,9 +1519,9 @@ export default function AccountFormEnhanced() {
               </div>
 
               {/* Main Content */}
-              <div className="p-6 bg-background">
+              <div className="p-4 bg-background max-w-full overflow-x-auto">
                 <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-full">
               {currentSection === 'accountInfo' && renderAccountInfoSection()}
               
               {currentSection === 'achInfo' && (
