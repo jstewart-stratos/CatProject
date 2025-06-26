@@ -21,6 +21,9 @@ import { ArrowLeft, Plus, Trash2, FileText, Users, CreditCard, Settings, Shield,
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import Sidebar from "@/components/sidebar";
+import TopBar from "@/components/top-bar";
+import { useAuth } from "@/hooks/useAuth";
+import { isUnauthorizedError } from "@/lib/authUtils";
 
 // Enhanced form schema based on reference design
 const accountFormSchema = z.object({
@@ -155,12 +158,28 @@ export default function AccountFormEnhanced() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { isAuthenticated, isLoading } = useAuth();
   const [currentSection, setCurrentSection] = useState("accountInfo");
   const [completedSections, setCompletedSections] = useState<string[]>([]);
   
   // Get clientId from URL params
   const params = new URLSearchParams(window.location.search);
   const clientId = params.get('clientId') ? parseInt(params.get('clientId')!) : undefined;
+
+  // Authentication check
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      toast({
+        title: "Unauthorized",
+        description: "You are logged out. Logging in again...",
+        variant: "destructive",
+      });
+      setTimeout(() => {
+        window.location.href = "/api/login";
+      }, 500);
+      return;
+    }
+  }, [isAuthenticated, isLoading, toast]);
 
   const form = useForm<AccountFormData>({
     resolver: zodResolver(accountFormSchema),
@@ -1442,46 +1461,59 @@ export default function AccountFormEnhanced() {
     </section>
   );
 
+  if (isLoading) {
+    return <div className="min-h-screen bg-background" />;
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50 py-10">
-      <div className="max-w-5xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden flex">
-        {/* Sidebar Navigation */}
-        <nav className="w-1/4 bg-gray-100 p-6 space-y-2 sticky top-0">
-          {navigationSections.map((section) => (
-            <button
-              key={section.id}
-              type="button"
-              className={`nav-btn w-full text-left px-3 py-2 rounded-r ${
-                currentSection === section.id
-                  ? 'bg-white border-l-4 border-blue-800 text-blue-800 font-medium'
-                  : 'text-gray-700 hover:bg-gray-200'
-              }`}
-              onClick={() => setCurrentSection(section.id)}
-            >
-              {section.label}
-            </button>
-          ))}
+    <div className="flex h-screen bg-background">
+      <Sidebar currentView="accounts" />
+      <div className="flex-1 flex flex-col">
+        <TopBar title="Create New Account" subtitle="Enhanced account creation form" />
+        <main className="flex-1 overflow-auto">
+          <div className="max-w-6xl mx-auto p-6">
+            <div className="bg-card shadow-lg rounded-lg overflow-hidden flex">
+              {/* Sidebar Navigation */}
+              <nav className="w-1/4 bg-muted p-6 space-y-2 sticky top-0">
+                {navigationSections.map((section) => (
+                  <button
+                    key={section.id}
+                    type="button"
+                    className={`nav-btn w-full text-left px-3 py-2 rounded-r ${
+                      currentSection === section.id
+                        ? 'bg-background border-l-4 border-primary text-primary font-medium'
+                        : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                    }`}
+                    onClick={() => setCurrentSection(section.id)}
+                  >
+                    {section.label}
+                  </button>
+                ))}
         </nav>
 
-        {/* Main Content */}
-        <div className="w-3/4 p-8 space-y-12">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="text-2xl font-bold">Create New Account</h1>
-            <div className="flex items-center gap-4">
-              {clientId && (
-                <Badge variant="outline">
-                  Client ID: {clientId}
-                </Badge>
-              )}
-              <Link href="/accounts">
-                <Button variant="ghost" className="bg-gray-300 text-gray-800 hover:bg-gray-400">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Accounts
-                </Button>
-              </Link>
-            </div>
-          </div>
+              {/* Main Content */}
+              <div className="w-3/4 p-8 space-y-12 bg-background">
+                {/* Header */}
+                <div className="flex items-center justify-between mb-6">
+                  <h1 className="text-2xl font-bold text-foreground">Create New Account</h1>
+                  <div className="flex items-center gap-4">
+                    {clientId && (
+                      <Badge variant="outline">
+                        Client ID: {clientId}
+                      </Badge>
+                    )}
+                    <Link href="/accounts">
+                      <Button variant="ghost" className="bg-muted text-muted-foreground hover:bg-accent">
+                        <ArrowLeft className="h-4 w-4 mr-2" />
+                        Back to Accounts
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-12">
@@ -3346,6 +3378,9 @@ export default function AccountFormEnhanced() {
             </form>
           </Form>
         </div>
+            </div>
+          </div>
+        </main>
       </div>
     </div>
   );
