@@ -164,10 +164,11 @@ export default function AccountFormEnhanced() {
   const [currentDraftId, setCurrentDraftId] = useState<number | null>(null);
   const [draftName, setDraftName] = useState("");
   
-  // Get clientId and draftId from URL params
+  // Get clientId, draftId, and accountId from URL params
   const params = new URLSearchParams(window.location.search);
   const clientId = params.get('clientId') ? parseInt(params.get('clientId')!) : undefined;
   const draftId = params.get('draftId') ? parseInt(params.get('draftId')!) : null;
+  const accountId = params.get('accountId') ? parseInt(params.get('accountId')!) : null;
 
   // Set draft ID from URL on component mount
   useEffect(() => {
@@ -230,6 +231,18 @@ export default function AccountFormEnhanced() {
     retry: false,
   });
 
+  // Query for existing account when accountId is provided (edit mode)
+  const { data: existingAccount, isLoading: isAccountLoading } = useQuery({
+    queryKey: ["/api/accounts", accountId],
+    queryFn: async () => {
+      if (!accountId) return null;
+      const response = await apiRequest("GET", `/api/accounts/${accountId}`);
+      return await response.json();
+    },
+    enabled: !!accountId,
+    retry: false,
+  });
+
   // Load draft data when specificDraft is fetched
   useEffect(() => {
     if (specificDraft && specificDraft.formData) {
@@ -250,6 +263,78 @@ export default function AccountFormEnhanced() {
       });
     }
   }, [specificDraft, form, toast]);
+
+  // Load existing account data when editing
+  useEffect(() => {
+    if (existingAccount && !specificDraft) {
+      // Transform account data to match form structure
+      const accountData = {
+        clientId: existingAccount.clientId,
+        repId: existingAccount.repId || "",
+        notes: existingAccount.notes || "",
+        accountType: existingAccount.accountType || "",
+        programType: existingAccount.programType || "",
+        registrationType: existingAccount.registrationType || "",
+        deliveringFirm: existingAccount.deliveringFirm || "",
+        contraAccount: existingAccount.contraAccount || "",
+        iraType: existingAccount.iraType || "",
+        transferOnDeath: existingAccount.transferOnDeath || "No",
+        investmentObjective: existingAccount.investmentObjective || "",
+        approximateAccountValue: existingAccount.approximateAccountValue || "",
+        expectedAccountValue: existingAccount.expectedAccountValue || "",
+        advisoryBillingCycle: existingAccount.advisoryBillingCycle || "",
+        advisorFee: existingAccount.advisorFee || "",
+        // Boolean fields with proper conversion
+        wantCheckwriting: Boolean(existingAccount.wantCheckwriting === true || existingAccount.wantCheckwriting === "Yes" || existingAccount.wantCheckwriting === "true"),
+        accountTypeOption: existingAccount.accountTypeOption || "",
+        wantDebitCard: Boolean(existingAccount.wantDebitCard === true || existingAccount.wantDebitCard === "Yes" || existingAccount.wantDebitCard === "true"),
+        wantCostBasisReporting: Boolean(existingAccount.wantCostBasisReporting === true || existingAccount.wantCostBasisReporting === "Yes" || existingAccount.wantCostBasisReporting === "true"),
+        // Investment fields
+        investmentTimeHorizon: existingAccount.investmentTimeHorizon || "",
+        fundsNeededIn: existingAccount.fundsNeededIn || "",
+        // Trading fields with proper boolean conversion
+        grantTradingAuthority: Boolean(existingAccount.grantTradingAuthority === true || existingAccount.grantTradingAuthority === "Yes" || existingAccount.grantTradingAuthority === "true"),
+        authorizedTradingName: existingAccount.authorizedTradingName || "",
+        authorizedTradingRelationship: existingAccount.authorizedTradingRelationship || "",
+        authorizedTradingAddress: existingAccount.authorizedTradingAddress || "",
+        authorizedTradingPhone: existingAccount.authorizedTradingPhone || "",
+        authorizationType: existingAccount.authorizationType || "",
+        grantPowerOfAttorney: Boolean(existingAccount.grantPowerOfAttorney === true || existingAccount.grantPowerOfAttorney === "Yes" || existingAccount.grantPowerOfAttorney === "true"),
+        authorizedAttorneyName: existingAccount.authorizedAttorneyName || "",
+        authorizedAttorneyRelationship: existingAccount.authorizedAttorneyRelationship || "",
+        authorizedAttorneyAddress: existingAccount.authorizedAttorneyAddress || "",
+        authorizedAttorneyPhone: existingAccount.authorizedAttorneyPhone || "",
+        // Trading Options with boolean conversion
+        fullDiscretionaryTrading: Boolean(existingAccount.fullDiscretionaryTrading === true || existingAccount.fullDiscretionaryTrading === "Yes" || existingAccount.fullDiscretionaryTrading === "true"),
+        structuredProductTrading: Boolean(existingAccount.structuredProductTrading === true || existingAccount.structuredProductTrading === "Yes" || existingAccount.structuredProductTrading === "true"),
+        complexEtpTrading: Boolean(existingAccount.complexEtpTrading === true || existingAccount.complexEtpTrading === "Yes" || existingAccount.complexEtpTrading === "true"),
+        optionsTrading: Boolean(existingAccount.optionsTrading === true || existingAccount.optionsTrading === "Yes" || existingAccount.optionsTrading === "true"),
+        optionsTradingLevel: existingAccount.optionsTradingLevel || "",
+        // 529 Plan fields
+        productSponsor: existingAccount.productSponsor || "",
+        investmentPortfolio: existingAccount.investmentPortfolio || "",
+        ownerState: existingAccount.ownerState || "",
+        sourceOfFunds: existingAccount.sourceOfFunds || "",
+        shareClass: existingAccount.shareClass || "",
+        planAdministrator: existingAccount.planAdministrator || "",
+        // Arrays (may need parsing if stored as JSON strings)
+        achAccounts: existingAccount.achAccounts || [],
+        beneficiaries: existingAccount.beneficiaries || [],
+        additionalAccountHolders: existingAccount.additionalAccountHolders || [],
+        tradingOptionsDetails: existingAccount.tradingOptionsDetails || [],
+        directOutsideBusinessAccounts: existingAccount.directOutsideBusinessAccounts || [],
+      };
+
+      // Reset form with account data
+      form.reset(accountData);
+      
+      // Show toast to indicate account data was loaded
+      toast({
+        title: "Account Loaded",
+        description: "Account details loaded for editing",
+      });
+    }
+  }, [existingAccount, specificDraft, form, toast]);
 
   // Get selected client data
   const selectedClientId = form.watch("clientId");
@@ -651,10 +736,16 @@ export default function AccountFormEnhanced() {
     return true;
   });
 
-  // Submit mutation
+  // Submit mutation (handles both create and update)
   const createAccountMutation = useMutation({
     mutationFn: async (data: AccountFormData) => {
-      return apiRequest("POST", "/api/accounts", data);
+      if (accountId) {
+        // Update existing account
+        return apiRequest("PUT", `/api/accounts/${accountId}`, data);
+      } else {
+        // Create new account
+        return apiRequest("POST", "/api/accounts", data);
+      }
     },
     onSuccess: () => {
       // Delete the draft if it was loaded from a draft
@@ -663,9 +754,12 @@ export default function AccountFormEnhanced() {
       }
       toast({
         title: "Success",
-        description: "Account created successfully",
+        description: accountId ? "Account updated successfully" : "Account created successfully",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/accounts"] });
+      if (accountId) {
+        queryClient.invalidateQueries({ queryKey: ["/api/accounts", accountId] });
+      }
       setLocation("/accounts");
     },
     onError: (error: Error) => {
@@ -1106,7 +1200,7 @@ export default function AccountFormEnhanced() {
               form.handleSubmit(onSubmit)();
             }}
           >
-            Create Account
+{accountId ? "Update Account" : "Create Account"}
             <Check className="w-4 h-4" />
           </Button>
         )}
@@ -1635,12 +1729,12 @@ export default function AccountFormEnhanced() {
     <div className="flex h-screen bg-background">
       <Sidebar currentView="accounts" />
       <div className="flex-1 flex flex-col">
-        <TopBar title="Create New Account" subtitle="Enhanced account creation form" />
+        <TopBar title={accountId ? "Edit Account" : "Create New Account"} subtitle={accountId ? "Edit existing account details" : "Enhanced account creation form"} />
         <main className="flex-1 overflow-auto p-4">
           <div className="max-w-4xl ml-96 space-y-3">
             {/* Header */}
             <div className="flex items-center justify-between">
-              <h1 className="text-xl font-bold text-foreground">Create New Account</h1>
+              <h1 className="text-xl font-bold text-foreground">{accountId ? "Edit Account" : "Create New Account"}</h1>
               <div className="flex items-center gap-2">
                 {clientId && (
                   <Badge variant="outline" className="text-xs">
