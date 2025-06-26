@@ -476,9 +476,11 @@ export class DatabaseStorage implements IStorage {
     query = query.where(groupCondition);
     countQuery = countQuery.where(groupCondition);
 
+    // Build additional conditions
+    let additionalConditions = [];
+
     if (search) {
-      const searchCondition = and(
-        groupCondition,
+      additionalConditions.push(
         or(
           ilike(clients.firstName, `%${search}%`),
           ilike(clients.lastName, `%${search}%`),
@@ -487,17 +489,19 @@ export class DatabaseStorage implements IStorage {
           ilike(accounts.programType, `%${search}%`)
         )
       );
-      query = query.where(searchCondition);
-      countQuery = countQuery.where(searchCondition);
     }
 
-    if (accountType) {
-      const typeCondition = and(
-        groupCondition,
+    if (accountType && accountType !== 'all') {
+      additionalConditions.push(
         ilike(accounts.accountType, `%${accountType}%`)
       );
-      query = query.where(typeCondition);
-      countQuery = countQuery.where(typeCondition);
+    }
+
+    // Apply all conditions
+    if (additionalConditions.length > 0) {
+      const finalCondition = and(groupCondition, ...additionalConditions);
+      query = query.where(finalCondition);
+      countQuery = countQuery.where(finalCondition);
     }
 
     const [accountsResult, totalResult] = await Promise.all([
