@@ -9,8 +9,20 @@ interface SidebarProps {
 export default function Sidebar({ currentView }: SidebarProps) {
   const [location] = useLocation();
 
-  const handleLogout = () => {
-    window.location.href = "/api/logout";
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      window.location.href = '/login';
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Fallback: redirect to login page anyway
+      window.location.href = '/login';
+    }
   };
 
   const menuItems = [
