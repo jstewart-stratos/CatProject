@@ -197,6 +197,9 @@ export default function AccountFormEnhanced() {
     defaultValues: {
       clientId: clientId || undefined,
       transferOnDeath: "No",
+      programType: "",
+      registrationType: "",
+      accountType: "",
       achAccounts: [],
       beneficiaries: [],
       directOutsideBusinessAccounts: [],
@@ -1312,7 +1315,11 @@ export default function AccountFormEnhanced() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Program Type <span className="text-red-500">*</span></FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+              <Select 
+                key={`program-type-${field.value}-${accountId || 'new'}`}
+                onValueChange={field.onChange} 
+                value={field.value || ""}
+              >
                 <FormControl>
                   <SelectTrigger className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
                     <SelectValue placeholder="Select" />
@@ -1334,7 +1341,11 @@ export default function AccountFormEnhanced() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Registration Type <span className="text-red-500">*</span></FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+              <Select 
+                key={`registration-type-${field.value}-${accountId || 'new'}`}
+                onValueChange={field.onChange} 
+                value={field.value || ""}
+              >
                 <FormControl>
                   <SelectTrigger className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
                     <SelectValue placeholder="Select" />
