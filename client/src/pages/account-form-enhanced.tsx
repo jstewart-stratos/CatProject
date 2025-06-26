@@ -757,7 +757,7 @@ export default function AccountFormEnhanced() {
 
   // Navigation functions
   const goToNextSection = () => {
-    const sections = navigationSections.map(s => s.id).concat(["specialAccounts"]);
+    const sections = navigationSections.map(s => s.id);
     const currentIndex = sections.indexOf(currentSection);
     
     // Mark current section as completed if validation passes
@@ -835,7 +835,7 @@ export default function AccountFormEnhanced() {
   };
 
   const goToPreviousSection = () => {
-    const sections = navigationSections.map(s => s.id).concat(["specialAccounts"]);
+    const sections = navigationSections.map(s => s.id);
     const currentIndex = sections.indexOf(currentSection);
     
     // Skip sections that don't apply based on business rules
@@ -886,7 +886,7 @@ export default function AccountFormEnhanced() {
 
   const renderSectionNavigation = (sectionKey: string, isFirstSection: boolean = false, isLastSection: boolean = false) => {
     // Dynamically determine if this is the last section based on filtered navigation
-    const allSections = navigationSections.map(s => s.id).concat(["specialAccounts"]);
+    const allSections = navigationSections.map(s => s.id);
     const actuallyLastSection = sectionKey === allSections[allSections.length - 1];
     
     return (
@@ -1461,17 +1461,6 @@ export default function AccountFormEnhanced() {
               {section.label}
             </button>
           ))}
-          <button
-            type="button"
-            className={`nav-btn w-full text-left px-3 py-2 rounded-r ${
-              currentSection === 'specialAccounts'
-                ? 'bg-white border-l-4 border-blue-800 text-blue-800 font-medium'
-                : 'text-gray-700 hover:bg-gray-200'
-            }`}
-            onClick={() => setCurrentSection('specialAccounts')}
-          >
-            Special Accounts
-          </button>
         </nav>
 
         {/* Main Content */}
@@ -3352,16 +3341,7 @@ export default function AccountFormEnhanced() {
                 </section>
               )}
               
-              {currentSection === 'specialAccounts' && (
-                <section className="space-y-6">
-                  <h2 className="text-xl font-semibold border-b pb-2">Special Accounts</h2>
-                  <div className="space-y-4">
-                    <p className="text-gray-600">Special account configuration and final review.</p>
-                  </div>
-                  
-                  {renderSectionNavigation("specialAccounts", false, true)}
-                </section>
-              )}
+
 
             </form>
           </Form>
