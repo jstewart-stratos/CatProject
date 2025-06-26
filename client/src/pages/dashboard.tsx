@@ -6,7 +6,10 @@ import { isUnauthorizedError } from "@/lib/authUtils";
 import Sidebar from "@/components/sidebar";
 import TopBar from "@/components/top-bar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Wallet, TrendingUp, Clock, ArrowUp } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Users, Wallet, TrendingUp, Clock, ArrowUp, FileEdit, PieChart as PieChartIcon, BarChart3, Activity } from "lucide-react";
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 export default function Dashboard() {
   const { toast } = useToast();
@@ -51,8 +54,8 @@ export default function Dashboard() {
         />
         
         <div className="p-6">
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {/* Enhanced Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
             <Card>
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
@@ -63,7 +66,7 @@ export default function Dashboard() {
                     </p>
                     <p className="text-emerald-600 text-sm mt-1 flex items-center">
                       <ArrowUp className="h-3 w-3 mr-1" />
-                      +12% from last month
+                      Active portfolio
                     </p>
                   </div>
                   <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -81,9 +84,9 @@ export default function Dashboard() {
                     <p className="text-3xl font-bold text-slate-800">
                       {statsLoading ? "..." : stats?.activeAccounts || 0}
                     </p>
-                    <p className="text-emerald-600 text-sm mt-1 flex items-center">
-                      <ArrowUp className="h-3 w-3 mr-1" />
-                      +8% from last month
+                    <p className="text-slate-600 text-sm mt-1 flex items-center">
+                      <Wallet className="h-3 w-3 mr-1" />
+                      Managed accounts
                     </p>
                   </div>
                   <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
@@ -97,13 +100,33 @@ export default function Dashboard() {
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-slate-600 text-sm font-medium">Total Portfolio Value</p>
+                    <p className="text-slate-600 text-sm font-medium">Draft Progress</p>
+                    <p className="text-3xl font-bold text-slate-800">
+                      {statsLoading ? "..." : stats?.draftStats?.totalDrafts || 0}
+                    </p>
+                    <p className="text-amber-600 text-sm mt-1 flex items-center">
+                      <FileEdit className="h-3 w-3 mr-1" />
+                      In progress
+                    </p>
+                  </div>
+                  <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center">
+                    <FileEdit className="h-6 w-6 text-amber-600" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-slate-600 text-sm font-medium">Portfolio Value</p>
                     <p className="text-3xl font-bold text-slate-800">
                       ${statsLoading ? "..." : (Number(stats?.totalPortfolioValue || 0) / 1000000).toFixed(1)}M
                     </p>
-                    <p className="text-emerald-600 text-sm mt-1 flex items-center">
-                      <ArrowUp className="h-3 w-3 mr-1" />
-                      +15% from last month
+                    <p className="text-purple-600 text-sm mt-1 flex items-center">
+                      <TrendingUp className="h-3 w-3 mr-1" />
+                      Assets under mgmt
                     </p>
                   </div>
                   <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
@@ -117,32 +140,142 @@ export default function Dashboard() {
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-slate-600 text-sm font-medium">Data Updates Today</p>
+                    <p className="text-slate-600 text-sm font-medium">Today's Activity</p>
                     <p className="text-3xl font-bold text-slate-800">
                       {statsLoading ? "..." : stats?.todayUpdates || 0}
                     </p>
                     <p className="text-slate-600 text-sm mt-1 flex items-center">
-                      <Clock className="h-3 w-3 mr-1" />
-                      Last update 2 min ago
+                      <Activity className="h-3 w-3 mr-1" />
+                      Data updates
                     </p>
                   </div>
-                  <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center">
-                    <Clock className="h-6 w-6 text-amber-600" />
+                  <div className="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center">
+                    <Activity className="h-6 w-6 text-slate-600" />
                   </div>
                 </div>
               </CardContent>
             </Card>
           </div>
           
-          {/* Charts and Recent Activity */}
+          {/* Business Metrics Charts */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <PieChartIcon className="h-5 w-5" />
+                  Account Types
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-64">
+                  {statsLoading ? (
+                    <div className="h-full bg-slate-50 rounded-lg flex items-center justify-center">
+                      <p className="text-slate-500">Loading...</p>
+                    </div>
+                  ) : (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={stats?.accountTypeBreakdown || []}
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={80}
+                          fill="#8884d8"
+                          dataKey="count"
+                          label={({ accountType, count }) => `${accountType}: ${count}`}
+                        >
+                          {(stats?.accountTypeBreakdown || []).map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'][index % 5]} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart3 className="h-5 w-5" />
+                  Program Types
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-64">
+                  {statsLoading ? (
+                    <div className="h-full bg-slate-50 rounded-lg flex items-center justify-center">
+                      <p className="text-slate-500">Loading...</p>
+                    </div>
+                  ) : (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={stats?.programTypeBreakdown || []}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="programType" />
+                        <YAxis />
+                        <Tooltip />
+                        <Bar dataKey="count" fill="#10b981" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle>Account Status</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {statsLoading ? (
+                    <p className="text-slate-500">Loading...</p>
+                  ) : (
+                    (stats?.accountStatusBreakdown || []).map((status, index) => (
+                      <div key={index} className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Badge 
+                            variant={status.status === 'active' ? 'default' : status.status === 'pending' ? 'secondary' : 'destructive'}
+                          >
+                            {status.status}
+                          </Badge>
+                        </div>
+                        <span className="font-medium">{status.count}</span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+          
+          {/* Additional Business Insights */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
             <Card>
               <CardHeader>
-                <CardTitle>Account Growth</CardTitle>
+                <CardTitle>Registration Types</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="h-64 bg-slate-50 rounded-lg flex items-center justify-center">
-                  <p className="text-slate-500">Chart visualization area</p>
+                <div className="space-y-3">
+                  {statsLoading ? (
+                    <p className="text-slate-500">Loading...</p>
+                  ) : (
+                    (stats?.registrationTypeBreakdown || []).map((reg, index) => {
+                      const total = stats?.activeAccounts || 1;
+                      const percentage = Math.round((reg.count / total) * 100);
+                      return (
+                        <div key={index} className="space-y-2">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="font-medium">{reg.registrationType}</span>
+                            <span className="text-slate-600">{reg.count} ({percentage}%)</span>
+                          </div>
+                          <Progress value={percentage} className="h-2" />
+                        </div>
+                      );
+                    })
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -180,6 +313,54 @@ export default function Dashboard() {
               </CardContent>
             </Card>
           </div>
+          
+          {/* Draft Management Overview */}
+          {!statsLoading && stats?.draftStats && (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Draft Onboarding</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between">
+                    <span className="text-2xl font-bold">{stats.draftStats.draftOnboarding}</span>
+                    <Badge variant="outline">In Progress</Badge>
+                  </div>
+                  <p className="text-sm text-slate-600 mt-2">Client applications in progress</p>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle>Draft Accounts</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between">
+                    <span className="text-2xl font-bold">{stats.draftStats.draftAccounts}</span>
+                    <Badge variant="outline">Pending</Badge>
+                  </div>
+                  <p className="text-sm text-slate-600 mt-2">Account applications being prepared</p>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle>Completion Rate</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between">
+                    <span className="text-2xl font-bold">
+                      {stats.totalClients > 0 
+                        ? Math.round((stats.totalClients / (stats.totalClients + stats.draftStats.totalDrafts)) * 100)
+                        : 0}%
+                    </span>
+                    <Badge variant="default">Metric</Badge>
+                  </div>
+                  <p className="text-sm text-slate-600 mt-2">Draft to client conversion rate</p>
+                </CardContent>
+              </Card>
+            </div>
+          )}
         </div>
       </div>
     </div>

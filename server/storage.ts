@@ -670,22 +670,83 @@ export class DatabaseStorage implements IStorage {
     activeAccounts: number;
     totalPortfolioValue: string;
     todayUpdates: number;
+    accountTypeBreakdown: { accountType: string; count: number }[];
+    programTypeBreakdown: { programType: string; count: number }[];
+    accountStatusBreakdown: { status: string; count: number }[];
+    registrationTypeBreakdown: { registrationType: string; count: number }[];
+    draftStats: { totalDrafts: number; draftOnboarding: number; draftAccounts: number };
   }> {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const [clientCount, accountCount, portfolioValue, todayUpdates] = await Promise.all([
+    const [
+      clientCount, 
+      accountCount, 
+      portfolioValue, 
+      todayUpdates,
+      accountTypeBreakdown,
+      programTypeBreakdown,
+      accountStatusBreakdown,
+      registrationTypeBreakdown,
+      draftOnboardingCount,
+      draftAccountsCount
+    ] = await Promise.all([
       db.select({ count: sql<number>`count(*)` }).from(clients),
       db.select({ count: sql<number>`count(*)` }).from(accounts).where(eq(accounts.status, 'active')),
       db.select({ total: sql<string>`'$0'` }).from(accounts).where(eq(accounts.status, 'active')).limit(1),
-      db.select({ count: sql<number>`count(*)` }).from(auditLogs).where(sql`created_at >= ${today}`)
+      db.select({ count: sql<number>`count(*)` }).from(auditLogs).where(sql`created_at >= ${today}`),
+      
+      // Business metrics queries
+      db.select({ 
+        accountType: accounts.accountType, 
+        count: sql<number>`count(*)` 
+      }).from(accounts).groupBy(accounts.accountType),
+      
+      db.select({ 
+        programType: accounts.programType, 
+        count: sql<number>`count(*)` 
+      }).from(accounts).groupBy(accounts.programType),
+      
+      db.select({ 
+        status: accounts.status, 
+        count: sql<number>`count(*)` 
+      }).from(accounts).groupBy(accounts.status),
+      
+      db.select({ 
+        registrationType: accounts.registrationType, 
+        count: sql<number>`count(*)` 
+      }).from(accounts).groupBy(accounts.registrationType),
+      
+      db.select({ count: sql<number>`count(*)` }).from(draftOnboarding),
+      db.select({ count: sql<number>`count(*)` }).from(draftAccounts)
     ]);
 
     return {
       totalClients: clientCount[0].count,
       activeAccounts: accountCount[0].count,
       totalPortfolioValue: portfolioValue[0].total,
-      todayUpdates: todayUpdates[0].count
+      todayUpdates: todayUpdates[0].count,
+      accountTypeBreakdown: accountTypeBreakdown.map(item => ({
+        accountType: item.accountType || 'Unknown',
+        count: item.count
+      })),
+      programTypeBreakdown: programTypeBreakdown.map(item => ({
+        programType: item.programType || 'Unknown',
+        count: item.count
+      })),
+      accountStatusBreakdown: accountStatusBreakdown.map(item => ({
+        status: item.status || 'Unknown',
+        count: item.count
+      })),
+      registrationTypeBreakdown: registrationTypeBreakdown.slice(0, 5).map(item => ({
+        registrationType: item.registrationType || 'Unknown',
+        count: item.count
+      })),
+      draftStats: {
+        totalDrafts: draftOnboardingCount[0].count + draftAccountsCount[0].count,
+        draftOnboarding: draftOnboardingCount[0].count,
+        draftAccounts: draftAccountsCount[0].count
+      }
     };
   }
 

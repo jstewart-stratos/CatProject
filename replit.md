@@ -132,6 +132,43 @@ DataFlow is a full-stack client data management system built with React, Express
 
 Preferred communication style: Simple, everyday language.
 
+## Dashboard Enhancement Recommendations
+
+### Business Metrics (Priority 1 - In Progress)
+- Account Type Breakdown: Show distribution of Individual vs Joint vs IRA accounts
+- Program Type Analytics: Brokerage vs Advisory vs Direct Business distribution
+- Account Status Pipeline: Active, Pending, Suspended, Closed accounts
+- Registration Type Insights: Most common registration types across portfolios
+
+### Onboarding & Draft Management (Priority 2)
+- Draft Progress Overview: Show incomplete onboarding drafts and their completion percentages
+- Today's Onboarding Activity: New clients completed, drafts saved, accounts opened
+- Conversion Rate: Draft-to-client conversion metrics
+- Group Collaboration Stats: Show shared drafts and team collaboration metrics
+
+### Client Portfolio Intelligence (Priority 3)
+- Investment Objective Distribution: Growth vs Income vs Trading vs Conservative
+- Age Demographics: Client age ranges and retirement planning insights
+- Geographic Distribution: Client locations by state/region
+- Risk Profile Analysis: Conservative vs Aggressive investment preferences
+
+### Account Value & Performance (Priority 4)
+- Total Assets Under Management: Real portfolio values from account data
+- Average Account Size: By account type and program type
+- Growth Trends: New account openings over time
+- Revenue Potential: Estimated fees based on account types and values
+
+### Workflow & Productivity (Priority 5)
+- Recent Client Actions: Latest client additions, account openings, profile updates
+- Team Activity: Who's been most active in client management
+- Pending Tasks: Incomplete applications, missing documentation
+- Group Performance: How different groups are performing in client acquisition
+
+### Compliance & Risk (Priority 6)
+- Documentation Status: Clients with missing trusted contacts, incomplete suitability
+- Account Requirements: IRA beneficiaries, power of attorney completeness
+- Audit Trail Summary: Recent compliance-related changes
+
 ## Recent Changes
 
 - **June 26, 2025**: Completed critical group-based draft sharing functionality and fixed draft naming issues
