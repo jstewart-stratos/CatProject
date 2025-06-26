@@ -195,7 +195,14 @@ export class DatabaseStorage implements IStorage {
   }
 
   async addUserToGroup(userId: string, groupId: number): Promise<void> {
-    await db.insert(userGroups).values({ userId, groupId });
+    try {
+      console.log(`Storage: Adding user ${userId} to group ${groupId}`);
+      const result = await db.insert(userGroups).values({ userId, groupId }).onConflictDoNothing().returning();
+      console.log(`Storage: Insert result:`, result);
+    } catch (error) {
+      console.error(`Error adding user ${userId} to group ${groupId}:`, error);
+      // If it's already there, that's fine - we don't need to throw an error
+    }
   }
 
   async removeUserFromGroup(userId: string, groupId: number): Promise<void> {

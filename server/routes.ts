@@ -227,6 +227,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/users/bulk-group-assignment', isAuthenticated, checkPermission(['manage_users']), async (req, res) => {
     try {
       const { userIds, groupId } = req.body;
+      console.log('Bulk assignment request:', { userIds, groupId });
       
       if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
         return res.status(400).json({ message: "User IDs array is required" });
@@ -238,9 +239,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Add each user to the specified group
       for (const userId of userIds) {
+        console.log(`Adding user ${userId} to group ${groupId}`);
         await storage.addUserToGroup(userId, parseInt(groupId));
       }
 
+      console.log('Bulk assignment completed successfully');
       res.json({ message: "Users successfully assigned to group" });
     } catch (error) {
       console.error("Error in bulk group assignment:", error);
