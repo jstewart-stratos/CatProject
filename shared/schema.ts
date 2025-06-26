@@ -210,10 +210,10 @@ export const accounts = pgTable("accounts", {
   newTradingAuthorizationType: varchar("new_trading_authorization_type"), // Limited, Full
   
   // Trading Options
-  addFullDiscretionaryTrading: varchar("add_full_discretionary_trading"), // No, Yes
-  addStructuredProductTrading: varchar("add_structured_product_trading"), // No, Yes
-  tradeComplexETPs: varchar("trade_complex_etps"), // No, Yes
-  addOptionsTrading: varchar("add_options_trading"), // No, Yes
+  addFullDiscretionaryTrading: boolean("add_full_discretionary_trading").default(false),
+  addStructuredProductTrading: boolean("add_structured_product_trading").default(false),
+  tradeComplexETPs: boolean("trade_complex_etps").default(false),
+  addOptionsTrading: boolean("add_options_trading").default(false),
   
   // Direct/Outside Business Accounts (JSON array)
   directOutsideBusinessAccounts: jsonb("direct_outside_business_accounts").$type<{
@@ -553,8 +553,8 @@ export const plan529Checklist = pgTable("plan_529_checklist", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-export type InsertAdditionalHolder = typeof additionalHolders.$inferInsert;
-export type AdditionalHolder = typeof additionalHolders.$inferSelect;
+export type InsertAdditionalHolder = typeof additionalAccountHolders.$inferInsert;
+export type AdditionalHolder = typeof additionalAccountHolders.$inferSelect;
 export type InsertTradingAuthority = typeof tradingAuthority.$inferInsert;
 export type TradingAuthority = typeof tradingAuthority.$inferSelect;
 export type InsertPowerOfAttorney = typeof powerOfAttorney.$inferInsert;

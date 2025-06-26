@@ -424,8 +424,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/accounts', isAuthenticated, async (req: any, res) => {
     try {
+      // Transform string boolean values to actual booleans
+      const transformedBody = { ...req.body };
+      
+      // List of boolean fields that might come as strings
+      const booleanFields = [
+        'wantCheckwriting', 'wantDebitCard', 'grantTradingAuthority', 
+        'grantPowerOfAttorney', 'addFullDiscretionaryTrading', 
+        'addStructuredProductTrading', 'tradeComplexETPs', 'addOptionsTrading'
+      ];
+      
+      booleanFields.forEach(field => {
+        if (transformedBody[field] === 'Yes') {
+          transformedBody[field] = true;
+        } else if (transformedBody[field] === 'No') {
+          transformedBody[field] = false;
+        } else if (transformedBody[field] === 'true' || transformedBody[field] === true) {
+          transformedBody[field] = true;
+        } else if (transformedBody[field] === 'false' || transformedBody[field] === false) {
+          transformedBody[field] = false;
+        }
+      });
+      
       const accountData = insertAccountSchema.parse({
-        ...req.body,
+        ...transformedBody,
         createdBy: req.user.claims.sub
       });
       const account = await storage.createAccount(accountData);
