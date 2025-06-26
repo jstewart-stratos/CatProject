@@ -66,9 +66,13 @@ export default function Groups() {
   // Delete group mutation
   const deleteGroupMutation = useMutation({
     mutationFn: async (groupId: number) => {
-      await apiRequest(`/api/groups/${groupId}`, "DELETE");
+      console.log("Attempting to delete group:", groupId);
+      const response = await apiRequest(`/api/groups/${groupId}`, "DELETE");
+      console.log("Delete response:", response);
+      return response;
     },
     onSuccess: () => {
+      console.log("Group deleted successfully");
       queryClient.invalidateQueries({ queryKey: ["/api/groups"] });
       toast({
         title: "Success!",
@@ -76,9 +80,10 @@ export default function Groups() {
       });
     },
     onError: (error) => {
+      console.error("Error deleting group:", error);
       toast({
         title: "Error",
-        description: "Failed to delete group.",
+        description: `Failed to delete group: ${error.message}`,
         variant: "destructive",
       });
     },
