@@ -9,14 +9,16 @@ import GroupModal from "@/components/modals/group-modal";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Edit, Trash2, Users, ChevronDown, ChevronRight } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Plus, Edit, Trash2, Users } from "lucide-react";
 
 export default function Groups() {
   const { toast } = useToast();
   const { isAuthenticated, isLoading } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState<any>(null);
-  const [expandedGroup, setExpandedGroup] = useState<number | null>(null);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [selectedGroupForDetails, setSelectedGroupForDetails] = useState<any>(null);
   const [groupMembers, setGroupMembers] = useState<{ [key: number]: any[] }>({});
 
   // Redirect to home if not authenticated
@@ -90,16 +92,18 @@ export default function Groups() {
     });
   };
 
-  const toggleGroupExpansion = (groupId: number) => {
-    if (expandedGroup === groupId) {
-      setExpandedGroup(null);
-    } else {
-      setExpandedGroup(groupId);
-      // Fetch members if not already loaded
-      if (!groupMembers[groupId]) {
-        fetchGroupMembers(groupId);
-      }
+  const openDetailsModal = (group: any) => {
+    setSelectedGroupForDetails(group);
+    setIsDetailsModalOpen(true);
+    // Fetch members if not already loaded
+    if (!groupMembers[group.id]) {
+      fetchGroupMembers(group.id);
     }
+  };
+
+  const closeDetailsModal = () => {
+    setSelectedGroupForDetails(null);
+    setIsDetailsModalOpen(false);
   };
 
   const handleDeleteGroup = (groupId: number) => {
@@ -129,104 +133,52 @@ export default function Groups() {
               </div>
             ) : groups?.length > 0 ? (
               groups.map((group: any) => {
-                const isExpanded = expandedGroup === group.id;
                 const members = groupMembers[group.id] || [];
                 const memberCount = members.length;
                 
                 return (
-                  <div key={group.id} className={`${isExpanded ? 'col-span-full' : ''}`}>
-                    <Card className="overflow-hidden h-full">
-                      {/* Main Group Info - Always Visible */}
-                      <CardContent 
-                        className="p-6 cursor-pointer hover:bg-slate-50 transition-colors h-full flex flex-col"
-                        onClick={() => toggleGroupExpansion(group.id)}
-                      >
-                        <div className="flex items-start justify-between mb-4">
-                          <div className="flex items-center space-x-2">
-                            {isExpanded ? (
-                              <ChevronDown className="h-5 w-5 text-slate-400" />
-                            ) : (
-                              <ChevronRight className="h-5 w-5 text-slate-400" />
-                            )}
-                            <h3 className="text-lg font-semibold text-slate-900">{group.name}</h3>
-                          </div>
+                  <Card key={group.id} className="h-full">
+                    <CardContent className="p-6 h-full flex flex-col">
+                      <div className="flex items-start justify-between mb-4">
+                        <h3 className="text-lg font-semibold text-slate-900">{group.name}</h3>
+                        <div className="flex items-center space-x-1">
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => openDetailsModal(group)}
+                            className="text-slate-400 hover:text-slate-600"
+                          >
+                            <Users className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => openModal(group)}
+                            className="text-slate-400 hover:text-slate-600"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => handleDeleteGroup(group.id)}
+                            className="text-slate-400 hover:text-red-600"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
-                        
-                        <p className="text-sm text-slate-600 mb-4 flex-1">
-                          {group.description || 'No description provided'}
-                        </p>
-                        
-                        <div className="flex items-center text-sm text-slate-500 mt-auto">
-                          <Users className="h-4 w-4 mr-1" />
-                          {memberCount} {memberCount === 1 ? 'member' : 'members'}
-                        </div>
-                      </CardContent>
+                      </div>
                       
-                      {/* Expanded Details - Only When Expanded */}
-                      {isExpanded && (
-                        <div className="border-t bg-slate-50">
-                          <CardContent className="p-6">
-                            <div className="space-y-4">
-                              {/* Members Section */}
-                              <div>
-                                <h4 className="text-sm font-medium text-slate-700 mb-3">Group Members</h4>
-                                {members.length > 0 ? (
-                                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                                    {members.map((member: any) => (
-                                      <div key={member.id} className="flex items-center space-x-3 p-3 bg-white rounded-lg border">
-                                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                                          <span className="text-blue-600 font-medium text-xs">
-                                            {((member.firstName || '')[0] || '') + ((member.lastName || '')[0] || '')}
-                                          </span>
-                                        </div>
-                                        <div>
-                                          <p className="text-sm font-medium text-slate-900">
-                                            {(member.firstName || '')} {(member.lastName || '')}
-                                          </p>
-                                          <p className="text-xs text-slate-500">
-                                            @{member.username || 'unknown'} • {member.role || 'user'}
-                                          </p>
-                                        </div>
-                                      </div>
-                                    ))}
-                                  </div>
-                                ) : (
-                                  <p className="text-sm text-slate-500 italic">No members in this group</p>
-                                )}
-                              </div>
-                              
-                              {/* Actions */}
-                              <div className="flex items-center space-x-3 pt-4 border-t">
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    openModal(group);
-                                  }}
-                                >
-                                  <Edit className="h-4 w-4 mr-2" />
-                                  Edit Group
-                                </Button>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleDeleteGroup(group.id);
-                                  }}
-                                  className="text-red-600 hover:text-red-700 hover:border-red-300"
-                                >
-                                  <Trash2 className="h-4 w-4 mr-2" />
-                                  Delete
-                                </Button>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </div>
-                      )}
-                    </Card>
-                  </div>
+                      <p className="text-sm text-slate-600 mb-4 flex-1">
+                        {group.description || 'No description provided'}
+                      </p>
+                      
+                      <div className="flex items-center text-sm text-slate-500 mt-auto">
+                        <Users className="h-4 w-4 mr-1" />
+                        {memberCount} {memberCount === 1 ? 'member' : 'members'}
+                      </div>
+                    </CardContent>
+                  </Card>
                 );
               })
             ) : (
@@ -260,6 +212,92 @@ export default function Groups() {
         group={selectedGroup}
         onSuccess={handleModalSuccess}
       />
+
+      {/* Group Details Modal */}
+      <Dialog open={isDetailsModalOpen} onOpenChange={closeDetailsModal}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center space-x-2">
+              <Users className="h-5 w-5" />
+              <span>{selectedGroupForDetails?.name}</span>
+            </DialogTitle>
+          </DialogHeader>
+          
+          {selectedGroupForDetails && (
+            <div className="space-y-6">
+              {/* Group Info */}
+              <div>
+                <h4 className="text-sm font-medium text-slate-700 mb-2">Description</h4>
+                <p className="text-sm text-slate-600">
+                  {selectedGroupForDetails.description || 'No description provided'}
+                </p>
+              </div>
+
+              {/* Members */}
+              <div>
+                <h4 className="text-sm font-medium text-slate-700 mb-3">
+                  Group Members ({(groupMembers[selectedGroupForDetails.id] || []).length})
+                </h4>
+                {(groupMembers[selectedGroupForDetails.id] || []).length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {(groupMembers[selectedGroupForDetails.id] || []).map((member: any) => (
+                      <div key={member.id} className="flex items-center space-x-3 p-3 bg-slate-50 rounded-lg border">
+                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                          <span className="text-blue-600 font-medium text-sm">
+                            {((member.firstName || '')[0] || '') + ((member.lastName || '')[0] || '')}
+                          </span>
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-slate-900">
+                            {(member.firstName || '')} {(member.lastName || '')}
+                          </p>
+                          <p className="text-xs text-slate-500">
+                            @{member.username || 'unknown'} • {member.role || 'user'}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-slate-500 italic bg-slate-50 rounded-lg p-4 text-center">
+                    No members in this group
+                  </p>
+                )}
+              </div>
+
+              {/* Actions */}
+              <div className="flex items-center justify-between pt-4 border-t">
+                <div className="flex items-center space-x-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      closeDetailsModal();
+                      openModal(selectedGroupForDetails);
+                    }}
+                  >
+                    <Edit className="h-4 w-4 mr-2" />
+                    Edit Group
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      closeDetailsModal();
+                      handleDeleteGroup(selectedGroupForDetails.id);
+                    }}
+                    className="text-red-600 hover:text-red-700 hover:border-red-300"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete
+                  </Button>
+                </div>
+                <Button variant="ghost" onClick={closeDetailsModal}>
+                  Close
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
