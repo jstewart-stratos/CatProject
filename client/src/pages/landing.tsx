@@ -15,7 +15,7 @@ export default function Landing() {
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: { username: string; password: string }) => {
-      return await apiRequest('/api/auth/login', 'POST', credentials);
+      return await apiRequest('POST', '/api/auth/login', credentials);
     },
     onSuccess: (data) => {
       // Invalidate auth query to trigger re-fetch and authentication
