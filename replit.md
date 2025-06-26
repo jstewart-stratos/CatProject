@@ -134,6 +134,12 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **June 26, 2025**: Simplified group management and updated user editing interface
+  - ✅ **Simplified group creation form**: Removed complex permissions, focus purely on data sharing between team members
+  - ✅ **Updated user editing interface**: When editing users, group membership now shows as read-only badges instead of editable checkboxes
+  - ✅ **Clear separation of concerns**: Group membership is managed through Group Management page, user editing is for personal details only
+  - ✅ **Better user experience**: Clear messaging that groups are for data sharing, not permission management
+  - ✅ **New user creation still allows group assignment**: When creating new users, admins can optionally assign them to groups during creation
 - **June 26, 2025**: Successfully implemented and tested simplified group-based data filtering system
   - ✅ **Unified group filtering logic**: Admins see all data, other users see data from their group members only
   - ✅ **Client data filtering**: Non-admin users only see clients created by members of their groups

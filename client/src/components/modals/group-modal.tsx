@@ -23,9 +23,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { X } from "lucide-react";
+import { X, Plus, Search } from "lucide-react";
 
 const groupFormSchema = z.object({
   name: z.string().min(1, "Group name is required"),
@@ -45,6 +44,9 @@ export default function GroupModal({ isOpen, onClose, group, onSuccess }: GroupM
   const { toast } = useToast();
   const isEditing = !!group;
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showUserSearch, setShowUserSearch] = useState(false);
+  const [groupMembers, setGroupMembers] = useState<any[]>([]);
 
   // Fetch available users
   const { data: users = [] } = useQuery({
@@ -77,25 +79,47 @@ export default function GroupModal({ isOpen, onClose, group, onSuccess }: GroupM
         description: "",
       });
       setSelectedUsers([]);
+      setGroupMembers([]);
     }
+    setSearchTerm("");
+    setShowUserSearch(false);
   }, [group, form]);
 
   const fetchGroupMembers = async (groupId: string) => {
     try {
       const response = await apiRequest("GET", `/api/groups/${groupId}/members`);
-      setSelectedUsers(response.map((member: any) => member.userId));
+      const members = response.map((member: any) => member.userId);
+      setSelectedUsers(members);
+      
+      // Get full user details for current members
+      const memberDetails = users?.filter((user: any) => members.includes(user.id)) || [];
+      setGroupMembers(memberDetails);
     } catch (error) {
       console.error("Error fetching group members:", error);
     }
   };
 
-  const handleUserSelection = (userId: string, checked: boolean) => {
-    if (checked) {
-      setSelectedUsers([...selectedUsers, userId]);
-    } else {
-      setSelectedUsers(selectedUsers.filter(id => id !== userId));
+  const addUserToGroup = (user: any) => {
+    if (!selectedUsers.includes(user.id)) {
+      setSelectedUsers([...selectedUsers, user.id]);
+      setGroupMembers([...groupMembers, user]);
     }
+    setSearchTerm("");
+    setShowUserSearch(false);
   };
+
+  const removeUserFromGroup = (userId: string) => {
+    setSelectedUsers(selectedUsers.filter(id => id !== userId));
+    setGroupMembers(groupMembers.filter(member => member.id !== userId));
+  };
+
+  // Filter users for search (exclude current members)
+  const availableUsers = users?.filter((user: any) => 
+    !selectedUsers.includes(user.id) &&
+    (user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+     user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+     user.username.toLowerCase().includes(searchTerm.toLowerCase()))
+  ) || [];
 
   const mutation = useMutation({
     mutationFn: async (data: GroupFormData) => {
@@ -201,52 +225,86 @@ export default function GroupModal({ isOpen, onClose, group, onSuccess }: GroupM
             <div>
               <FormLabel className="text-base">Group Members</FormLabel>
               <p className="text-sm text-muted-foreground mb-4">
-                Select users who will be able to share and view each other's client and account data
+                Users who can share and view each other's client and account data
               </p>
               
-              <div className="grid grid-cols-1 gap-3 max-h-64 overflow-y-auto border rounded-md p-3">
-                {users?.map((user: any) => (
-                  <div key={user.id} className="flex items-center space-x-3">
-                    <Checkbox
-                      id={user.id}
-                      checked={selectedUsers.includes(user.id)}
-                      onCheckedChange={(checked) => 
-                        handleUserSelection(user.id, checked as boolean)
-                      }
-                    />
-                    <label 
-                      htmlFor={user.id}
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex-1"
-                    >
-                      {user.firstName} {user.lastName} ({user.username}) - {user.role}
-                    </label>
-                  </div>
-                ))}
-              </div>
-
-              {selectedUsers.length > 0 && (
-                <div className="mt-4">
-                  <p className="text-sm text-muted-foreground mb-2">Selected members ({selectedUsers.length}):</p>
+              {/* Current Members */}
+              {groupMembers.length > 0 && (
+                <div className="mb-4">
+                  <p className="text-sm font-medium mb-2">Current Members ({groupMembers.length}):</p>
                   <div className="flex flex-wrap gap-2">
-                    {selectedUsers.map((userId) => {
-                      const user = users?.find((u: any) => u.id === userId);
-                      return user ? (
-                        <Badge 
-                          key={userId} 
-                          variant="secondary" 
-                          className="flex items-center gap-1"
-                        >
-                          {user.firstName} {user.lastName}
-                          <X 
-                            className="h-3 w-3 cursor-pointer" 
-                            onClick={() => handleUserSelection(userId, false)}
-                          />
-                        </Badge>
-                      ) : null;
-                    })}
+                    {groupMembers.map((member) => (
+                      <Badge 
+                        key={member.id} 
+                        variant="secondary" 
+                        className="flex items-center gap-1"
+                      >
+                        {member.firstName} {member.lastName}
+                        <X 
+                          className="h-3 w-3 cursor-pointer hover:text-destructive" 
+                          onClick={() => removeUserFromGroup(member.id)}
+                        />
+                      </Badge>
+                    ))}
                   </div>
                 </div>
               )}
+              
+              {/* Add New Members */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setShowUserSearch(!showUserSearch)}
+                    className="flex items-center gap-2"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Add Member
+                  </Button>
+                </div>
+                
+                {showUserSearch && (
+                  <div className="space-y-3">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Search users by name or username..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+                    
+                    {searchTerm && availableUsers.length > 0 && (
+                      <div className="border rounded-md max-h-48 overflow-y-auto">
+                        {availableUsers.slice(0, 10).map((user: any) => (
+                          <div 
+                            key={user.id}
+                            className="flex items-center justify-between p-3 hover:bg-muted cursor-pointer border-b last:border-b-0"
+                            onClick={() => addUserToGroup(user)}
+                          >
+                            <div>
+                              <p className="font-medium">{user.firstName} {user.lastName}</p>
+                              <p className="text-sm text-muted-foreground">
+                                @{user.username} • {user.role}
+                              </p>
+                            </div>
+                            <Plus className="h-4 w-4 text-muted-foreground" />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    
+                    {searchTerm && availableUsers.length === 0 && (
+                      <p className="text-sm text-muted-foreground text-center py-4">
+                        No users found matching "{searchTerm}"
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="flex justify-end space-x-2">

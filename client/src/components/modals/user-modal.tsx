@@ -25,6 +25,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
 
 const userFormSchema = z.object({
@@ -244,63 +245,92 @@ export default function UserModal({ isOpen, onClose, user, onSuccess }: UserModa
               )}
             />
 
-            {/* Group Selection */}
-            <FormField
-              control={form.control}
-              name="groupIds"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Groups *</FormLabel>
-                  <div className="grid grid-cols-1 gap-2 max-h-40 overflow-y-auto border rounded-md p-3">
-                    {groups.map((group: any) => {
-                      const isChecked = field.value?.includes(group.id) || false;
-                      const selectedRole = form.watch("role");
-                      const isStandardUser = selectedRole === "user";
-                      const currentSelections = field.value || [];
-                      const canSelect = !isStandardUser || currentSelections.length === 0;
-                      
-                      return (
-                        <div key={group.id} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={`group-${group.id}`}
-                            checked={isChecked}
-                            disabled={!canSelect && !isChecked}
-                            onCheckedChange={(checked) => {
-                              if (checked) {
-                                if (isStandardUser) {
-                                  // Standard users can only be in one group
-                                  field.onChange([group.id]);
+            {/* Group Membership (Read-only for editing) */}
+            {isEditing ? (
+              <div>
+                <FormLabel className="text-base">Group Membership</FormLabel>
+                <p className="text-sm text-muted-foreground mb-3">
+                  Groups this user belongs to (managed through Group Management)
+                </p>
+                <div className="border rounded-md p-3 bg-muted/20">
+                  {userGroups && userGroups.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {userGroups.map((group: any) => (
+                        <Badge key={group.id} variant="secondary">
+                          {group.name}
+                        </Badge>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">Not a member of any groups</p>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  To change group membership, use the Group Management page
+                </p>
+              </div>
+            ) : (
+              /* Group Selection for New Users */
+              <FormField
+                control={form.control}
+                name="groupIds"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Groups</FormLabel>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Assign the new user to groups for data sharing (optional)
+                    </p>
+                    <div className="grid grid-cols-1 gap-2 max-h-40 overflow-y-auto border rounded-md p-3">
+                      {groups.map((group: any) => {
+                        const isChecked = field.value?.includes(group.id) || false;
+                        const selectedRole = form.watch("role");
+                        const isStandardUser = selectedRole === "user";
+                        const currentSelections = field.value || [];
+                        const canSelect = !isStandardUser || currentSelections.length === 0;
+                        
+                        return (
+                          <div key={group.id} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`group-${group.id}`}
+                              checked={isChecked}
+                              disabled={!canSelect && !isChecked}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  if (isStandardUser) {
+                                    // Standard users can only be in one group
+                                    field.onChange([group.id]);
+                                  } else {
+                                    // Admin/Transition specialists can be in multiple groups
+                                    field.onChange([...currentSelections, group.id]);
+                                  }
                                 } else {
-                                  // Admin/Transition specialists can be in multiple groups
-                                  field.onChange([...currentSelections, group.id]);
+                                  field.onChange(currentSelections.filter((id: number) => id !== group.id));
                                 }
-                              } else {
-                                field.onChange(currentSelections.filter((id: number) => id !== group.id));
-                              }
-                            }}
-                          />
-                          <label 
-                            htmlFor={`group-${group.id}`} 
-                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                          >
-                            {group.name}
-                          </label>
-                        </div>
-                      );
-                    })}
-                    {groups.length === 0 && (
-                      <p className="text-sm text-muted-foreground">No groups available</p>
-                    )}
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    {form.watch("role") === "user" 
-                      ? "Standard users can only be in one group" 
-                      : "Admin and Transition Specialists can be in multiple groups"}
-                  </p>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                              }}
+                            />
+                            <label 
+                              htmlFor={`group-${group.id}`} 
+                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                            >
+                              {group.name}
+                            </label>
+                          </div>
+                        );
+                      })}
+                      {groups.length === 0 && (
+                        <p className="text-sm text-muted-foreground">No groups available</p>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {form.watch("role") === "user" 
+                        ? "Standard users can only be in one group" 
+                        : "Admin and Transition Specialists can be in multiple groups"}
+                    </p>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
 
             <FormField
               control={form.control}
