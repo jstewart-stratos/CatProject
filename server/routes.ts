@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupAuth, isAuthenticated } from "./auth";
 import { 
   insertClientSchema, 
   insertAccountSchema, 
@@ -38,8 +38,7 @@ const upload = multer({
 const checkPermission = (requiredPermissions: string[]) => {
   return async (req: any, res: any, next: any) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      const user = req.user; // User is already attached by isAuthenticated middleware
       
       if (!user) {
         return res.status(401).json({ message: "User not found" });
@@ -100,7 +99,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           entityId: String(entityId),
           action,
           changes: req.body,
-          userId: req.user.claims.sub,
+          userId: req.user.id, // Use the user id directly
           ipAddress: req.ip,
           userAgent: req.get('User-Agent') || '',
         }).catch(console.error);
@@ -112,20 +111,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.use('/api', auditLog);
 
-  // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
-      res.json(user);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
-    }
-  });
+  // Auth routes (handled by setupAuth now)
 
   // Dashboard routes
   app.get('/api/dashboard/stats', isAuthenticated, async (req, res) => {
@@ -157,14 +143,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         email: z.string().email(),
         role: z.string(),
         isActive: z.boolean().default(true),
+        username: z.string().min(1, "Username is required"),
+        password: z.string().min(6, "Password must be at least 6 characters"),
         groupIds: z.array(z.number()).optional(),
       });
       const { groupIds, ...userData } = userCreateSchema.parse(req.body);
+      
+      // Hash the password before storing
+      const bcrypt = require('bcryptjs');
+      const hashedPassword = await bcrypt.hash(userData.password, 10);
       
       // For creating users via admin, we need to generate an ID
       const newUser = {
         id: `admin_created_${Date.now()}`,
         ...userData,
+        password: hashedPassword,
+        mustChangePassword: true, // Admin-created users must change password on first login
       };
       
       const user = await storage.upsertUser(newUser);

@@ -33,6 +33,8 @@ const userFormSchema = z.object({
   email: z.string().email("Invalid email address"),
   role: z.string().min(1, "Role is required"),
   isActive: z.boolean().default(true),
+  username: z.string().min(1, "Username is required"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
   groupIds: z.array(z.number()).optional(),
 });
 
@@ -67,6 +69,9 @@ export default function UserModal({ isOpen, onClose, user, onSuccess }: UserModa
       email: "",
       role: "user",
       isActive: true,
+      username: "",
+      password: "",
+      groupIds: [],
       ...user,
     },
   });
@@ -79,6 +84,8 @@ export default function UserModal({ isOpen, onClose, user, onSuccess }: UserModa
         email: user.email || "",
         role: user.role || "user",
         isActive: user.isActive !== undefined ? user.isActive : true,
+        username: user.username || "",
+        password: "", // Don't pre-fill password for editing
         groupIds: Array.isArray(userGroups) ? userGroups.map((g: any) => g.id) : [],
       });
     } else if (!user) {
@@ -88,6 +95,8 @@ export default function UserModal({ isOpen, onClose, user, onSuccess }: UserModa
         email: "",
         role: "user",
         isActive: true,
+        username: "",
+        password: "",
         groupIds: [],
       });
     }
@@ -181,6 +190,35 @@ export default function UserModal({ isOpen, onClose, user, onSuccess }: UserModa
                 </FormItem>
               )}
             />
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="username"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Username *</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password *</FormLabel>
+                    <FormControl>
+                      <Input type="password" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <FormField
               control={form.control}
