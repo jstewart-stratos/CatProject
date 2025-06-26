@@ -1475,34 +1475,34 @@ export default function AccountFormEnhanced() {
       <div className="flex-1 flex flex-col">
         <TopBar title="Create New Account" subtitle="Enhanced account creation form" />
         <main className="flex-1 overflow-auto p-4">
-          <div className="w-full space-y-4">
+          <div className="max-w-3xl space-y-3">
             {/* Header */}
             <div className="flex items-center justify-between">
-              <h1 className="text-2xl font-bold text-foreground">Create New Account</h1>
-              <div className="flex items-center gap-4">
+              <h1 className="text-xl font-bold text-foreground">Create New Account</h1>
+              <div className="flex items-center gap-2">
                 {clientId && (
-                  <Badge variant="outline">
+                  <Badge variant="outline" className="text-xs">
                     Client ID: {clientId}
                   </Badge>
                 )}
                 <Link href="/accounts">
-                  <Button variant="ghost" className="bg-muted text-muted-foreground hover:bg-accent">
-                    <ArrowLeft className="h-4 w-4 mr-2" />
-                    Back to Accounts
+                  <Button variant="ghost" size="sm" className="bg-muted text-muted-foreground hover:bg-accent">
+                    <ArrowLeft className="h-3 w-3 mr-1" />
+                    Back
                   </Button>
                 </Link>
               </div>
             </div>
 
-            <div className="bg-card shadow-lg rounded-lg overflow-hidden">
+            <div className="bg-card shadow rounded-lg overflow-hidden">
               {/* Top Navigation Steps */}
-              <div className="bg-muted border-b p-3">
-                <div className="flex flex-wrap gap-1">
+              <div className="bg-muted border-b p-2">
+                <div className="grid grid-cols-3 gap-1">
                   {navigationSections.map((section, index) => (
                     <button
                       key={section.id}
                       type="button"
-                      className={`px-2 py-1 text-xs rounded transition-colors ${
+                      className={`px-1 py-1 text-xs rounded transition-colors truncate ${
                         currentSection === section.id
                           ? 'bg-primary text-primary-foreground font-medium'
                           : completedSections.includes(section.id)
@@ -1510,18 +1510,19 @@ export default function AccountFormEnhanced() {
                           : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
                       }`}
                       onClick={() => setCurrentSection(section.id)}
+                      title={section.label}
                     >
                       <span className="mr-1">{index + 1}.</span>
-                      {section.label}
+                      <span className="truncate">{section.label}</span>
                     </button>
                   ))}
                 </div>
               </div>
 
               {/* Main Content */}
-              <div className="p-4 bg-background max-w-full overflow-x-auto">
+              <div className="p-3 bg-background">
                 <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-full">
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               {currentSection === 'accountInfo' && renderAccountInfoSection()}
               
               {currentSection === 'achInfo' && (
