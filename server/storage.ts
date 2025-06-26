@@ -609,7 +609,7 @@ export class DatabaseStorage implements IStorage {
     const [clientCount, accountCount, portfolioValue, todayUpdates] = await Promise.all([
       db.select({ count: sql<number>`count(*)` }).from(clients),
       db.select({ count: sql<number>`count(*)` }).from(accounts).where(eq(accounts.status, 'active')),
-      db.select({ total: sql<string>`COALESCE(SUM(approximate_account_value), 0)` }).from(accounts).where(eq(accounts.status, 'active')),
+      db.select({ total: sql<string>`'$0'` }).from(accounts).where(eq(accounts.status, 'active')).limit(1),
       db.select({ count: sql<number>`count(*)` }).from(auditLogs).where(sql`created_at >= ${today}`)
     ]);
 

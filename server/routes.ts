@@ -47,7 +47,7 @@ const checkPermission = (requiredPermissions: string[]) => {
       // Admin has access to everything
       if (user.role === 'admin') {
         req.userRole = user.role;
-        req.userGroups = await storage.getUserGroups(userId);
+        req.userGroups = await storage.getUserGroups(user.id);
         return next();
       }
 
@@ -72,7 +72,7 @@ const checkPermission = (requiredPermissions: string[]) => {
       }
 
       req.userRole = user.role;
-      req.userGroups = await storage.getUserGroups(userId);
+      req.userGroups = await storage.getUserGroups(user.id);
       next();
     } catch (error) {
       console.error("Permission check error:", error);
