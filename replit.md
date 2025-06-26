@@ -134,6 +134,15 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **June 26, 2025**: Successfully implemented bulk client delete functionality with comprehensive selection controls
+  - ✅ **Bulk delete interface**: Added checkboxes to each client row and "Select All" functionality in table header
+  - ✅ **Smart selection controls**: Individual client selection and bulk "Select All/Deselect All" operations
+  - ✅ **Delete Selected button**: Conditional button appears only when clients are selected for deletion
+  - ✅ **Confirmation dialog**: Safety confirmation asking user before bulk deletion with count display
+  - ✅ **Server-side bulk endpoint**: Fixed route ordering issue where `/api/clients/bulk` was conflicting with parameterized route
+  - ✅ **Efficient database operations**: Bulk delete processes multiple client deletions in single API call
+  - ✅ **Draft safety**: Draft clients excluded from bulk operations to prevent accidental deletion of work-in-progress
+  - ✅ **State management**: Proper Set-based state management for selected client IDs with automatic cleanup after deletion
 - **June 26, 2025**: Redesigned group interface with square cards and popup details modal
   - ✅ **Square card layout**: Groups now display in clean 3-column grid with compact square cards
   - ✅ **Card-based actions**: Edit, view details, and delete buttons integrated directly on each group card
