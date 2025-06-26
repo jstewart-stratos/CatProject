@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Edit, User, Building, DollarSign, Shield, Users, FileText, Settings } from "lucide-react";
+import { useLocation } from "wouter";
 
 interface AccountDetailsModalProps {
   account: any;
@@ -12,17 +13,36 @@ interface AccountDetailsModalProps {
 }
 
 export default function AccountDetailsModal({ account, isOpen, onClose, onEdit }: AccountDetailsModalProps) {
+  const [, setLocation] = useLocation();
+  
   if (!account) return null;
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | null | undefined) => {
     if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleDateString();
+    try {
+      return new Date(dateString).toLocaleDateString();
+    } catch (error) {
+      return 'N/A';
+    }
   };
 
   const formatCurrency = (value: any) => {
     if (!value) return 'N/A';
-    const numValue = typeof value === 'string' ? parseFloat(value) : value;
-    return isNaN(numValue) ? value : `$${numValue.toLocaleString()}`;
+    try {
+      const numValue = typeof value === 'string' ? parseFloat(value) : value;
+      return isNaN(numValue) ? value : `$${numValue.toLocaleString()}`;
+    } catch (error) {
+      return 'N/A';
+    }
+  };
+
+  // Safe access to nested client data
+  const clientData = account.client || {};
+  const clientName = `${clientData.firstName || ''} ${clientData.lastName || ''}`.trim() || 'N/A';
+
+  const handleEditAccount = () => {
+    onClose(); // Close the modal first
+    setLocation(`/account-form-enhanced?accountId=${account.id}`);
   };
 
   return (
@@ -30,9 +50,9 @@ export default function AccountDetailsModal({ account, isOpen, onClose, onEdit }
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
           <DialogTitle className="text-2xl font-bold text-slate-900">
-            Account Details - {account.client?.firstName} {account.client?.lastName}
+            Account Details - {clientName}
           </DialogTitle>
-          <Button onClick={() => onEdit(account)} className="ml-4">
+          <Button onClick={handleEditAccount} className="ml-4">
             <Edit className="h-4 w-4 mr-2" />
             Edit Account
           </Button>
@@ -92,17 +112,15 @@ export default function AccountDetailsModal({ account, isOpen, onClose, onEdit }
               </div>
               <div className="flex justify-between">
                 <span className="text-sm font-medium text-slate-600">Name:</span>
-                <span className="text-sm text-slate-900">
-                  {account.client?.firstName} {account.client?.lastName}
-                </span>
+                <span className="text-sm text-slate-900">{clientName}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-sm font-medium text-slate-600">Email:</span>
-                <span className="text-sm text-slate-900">{account.client?.email || 'N/A'}</span>
+                <span className="text-sm text-slate-900">{clientData.email || 'N/A'}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-sm font-medium text-slate-600">Phone:</span>
-                <span className="text-sm text-slate-900">{account.client?.homePhone || 'N/A'}</span>
+                <span className="text-sm text-slate-900">{clientData.homePhone || 'N/A'}</span>
               </div>
             </CardContent>
           </Card>
