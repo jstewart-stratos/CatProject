@@ -72,16 +72,16 @@ export default function UserModal({ isOpen, onClose, user, onSuccess }: UserModa
   });
 
   useEffect(() => {
-    if (user) {
+    if (user && userGroups) {
       form.reset({
         firstName: user.firstName || "",
         lastName: user.lastName || "",
         email: user.email || "",
         role: user.role || "user",
         isActive: user.isActive !== undefined ? user.isActive : true,
-        groupIds: userGroups.map((g: any) => g.id) || [],
+        groupIds: Array.isArray(userGroups) ? userGroups.map((g: any) => g.id) : [],
       });
-    } else {
+    } else if (!user) {
       form.reset({
         firstName: "",
         lastName: "",
@@ -91,7 +91,7 @@ export default function UserModal({ isOpen, onClose, user, onSuccess }: UserModa
         groupIds: [],
       });
     }
-  }, [user, form, userGroups]);
+  }, [user?.id, isOpen, form.reset]); // Only depend on user ID and modal open state
 
   const mutation = useMutation({
     mutationFn: async (data: UserFormData) => {
