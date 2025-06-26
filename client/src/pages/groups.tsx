@@ -122,9 +122,9 @@ export default function Groups() {
         />
         
         <div className="p-6">
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {groupsLoading ? (
-              <div className="text-center py-8">
+              <div className="col-span-full text-center py-8">
                 <p className="text-slate-500">Loading groups...</p>
               </div>
             ) : groups?.length > 0 ? (
@@ -134,118 +134,118 @@ export default function Groups() {
                 const memberCount = members.length;
                 
                 return (
-                  <Card key={group.id} className="overflow-hidden">
-                    {/* Main Group Info - Always Visible */}
-                    <CardContent 
-                      className="p-6 cursor-pointer hover:bg-slate-50 transition-colors"
-                      onClick={() => toggleGroupExpansion(group.id)}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-3">
-                            <div className="flex items-center space-x-2">
-                              {isExpanded ? (
-                                <ChevronDown className="h-5 w-5 text-slate-400" />
-                              ) : (
-                                <ChevronRight className="h-5 w-5 text-slate-400" />
-                              )}
-                              <h3 className="text-lg font-semibold text-slate-900">{group.name}</h3>
-                            </div>
-                          </div>
-                          <p className="text-sm text-slate-600 mt-1">
-                            {group.description || 'No description provided'}
-                          </p>
-                          <div className="flex items-center mt-2 text-sm text-slate-500">
-                            <Users className="h-4 w-4 mr-1" />
-                            {memberCount} {memberCount === 1 ? 'member' : 'members'}
+                  <div key={group.id} className={`${isExpanded ? 'col-span-full' : ''}`}>
+                    <Card className="overflow-hidden h-full">
+                      {/* Main Group Info - Always Visible */}
+                      <CardContent 
+                        className="p-6 cursor-pointer hover:bg-slate-50 transition-colors h-full flex flex-col"
+                        onClick={() => toggleGroupExpansion(group.id)}
+                      >
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex items-center space-x-2">
+                            {isExpanded ? (
+                              <ChevronDown className="h-5 w-5 text-slate-400" />
+                            ) : (
+                              <ChevronRight className="h-5 w-5 text-slate-400" />
+                            )}
+                            <h3 className="text-lg font-semibold text-slate-900">{group.name}</h3>
                           </div>
                         </div>
-                      </div>
-                    </CardContent>
-                    
-                    {/* Expanded Details - Only When Expanded */}
-                    {isExpanded && (
-                      <div className="border-t bg-slate-50">
-                        <CardContent className="p-6">
-                          <div className="space-y-4">
-                            {/* Members Section */}
-                            <div>
-                              <h4 className="text-sm font-medium text-slate-700 mb-3">Group Members</h4>
-                              {members.length > 0 ? (
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                  {members.map((member: any) => (
-                                    <div key={member.id} className="flex items-center space-x-3 p-3 bg-white rounded-lg border">
-                                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                                        <span className="text-blue-600 font-medium text-xs">
-                                          {((member.firstName || '')[0] || '') + ((member.lastName || '')[0] || '')}
-                                        </span>
+                        
+                        <p className="text-sm text-slate-600 mb-4 flex-1">
+                          {group.description || 'No description provided'}
+                        </p>
+                        
+                        <div className="flex items-center text-sm text-slate-500 mt-auto">
+                          <Users className="h-4 w-4 mr-1" />
+                          {memberCount} {memberCount === 1 ? 'member' : 'members'}
+                        </div>
+                      </CardContent>
+                      
+                      {/* Expanded Details - Only When Expanded */}
+                      {isExpanded && (
+                        <div className="border-t bg-slate-50">
+                          <CardContent className="p-6">
+                            <div className="space-y-4">
+                              {/* Members Section */}
+                              <div>
+                                <h4 className="text-sm font-medium text-slate-700 mb-3">Group Members</h4>
+                                {members.length > 0 ? (
+                                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                    {members.map((member: any) => (
+                                      <div key={member.id} className="flex items-center space-x-3 p-3 bg-white rounded-lg border">
+                                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                          <span className="text-blue-600 font-medium text-xs">
+                                            {((member.firstName || '')[0] || '') + ((member.lastName || '')[0] || '')}
+                                          </span>
+                                        </div>
+                                        <div>
+                                          <p className="text-sm font-medium text-slate-900">
+                                            {(member.firstName || '')} {(member.lastName || '')}
+                                          </p>
+                                          <p className="text-xs text-slate-500">
+                                            @{member.username || 'unknown'} • {member.role || 'user'}
+                                          </p>
+                                        </div>
                                       </div>
-                                      <div>
-                                        <p className="text-sm font-medium text-slate-900">
-                                          {(member.firstName || '')} {(member.lastName || '')}
-                                        </p>
-                                        <p className="text-xs text-slate-500">
-                                          @{member.username || 'unknown'} • {member.role || 'user'}
-                                        </p>
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
-                              ) : (
-                                <p className="text-sm text-slate-500 italic">No members in this group</p>
-                              )}
+                                    ))}
+                                  </div>
+                                ) : (
+                                  <p className="text-sm text-slate-500 italic">No members in this group</p>
+                                )}
+                              </div>
+                              
+                              {/* Actions */}
+                              <div className="flex items-center space-x-3 pt-4 border-t">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    openModal(group);
+                                  }}
+                                >
+                                  <Edit className="h-4 w-4 mr-2" />
+                                  Edit Group
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteGroup(group.id);
+                                  }}
+                                  className="text-red-600 hover:text-red-700 hover:border-red-300"
+                                >
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  Delete
+                                </Button>
+                              </div>
                             </div>
-                            
-                            {/* Actions */}
-                            <div className="flex items-center space-x-3 pt-4 border-t">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  openModal(group);
-                                }}
-                              >
-                                <Edit className="h-4 w-4 mr-2" />
-                                Edit Group
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDeleteGroup(group.id);
-                                }}
-                                className="text-red-600 hover:text-red-700 hover:border-red-300"
-                              >
-                                <Trash2 className="h-4 w-4 mr-2" />
-                                Delete
-                              </Button>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </div>
-                    )}
-                  </Card>
+                          </CardContent>
+                        </div>
+                      )}
+                    </Card>
+                  </div>
                 );
               })
             ) : (
-              <div className="text-center py-8">
+              <div className="col-span-full text-center py-8">
                 <p className="text-slate-500">No groups found</p>
               </div>
             )}
             
             {/* Add New Group Card */}
-            <Card className="border-2 border-dashed border-slate-300 hover:border-blue-400 transition-colors cursor-pointer">
+            <Card className="border-2 border-dashed border-slate-300 hover:border-blue-400 transition-colors cursor-pointer h-fit">
               <CardContent 
-                className="p-6 flex flex-col items-center justify-center"
+                className="p-6 flex flex-col items-center justify-center text-center"
                 onClick={() => openModal()}
               >
                 <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
                   <Plus className="h-6 w-6 text-blue-600" />
                 </div>
                 <h3 className="text-lg font-semibold mb-2">Create New Group</h3>
-                <p className="text-sm text-slate-600 text-center">
+                <p className="text-sm text-slate-600">
                   Organize users and share data efficiently
                 </p>
               </CardContent>
