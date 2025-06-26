@@ -134,6 +134,12 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **June 26, 2025**: Fixed client details page layout and accounts association issues
+  - ✅ **Resolved layout positioning**: Added proper margin-left (ml-64) to prevent content from being hidden behind the sidebar navigation
+  - ✅ **Fixed accounts association**: Added missing `/api/accounts/by-client/:clientId` API endpoint to properly fetch and display accounts for each client
+  - ✅ **Enhanced client details functionality**: Accounts now correctly appear in the client details view with full account information (ID, type, program, registration, status, creation date)
+  - ✅ **Improved responsive design**: Client details page now uses consistent layout pattern matching other pages in the application
+  - ✅ **Completed accounts integration**: Users can now view all associated accounts for any client from the client details page
 - **June 26, 2025**: Completed draft accounts functionality with proper visibility and validation
   - ✅ **Added Draft Accounts section to Account Management**: Draft accounts now display in a dedicated section below the main accounts table
   - ✅ **Implemented draft continuation workflow**: Users can click "Continue" to resume working on any saved draft
