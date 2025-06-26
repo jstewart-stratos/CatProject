@@ -435,17 +435,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/clients/:id', isAuthenticated, async (req, res) => {
-    try {
-      const { id } = req.params;
-      await storage.deleteClient(parseInt(id));
-      res.status(204).send();
-    } catch (error) {
-      console.error("Error deleting client:", error);
-      res.status(500).json({ message: "Failed to delete client" });
-    }
-  });
-
   app.delete('/api/clients/bulk', isAuthenticated, async (req, res) => {
     try {
       const { clientIds } = req.body;
@@ -462,6 +451,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error bulk deleting clients:", error);
       res.status(500).json({ message: "Failed to delete clients" });
+    }
+  });
+
+  app.delete('/api/clients/:id', isAuthenticated, async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteClient(parseInt(id));
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting client:", error);
+      res.status(500).json({ message: "Failed to delete client" });
     }
   });
 
