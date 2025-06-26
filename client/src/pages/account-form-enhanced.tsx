@@ -266,7 +266,7 @@ export default function AccountFormEnhanced() {
 
   // Load existing account data when editing
   useEffect(() => {
-    if (existingAccount && !specificDraft) {
+    if (existingAccount && !specificDraft && lists) {
       // Transform account data to match form structure
       const accountData = {
         clientId: existingAccount.clientId,
@@ -325,8 +325,12 @@ export default function AccountFormEnhanced() {
         directOutsideBusinessAccounts: existingAccount.directOutsideBusinessAccounts || [],
       };
 
-      // Reset form with account data
-      form.reset(accountData);
+      // Reset form with account data - use timeout to ensure proper synchronization
+      setTimeout(() => {
+        form.reset(accountData);
+        // Force re-validation to sync Select components
+        form.trigger(['programType', 'registrationType']);
+      }, 100);
       
       // Show toast to indicate account data was loaded
       toast({
@@ -334,7 +338,7 @@ export default function AccountFormEnhanced() {
         description: "Account details loaded for editing",
       });
     }
-  }, [existingAccount, specificDraft, form, toast]);
+  }, [existingAccount, specificDraft, form, toast, lists]);
 
   // Get selected client data
   const selectedClientId = form.watch("clientId");
@@ -1308,17 +1312,16 @@ export default function AccountFormEnhanced() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Program Type <span className="text-red-500">*</span></FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
+              <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
                 <FormControl>
                   <SelectTrigger className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {filteredProgramTypes.map((type: string) => {
-                    console.log('Rendering Program Type option:', type);
-                    return <SelectItem key={type} value={type}>{type}</SelectItem>
-                  })}
+                  {filteredProgramTypes.map((type: string) => (
+                    <SelectItem key={type} value={type}>{type}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -1331,7 +1334,7 @@ export default function AccountFormEnhanced() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Registration Type <span className="text-red-500">*</span></FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
+              <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
                 <FormControl>
                   <SelectTrigger className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
                     <SelectValue placeholder="Select" />
