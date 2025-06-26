@@ -1475,7 +1475,7 @@ export default function AccountFormEnhanced() {
       <div className="flex-1 flex flex-col">
         <TopBar title="Create New Account" subtitle="Enhanced account creation form" />
         <main className="flex-1 overflow-auto p-4">
-          <div className="max-w-3xl space-y-3">
+          <div className="max-w-3xl ml-16 space-y-3">
             {/* Header */}
             <div className="flex items-center justify-between">
               <h1 className="text-xl font-bold text-foreground">Create New Account</h1>
