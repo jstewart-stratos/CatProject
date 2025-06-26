@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Search, Eye, Edit, Trash2 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function Clients() {
   const { toast } = useToast();
@@ -25,6 +26,7 @@ export default function Clients() {
   const [selectedClient, setSelectedClient] = useState<any>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [clientToView, setClientToView] = useState<any>(null);
+  const [selectedClientIds, setSelectedClientIds] = useState<Set<number>>(new Set());
 
   // Redirect to home if not authenticated
   useEffect(() => {
@@ -83,6 +85,67 @@ export default function Clients() {
       });
     },
   });
+
+  // Bulk delete clients mutation
+  const bulkDeleteClientsMutation = useMutation({
+    mutationFn: async (clientIds: number[]) => {
+      await apiRequest("DELETE", "/api/clients/bulk", { clientIds });
+    },
+    onSuccess: () => {
+      refetch();
+      setSelectedClientIds(new Set());
+      toast({
+        title: "Success",
+        description: `Successfully deleted ${selectedClientIds.size} client(s)`,
+      });
+    },
+    onError: (error) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({
+        title: "Error",
+        description: "Failed to delete clients. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Helper functions for bulk selection
+  const handleSelectClient = (clientId: number, checked: boolean) => {
+    const newSelectedIds = new Set(selectedClientIds);
+    if (checked) {
+      newSelectedIds.add(clientId);
+    } else {
+      newSelectedIds.delete(clientId);
+    }
+    setSelectedClientIds(newSelectedIds);
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      const allClientIds = new Set(clientsData?.clients?.map((client: any) => client.id) || []);
+      setSelectedClientIds(allClientIds);
+    } else {
+      setSelectedClientIds(new Set());
+    }
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedClientIds.size === 0) return;
+    
+    if (confirm(`Are you sure you want to delete ${selectedClientIds.size} client(s)? This action cannot be undone.`)) {
+      bulkDeleteClientsMutation.mutate(Array.from(selectedClientIds));
+    }
+  };
 
   // Calculate completion percentage for drafts
   const calculateCompletionPercentage = (formData: any) => {
@@ -158,6 +221,16 @@ export default function Clients() {
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
               <CardTitle>Client Management</CardTitle>
               <div className="flex items-center space-x-3">
+                {selectedClientIds.size > 0 && (
+                  <Button 
+                    variant="destructive" 
+                    onClick={handleBulkDelete}
+                    disabled={bulkDeleteClientsMutation.isPending}
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete Selected ({selectedClientIds.size})
+                  </Button>
+                )}
                 <div className="relative">
                   <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
                   <Input
@@ -179,6 +252,13 @@ export default function Clients() {
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead className="w-12">
+                        <Checkbox
+                          checked={selectedClientIds.size > 0 && selectedClientIds.size === (clientsData?.clients?.length || 0)}
+                          onCheckedChange={handleSelectAll}
+                          aria-label="Select all clients"
+                        />
+                      </TableHead>
                       <TableHead>Name</TableHead>
                       <TableHead>Email</TableHead>
                       <TableHead>Type</TableHead>
@@ -190,7 +270,7 @@ export default function Clients() {
                   <TableBody>
                     {(clientsLoading || draftsLoading) ? (
                       <TableRow>
-                        <TableCell colSpan={6} className="text-center py-8">
+                        <TableCell colSpan={7} className="text-center py-8">
                           Loading clients...
                         </TableCell>
                       </TableRow>
@@ -199,6 +279,13 @@ export default function Clients() {
                         {/* Show completed clients */}
                         {clientsData?.clients?.map((client: any) => (
                           <TableRow key={`client-${client.id}`}>
+                            <TableCell>
+                              <Checkbox
+                                checked={selectedClientIds.has(client.id)}
+                                onCheckedChange={(checked) => handleSelectClient(client.id, checked as boolean)}
+                                aria-label={`Select client ${client.firstName} ${client.lastName}`}
+                              />
+                            </TableCell>
                             <TableCell>
                               <div className="flex items-center">
                                 <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
@@ -254,6 +341,10 @@ export default function Clients() {
                           const formData = draft.formData || {};
                           return (
                             <TableRow key={`draft-${draft.id}`} className="bg-amber-50">
+                              <TableCell>
+                                {/* Drafts cannot be bulk deleted, so show empty cell */}
+                                <div className="w-6"></div>
+                              </TableCell>
                               <TableCell>
                                 <div className="flex items-center">
                                   <div className="w-10 h-10 bg-amber-500 rounded-full flex items-center justify-center">
@@ -328,7 +419,7 @@ export default function Clients() {
                         {/* Show empty state if no data */}
                         {(!clientsData?.clients?.length && !draftsData?.length) && (
                           <TableRow>
-                            <TableCell colSpan={6} className="text-center py-8">
+                            <TableCell colSpan={7} className="text-center py-8">
                               No clients or drafts found
                             </TableCell>
                           </TableRow>

@@ -446,6 +446,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.delete('/api/clients/bulk', isAuthenticated, async (req, res) => {
+    try {
+      const { clientIds } = req.body;
+      if (!Array.isArray(clientIds) || clientIds.length === 0) {
+        return res.status(400).json({ message: "Client IDs array is required" });
+      }
+      
+      // Delete each client
+      for (const clientId of clientIds) {
+        await storage.deleteClient(parseInt(clientId));
+      }
+      
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error bulk deleting clients:", error);
+      res.status(500).json({ message: "Failed to delete clients" });
+    }
+  });
+
   // Account management routes
   app.get('/api/accounts', isAuthenticated, checkPermission(['view_accounts']), async (req: any, res) => {
     try {
