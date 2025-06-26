@@ -134,12 +134,14 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
-- **June 26, 2025**: Completed critical group-based draft sharing functionality
+- **June 26, 2025**: Completed critical group-based draft sharing functionality and fixed draft naming issues
   - ✅ **Fixed individual draft access routes**: Updated GET/PUT `/api/draft-onboarding/:id` and `/api/draft-accounts/:id` to use group-based access control instead of user-only restrictions
   - ✅ **Enabled cross-user collaboration**: Users agarcia and klee in "Test 1" group can now access and edit each other's draft onboarding and draft accounts
   - ✅ **Maintained admin privileges**: Admin users can still access and modify any draft across all groups
   - ✅ **Resolved 403 Access Denied errors**: Fixed critical bug where individual draft routes blocked legitimate group member access
   - ✅ **Enhanced group workflow**: Users can now truly collaborate on drafts within shared groups while maintaining security
+  - ✅ **Fixed draft account naming**: Corrected draft account names from "John Smith" placeholder to actual client names (e.g., "John Doe - Individual") using database-driven naming logic
+  - ✅ **Added comprehensive state dropdown**: Updated client onboarding form to include all 50 US states, DC, and territories instead of limited 7-state list
 - **June 26, 2025**: Fixed draft client and draft accounts visibility issue for group-based data sharing
   - ✅ **Applied group-based filtering to draft onboardings**: Updated `/api/draft-onboarding` endpoint to use same group filtering logic as regular clients
   - ✅ **Applied group-based filtering to draft accounts**: Updated `/api/draft-accounts` endpoint to show drafts from all group members
