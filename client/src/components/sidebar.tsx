@@ -1,6 +1,7 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Database, BarChart3, Users, Wallet, ArrowLeftRight, UserCog, UsersIcon, LogOut, UserPlus } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 interface SidebarProps {
   currentView: string;
@@ -8,6 +9,7 @@ interface SidebarProps {
 
 export default function Sidebar({ currentView }: SidebarProps) {
   const [location] = useLocation();
+  const { user } = useAuth();
 
   const handleLogout = async () => {
     try {
@@ -25,15 +27,23 @@ export default function Sidebar({ currentView }: SidebarProps) {
     }
   };
 
-  const menuItems = [
-    { id: "dashboard", path: "/", label: "Dashboard", icon: BarChart3 },
-    { id: "clients", path: "/clients", label: "Clients", icon: Users },
-    { id: "client-onboarding-full", path: "/client-onboarding-full", label: "Client Onboarding", icon: UserPlus },
-    { id: "accounts", path: "/accounts", label: "Accounts", icon: Wallet },
-    { id: "import-export", path: "/import-export", label: "Import/Export", icon: ArrowLeftRight },
-    { id: "users", path: "/users", label: "User Management", icon: UserCog },
-    { id: "groups", path: "/groups", label: "Groups", icon: UsersIcon },
+  const allMenuItems = [
+    { id: "dashboard", path: "/", label: "Dashboard", icon: BarChart3, adminOnly: false },
+    { id: "clients", path: "/clients", label: "Clients", icon: Users, adminOnly: false },
+    { id: "client-onboarding-full", path: "/client-onboarding-full", label: "Client Onboarding", icon: UserPlus, adminOnly: false },
+    { id: "accounts", path: "/accounts", label: "Accounts", icon: Wallet, adminOnly: false },
+    { id: "import-export", path: "/import-export", label: "Import/Export", icon: ArrowLeftRight, adminOnly: false },
+    { id: "users", path: "/users", label: "User Management", icon: UserCog, adminOnly: true },
+    { id: "groups", path: "/groups", label: "Groups", icon: UsersIcon, adminOnly: true },
   ];
+
+  // Filter menu items based on user role
+  const menuItems = allMenuItems.filter(item => {
+    if (item.adminOnly) {
+      return user?.role === 'admin';
+    }
+    return true;
+  });
 
   return (
     <div className="fixed inset-y-0 left-0 w-64 bg-white shadow-lg z-30">
