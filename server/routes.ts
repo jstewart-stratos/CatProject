@@ -213,6 +213,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.delete('/api/users/:id', isAuthenticated, checkPermission(['manage_users']), async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      const existingUser = await storage.getUser(id);
+      if (!existingUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      await storage.deleteUser(id);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      res.status(500).json({ message: "Failed to delete user" });
+    }
+  });
+
   app.get('/api/users/:id/groups', isAuthenticated, checkPermission(['manage_users']), async (req, res) => {
     try {
       const { id } = req.params;
