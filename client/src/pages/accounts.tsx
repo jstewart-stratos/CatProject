@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link } from "wouter";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { isUnauthorizedError } from "@/lib/authUtils";
@@ -14,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search, Eye, Edit, Lock } from "lucide-react";
+import { Plus, Search, Eye, Edit, Lock, Trash2 } from "lucide-react";
 
 export default function Accounts() {
   const { toast } = useToast();
@@ -47,10 +48,45 @@ export default function Accounts() {
   });
 
   // Query for user's draft accounts
-  const { data: draftAccounts, isLoading: draftsLoading } = useQuery({
+  const { data: draftAccounts, isLoading: draftsLoading, refetch: refetchDrafts } = useQuery({
     queryKey: ["/api/draft-accounts"],
     enabled: isAuthenticated,
     retry: false,
+  });
+
+  // Delete draft mutation
+  const deleteDraftMutation = useMutation({
+    mutationFn: async (draftId: number) => {
+      return await apiRequest(`/api/draft-accounts/${draftId}`, {
+        method: "DELETE",
+      });
+    },
+    onSuccess: () => {
+      refetchDrafts();
+      toast({
+        title: "Success!",
+        description: "Draft account deleted successfully.",
+      });
+    },
+    onError: (error: Error) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      
+      toast({
+        title: "Error",
+        description: "Failed to delete draft account. Please try again.",
+        variant: "destructive",
+      });
+    },
   });
 
   const openModal = (account?: any) => {
@@ -85,6 +121,12 @@ export default function Accounts() {
       title: "Success!",
       description: `Account has been ${selectedAccount ? 'updated' : 'created'} successfully.`,
     });
+  };
+
+  const handleDeleteDraft = (draftId: number) => {
+    if (confirm("Are you sure you want to delete this draft account? This action cannot be undone.")) {
+      deleteDraftMutation.mutate(draftId);
+    }
   };
 
   if (isLoading || !isAuthenticated) {
@@ -274,6 +316,14 @@ export default function Accounts() {
                                   Continue
                                 </Button>
                               </Link>
+                              <Button 
+                                size="sm" 
+                                variant="destructive"
+                                onClick={() => handleDeleteDraft(draft.id)}
+                              >
+                                <Trash2 className="h-4 w-4 mr-1" />
+                                Delete
+                              </Button>
                             </div>
                           </TableCell>
                         </TableRow>

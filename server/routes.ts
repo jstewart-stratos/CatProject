@@ -1021,13 +1021,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: 'Draft account not found' });
       }
 
-      // Ensure user can only delete their own drafts
-      if (existingDraft.userId !== req.user?.claims?.sub) {
-        return res.status(403).json({ message: 'Access denied' });
+      // Apply group-based access control instead of user-only access
+      if (req.userRole === 'admin') {
+        // Admins can delete any draft
+        await storage.deleteDraftAccount(id);
+        res.json({ message: 'Draft account deleted successfully' });
+      } else {
+        // Check if user can access this draft through group membership
+        const groupIds = req.userGroups.map((g: any) => g.id);
+        const accessibleDrafts = await storage.getDraftAccountsByGroups(groupIds);
+        const canAccess = accessibleDrafts.some(d => d.id === id);
+        
+        if (!canAccess) {
+          return res.status(403).json({ message: 'Access denied' });
+        }
+        
+        await storage.deleteDraftAccount(id);
+        res.json({ message: 'Draft account deleted successfully' });
       }
-
-      await storage.deleteDraftAccount(id);
-      res.json({ message: 'Draft account deleted successfully' });
     } catch (error) {
       console.error('Error deleting draft account:', error);
       res.status(500).json({ message: 'Failed to delete draft account' });
