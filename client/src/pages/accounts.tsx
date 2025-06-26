@@ -43,6 +43,13 @@ export default function Accounts() {
     enabled: isAuthenticated,
   });
 
+  // Query for user's draft accounts
+  const { data: draftAccounts, isLoading: draftsLoading } = useQuery({
+    queryKey: ["/api/draft-accounts"],
+    enabled: isAuthenticated,
+    retry: false,
+  });
+
   const openModal = (account?: any) => {
     setSelectedAccount(account || null);
     setIsModalOpen(true);
@@ -186,6 +193,79 @@ export default function Accounts() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Draft Accounts Section */}
+          {draftAccounts && draftAccounts.length > 0 && (
+            <Card className="mt-6">
+              <CardHeader>
+                <CardTitle className="text-lg font-semibold text-slate-800">
+                  Draft Accounts
+                </CardTitle>
+                <p className="text-sm text-slate-600">
+                  Continue working on your saved account drafts
+                </p>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Draft Name</TableHead>
+                        <TableHead>Current Section</TableHead>
+                        <TableHead>Last Modified</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {draftAccounts.map((draft: any) => (
+                        <TableRow key={draft.id}>
+                          <TableCell>
+                            <div className="text-sm font-medium text-slate-800">
+                              {draft.draftName}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline">
+                              {draft.currentSection === "accountInfo" ? "Account Information" :
+                               draft.currentSection === "achInfo" ? "ACH Information" :
+                               draft.currentSection === "additionalHolders" ? "Additional Holders" :
+                               draft.currentSection === "beneficiaries" ? "Beneficiaries" :
+                               draft.currentSection === "tradingAuthority" ? "Trading Authority" :
+                               draft.currentSection === "tradingOptions" ? "Trading Options" :
+                               draft.currentSection === "directOutsideBusiness" ? "Direct/Outside Business" :
+                               draft.currentSection === "plan529Disclosure" ? "529 Plan Disclosure" :
+                               draft.currentSection === "powerOfAttorney" ? "Power of Attorney" :
+                               draft.currentSection === "accountOptions" ? "Account Options" :
+                               draft.currentSection || "Unknown"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="text-sm text-slate-600">
+                              {new Date(draft.lastModified).toLocaleDateString()} at{" "}
+                              {new Date(draft.lastModified).toLocaleTimeString([], { 
+                                hour: '2-digit', 
+                                minute: '2-digit' 
+                              })}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center space-x-2">
+                              <Link to={`/account-form-enhanced?draftId=${draft.id}`}>
+                                <Button size="sm" variant="outline">
+                                  <Edit className="h-4 w-4 mr-1" />
+                                  Continue
+                                </Button>
+                              </Link>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
       
