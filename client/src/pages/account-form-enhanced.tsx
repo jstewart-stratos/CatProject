@@ -262,14 +262,14 @@ export default function AccountFormEnhanced() {
   const registrationType = watchedValues.registrationType;
   const transferOnDeath = watchedValues.transferOnDeath;
 
-  // Reset program type and registration type when account type changes
+  // Reset program type and registration type when account type changes (but not when loading from draft)
   useEffect(() => {
-    if (accountType) {
-      // Reset dependent fields when account type changes
+    if (accountType && !currentDraftId) {
+      // Reset dependent fields when account type changes, but only if not loading from draft
       form.setValue('programType', '');
       form.setValue('registrationType', '');
     }
-  }, [accountType, form]);
+  }, [accountType, form, currentDraftId]);
 
   // Get filtered program types based on account type - use useMemo for proper re-rendering
   const filteredProgramTypes = useMemo(() => {

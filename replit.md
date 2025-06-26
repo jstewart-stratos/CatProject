@@ -139,6 +139,7 @@ Preferred communication style: Simple, everyday language.
   - ✅ **Implemented draft continuation workflow**: Users can click "Continue" to resume working on any saved draft
   - ✅ **Enhanced form validation for drafts**: Improved validation logic to properly handle empty fields when loading from drafts
   - ✅ **Fixed Create Account button behavior**: Button correctly enables/disables based on required field validation (Program Type and Registration Type must be selected)
+  - ✅ **Fixed draft field preservation**: Program Type and Registration Type fields now properly retain their values when loading from saved drafts
   - ✅ **Complete draft save/load cycle**: Users can save progress, see drafts in Account Management, and continue where they left off
 - **June 26, 2025**: Removed Quick Onboarding component as Full Onboarding has replaced this functionality
   - ✅ **Removed Quick Onboarding from sidebar navigation**: Simplified menu to show only "Client Onboarding" pointing to full 7-step process
