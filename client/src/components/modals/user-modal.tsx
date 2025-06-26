@@ -82,13 +82,9 @@ export default function UserModal({ isOpen, onClose, user, onSuccess }: UserModa
 
   const mutation = useMutation({
     mutationFn: async (data: UserFormData) => {
-      console.log("User mutation data:", data);
       const url = isEditing ? `/api/users/${user.id}` : "/api/users";
       const method = isEditing ? "PUT" : "POST";
-      console.log("Making request:", method, url);
-      const result = await apiRequest(method, url, data);
-      console.log("Response:", result);
-      return result;
+      return await apiRequest(method, url, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/users"] });
