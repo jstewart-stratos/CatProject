@@ -244,9 +244,45 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getClientsByGroups(groupIds: number[], search?: string, limit = 50, offset = 0): Promise<{ clients: Client[]; total: number }> {
-    // For now, return all clients (transition specialists will see all data)
-    // This is a temporary implementation until group assignments are properly set up
-    return this.getAllClients(search, limit, offset);
+    // Get all users who are in the same groups as the current user
+    const groupMembers = await db
+      .selectDistinct({ userId: userGroups.userId })
+      .from(userGroups)
+      .where(inArray(userGroups.groupId, groupIds));
+    
+    const memberUserIds = groupMembers.map(member => member.userId);
+    
+    // Get clients created by users in the same groups
+    let query = db.select().from(clients);
+    let countQuery = db.select({ count: sql<number>`count(*)` }).from(clients);
+    
+    const groupCondition = inArray(clients.createdBy, memberUserIds);
+    query = query.where(groupCondition);
+    countQuery = countQuery.where(groupCondition);
+
+    if (search) {
+      const searchCondition = and(
+        groupCondition,
+        or(
+          ilike(clients.firstName, `%${search}%`),
+          ilike(clients.lastName, `%${search}%`),
+          ilike(clients.emailAddress, `%${search}%`),
+          ilike(clients.entityName, `%${search}%`)
+        )
+      );
+      query = query.where(searchCondition);
+      countQuery = countQuery.where(searchCondition);
+    }
+
+    const [clientsResult, totalResult] = await Promise.all([
+      query.orderBy(desc(clients.createdAt)).limit(limit).offset(offset),
+      countQuery
+    ]);
+
+    return {
+      clients: clientsResult,
+      total: totalResult[0].count
+    };
   }
 
   async updateClient(id: number, data: Partial<Client>): Promise<Client> {
@@ -317,9 +353,89 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAccountsByGroups(groupIds: number[], search?: string, accountType?: string, limit = 50, offset = 0): Promise<{ accounts: Account[]; total: number }> {
-    // For now, return all accounts (transition specialists will see all data)
-    // This is a temporary implementation until group assignments are properly set up
-    return this.getAllAccounts(search, accountType, limit, offset);
+    // Get all users who are in the same groups as the current user
+    const groupMembers = await db
+      .selectDistinct({ userId: userGroups.userId })
+      .from(userGroups)
+      .where(inArray(userGroups.groupId, groupIds));
+    
+    const memberUserIds = groupMembers.map(member => member.userId);
+    
+    // Get accounts created by users in the same groups (via client relationship)
+    let query = db
+      .select({
+        id: accounts.id,
+        clientId: accounts.clientId,
+        accountType: accounts.accountType,
+        programType: accounts.programType,
+        registrationType: accounts.registrationType,
+        advisorFee: accounts.advisorFee,
+        advisoryBillingCycle: accounts.advisoryBillingCycle,
+        iraType: accounts.iraType,
+        transferOnDeath: accounts.transferOnDeath,
+        investmentObjective: accounts.investmentObjective,
+        investmentTimeHorizon: accounts.investmentTimeHorizon,
+        fundsNeededIn: accounts.fundsNeededIn,
+        approximateAccountValue: accounts.approximateAccountValue,
+        deliveringFirm: accounts.deliveringFirm,
+        contraAccount: accounts.contraAccount,
+        repId: accounts.repId,
+        notes: accounts.notes,
+        isLocked: accounts.isLocked,
+        createdAt: accounts.createdAt,
+        updatedAt: accounts.updatedAt,
+        client: {
+          id: clients.id,
+          firstName: clients.firstName,
+          lastName: clients.lastName,
+          entityName: clients.entityName
+        }
+      })
+      .from(accounts)
+      .innerJoin(clients, eq(accounts.clientId, clients.id));
+      
+    let countQuery = db
+      .select({ count: sql<number>`count(*)` })
+      .from(accounts)
+      .innerJoin(clients, eq(accounts.clientId, clients.id));
+    
+    const groupCondition = inArray(clients.createdBy, memberUserIds);
+    query = query.where(groupCondition);
+    countQuery = countQuery.where(groupCondition);
+
+    if (search) {
+      const searchCondition = and(
+        groupCondition,
+        or(
+          ilike(clients.firstName, `%${search}%`),
+          ilike(clients.lastName, `%${search}%`),
+          ilike(clients.entityName, `%${search}%`),
+          ilike(accounts.accountType, `%${search}%`),
+          ilike(accounts.programType, `%${search}%`)
+        )
+      );
+      query = query.where(searchCondition);
+      countQuery = countQuery.where(searchCondition);
+    }
+
+    if (accountType) {
+      const typeCondition = and(
+        groupCondition,
+        ilike(accounts.accountType, `%${accountType}%`)
+      );
+      query = query.where(typeCondition);
+      countQuery = countQuery.where(typeCondition);
+    }
+
+    const [accountsResult, totalResult] = await Promise.all([
+      query.orderBy(desc(accounts.createdAt)).limit(limit).offset(offset),
+      countQuery
+    ]);
+
+    return {
+      accounts: accountsResult,
+      total: totalResult[0].count
+    };
   }
 
   async updateAccount(id: number, data: Partial<Account>): Promise<Account> {
