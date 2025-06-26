@@ -7,6 +7,7 @@ import { isUnauthorizedError } from "@/lib/authUtils";
 import Sidebar from "@/components/sidebar";
 import TopBar from "@/components/top-bar";
 import AccountModal from "@/components/modals/account-modal";
+import AccountDetailsModal from "@/components/modals/account-details-modal";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,6 +23,8 @@ export default function Accounts() {
   const [accountType, setAccountType] = useState("all");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState<any>(null);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [selectedAccountForDetails, setSelectedAccountForDetails] = useState<any>(null);
 
   // Redirect to home if not authenticated
   useEffect(() => {
@@ -58,6 +61,21 @@ export default function Accounts() {
   const closeModal = () => {
     setSelectedAccount(null);
     setIsModalOpen(false);
+  };
+
+  const openDetailsModal = (account: any) => {
+    setSelectedAccountForDetails(account);
+    setIsDetailsModalOpen(true);
+  };
+
+  const closeDetailsModal = () => {
+    setIsDetailsModalOpen(false);
+    setSelectedAccountForDetails(null);
+  };
+
+  const handleEditFromDetails = (account: any) => {
+    closeDetailsModal();
+    openModal(account);
   };
 
   const handleModalSuccess = () => {
@@ -168,7 +186,7 @@ export default function Accounts() {
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center space-x-2">
-                              <Button variant="ghost" size="sm">
+                              <Button variant="ghost" size="sm" onClick={() => openDetailsModal(account)}>
                                 <Eye className="h-4 w-4" />
                               </Button>
                               <Button variant="ghost" size="sm" onClick={() => openModal(account)}>
@@ -274,6 +292,13 @@ export default function Accounts() {
         onClose={closeModal}
         account={selectedAccount}
         onSuccess={handleModalSuccess}
+      />
+      
+      <AccountDetailsModal
+        isOpen={isDetailsModalOpen}
+        onClose={closeDetailsModal}
+        account={selectedAccountForDetails}
+        onEdit={handleEditFromDetails}
       />
     </div>
   );
