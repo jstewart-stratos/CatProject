@@ -862,8 +862,24 @@ export default function AccountFormEnhanced() {
     console.log('Form validation state:', form.formState.isValid);
     console.log('Form errors:', form.formState.errors);
     
-    // Submit the data directly without complex transformations for now
-    createAccountMutation.mutate(data);
+    // Transform data to ensure proper types
+    const transformedData = {
+      ...data,
+      // Convert string boolean fields to actual booleans
+      grantTradingAuthority: data.grantTradingAuthority === "Yes" || data.grantTradingAuthority === true,
+      grantPowerOfAttorney: data.grantPowerOfAttorney === "Yes" || data.grantPowerOfAttorney === true,
+      wantCheckwriting: data.wantCheckwriting === "true" || data.wantCheckwriting === true,
+      wantDebitCard: data.wantDebitCard === "true" || data.wantDebitCard === true,
+      wantOvernightDelivery: data.wantOvernightDelivery === "true" || data.wantOvernightDelivery === true,
+      // Trading options boolean fields
+      fullDiscretionaryTrading: data.fullDiscretionaryTrading === "Yes" || data.fullDiscretionaryTrading === true,
+      structuredProductTrading: data.structuredProductTrading === "Yes" || data.structuredProductTrading === true,
+      complexETPs: data.complexETPs === "Yes" || data.complexETPs === true,
+      optionsTrading: data.optionsTrading === "Yes" || data.optionsTrading === true,
+    };
+    
+    console.log('Transformed data:', transformedData);
+    createAccountMutation.mutate(transformedData);
   };
 
   // Save draft handler
