@@ -119,6 +119,15 @@ export interface IStorage {
   getDraftOnboardingsByGroups(groupIds: number[]): Promise<DraftOnboarding[]>;
   updateDraftOnboarding(id: number, data: Partial<DraftOnboarding>): Promise<DraftOnboarding>;
   deleteDraftOnboarding(id: number): Promise<void>;
+
+  // Draft account operations
+  createDraftAccount(draft: InsertDraftAccount): Promise<DraftAccount>;
+  getDraftAccount(id: number): Promise<DraftAccount | undefined>;
+  getUserDraftAccounts(userId: string): Promise<DraftAccount[]>;
+  getAllDraftAccounts(): Promise<DraftAccount[]>;
+  getDraftAccountsByGroups(groupIds: number[]): Promise<DraftAccount[]>;
+  updateDraftAccount(id: number, data: Partial<DraftAccount>): Promise<DraftAccount>;
+  deleteDraftAccount(id: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -761,6 +770,33 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(draftAccounts)
       .where(eq(draftAccounts.userId, userId))
+      .orderBy(desc(draftAccounts.lastModified));
+  }
+
+  async getAllDraftAccounts(): Promise<DraftAccount[]> {
+    return await db
+      .select()
+      .from(draftAccounts)
+      .orderBy(desc(draftAccounts.lastModified));
+  }
+
+  async getDraftAccountsByGroups(groupIds: number[]): Promise<DraftAccount[]> {
+    if (groupIds.length === 0) {
+      return [];
+    }
+
+    return await db
+      .select({
+        id: draftAccounts.id,
+        userId: draftAccounts.userId,
+        formData: draftAccounts.formData,
+        currentSection: draftAccounts.currentSection,
+        lastModified: draftAccounts.lastModified,
+        createdAt: draftAccounts.createdAt
+      })
+      .from(draftAccounts)
+      .innerJoin(userGroups, eq(draftAccounts.userId, userGroups.userId))
+      .where(inArray(userGroups.groupId, groupIds))
       .orderBy(desc(draftAccounts.lastModified));
   }
 

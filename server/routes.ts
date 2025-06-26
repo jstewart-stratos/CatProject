@@ -891,9 +891,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/draft-accounts', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
-      const drafts = await storage.getUserDraftAccounts(userId);
-      res.json(drafts);
+      // Apply group-based filtering for draft accounts
+      if (req.userRole === 'admin') {
+        // Admins see all draft accounts
+        const drafts = await storage.getAllDraftAccounts();
+        res.json(drafts);
+      } else {
+        // All other users see draft accounts from their group members
+        const groupIds = req.userGroups.map((g: any) => g.id);
+        const drafts = await storage.getDraftAccountsByGroups(groupIds);
+        res.json(drafts);
+      }
     } catch (error) {
       console.error('Error fetching draft accounts:', error);
       res.status(500).json({ message: 'Failed to fetch draft accounts' });
