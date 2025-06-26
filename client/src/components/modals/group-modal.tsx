@@ -88,14 +88,21 @@ export default function GroupModal({ isOpen, onClose, group, onSuccess }: GroupM
   const fetchGroupMembers = async (groupId: string) => {
     try {
       const response = await apiRequest("GET", `/api/groups/${groupId}/members`);
-      const members = response.map((member: any) => member.userId);
-      setSelectedUsers(members);
       
-      // Get full user details for current members
-      const memberDetails = users?.filter((user: any) => members.includes(user.id)) || [];
-      setGroupMembers(memberDetails);
+      // The API response should already be full user objects, not just userIds
+      if (Array.isArray(response)) {
+        const memberIds = response.map((member: any) => member.id || member.userId);
+        setSelectedUsers(memberIds);
+        setGroupMembers(response);
+      } else {
+        console.error("Unexpected response format:", response);
+        setSelectedUsers([]);
+        setGroupMembers([]);
+      }
     } catch (error) {
       console.error("Error fetching group members:", error);
+      setSelectedUsers([]);
+      setGroupMembers([]);
     }
   };
 
@@ -108,7 +115,29 @@ export default function GroupModal({ isOpen, onClose, group, onSuccess }: GroupM
     setShowUserSearch(false);
   };
 
-  const removeUserFromGroup = (userId: string) => {
+  const removeUserFromGroup = async (userId: string) => {
+    // If we're editing an existing group, make API call to remove immediately
+    if (isEditing && group?.id) {
+      try {
+        await apiRequest("DELETE", `/api/groups/${group.id}/users/${userId}`);
+        toast({
+          title: "Success",
+          description: "Member removed from group successfully",
+        });
+        // Refresh group members list
+        fetchGroupMembers(group.id);
+      } catch (error) {
+        console.error("Error removing user from group:", error);
+        toast({
+          title: "Error",
+          description: "Failed to remove member from group",
+          variant: "destructive",
+        });
+        return; // Don't update local state if API call failed
+      }
+    }
+    
+    // Update local state
     setSelectedUsers(selectedUsers.filter(id => id !== userId));
     setGroupMembers(groupMembers.filter(member => member.id !== userId));
   };
@@ -235,9 +264,9 @@ export default function GroupModal({ isOpen, onClose, group, onSuccess }: GroupM
                 <div className="mb-4">
                   <p className="text-sm font-medium mb-2">Current Members ({groupMembers.length}):</p>
                   <div className="flex flex-wrap gap-2">
-                    {groupMembers.map((member) => (
+                    {groupMembers.map((member, index) => (
                       <Badge 
-                        key={member.id} 
+                        key={`${member.id}-${index}`} 
                         variant="secondary" 
                         className="flex items-center gap-1"
                       >
