@@ -27,11 +27,12 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { X } from "lucide-react";
 
-const userFormSchema = insertUserSchema.extend({
+const userFormSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
   email: z.string().email("Invalid email address"),
   role: z.string().min(1, "Role is required"),
+  isActive: z.boolean().default(true),
 });
 
 type UserFormData = z.infer<typeof userFormSchema>;
@@ -81,9 +82,13 @@ export default function UserModal({ isOpen, onClose, user, onSuccess }: UserModa
 
   const mutation = useMutation({
     mutationFn: async (data: UserFormData) => {
+      console.log("User mutation data:", data);
       const url = isEditing ? `/api/users/${user.id}` : "/api/users";
       const method = isEditing ? "PUT" : "POST";
-      return await apiRequest(method, url, data);
+      console.log("Making request:", method, url);
+      const result = await apiRequest(method, url, data);
+      console.log("Response:", result);
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/users"] });
