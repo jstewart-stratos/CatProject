@@ -50,11 +50,7 @@ export default function Users() {
 
   const bulkUpdateMutation = useMutation({
     mutationFn: async ({ userIds, groupId }: { userIds: string[], groupId: string }) => {
-      return apiRequest('/api/users/bulk-group-assignment', {
-        method: 'POST',
-        body: JSON.stringify({ userIds, groupId }),
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return apiRequest('POST', '/api/users/bulk-group-assignment', { userIds, groupId });
     },
     onSuccess: () => {
       refetch();
@@ -210,7 +206,7 @@ export default function Users() {
                       <TableHead className="w-12">
                         <Checkbox
                           checked={isAllSelected}
-                          indeterminate={isPartiallySelected}
+                          {...(isPartiallySelected && !isAllSelected ? { 'data-state': 'indeterminate' } : {})}
                           onCheckedChange={handleSelectAll}
                         />
                       </TableHead>
