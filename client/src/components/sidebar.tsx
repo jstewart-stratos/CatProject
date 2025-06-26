@@ -16,8 +16,7 @@ export default function Sidebar({ currentView }: SidebarProps) {
   const menuItems = [
     { id: "dashboard", path: "/", label: "Dashboard", icon: BarChart3 },
     { id: "clients", path: "/clients", label: "Clients", icon: Users },
-    { id: "client-onboarding", path: "/client-onboarding", label: "Quick Onboarding", icon: UserPlus },
-    { id: "client-onboarding-full", path: "/client-onboarding-full", label: "Full Onboarding (7-Step)", icon: UserPlus },
+    { id: "client-onboarding-full", path: "/client-onboarding-full", label: "Client Onboarding", icon: UserPlus },
     { id: "accounts", path: "/accounts", label: "Accounts", icon: Wallet },
     { id: "import-export", path: "/import-export", label: "Import/Export", icon: ArrowLeftRight },
     { id: "users", path: "/users", label: "User Management", icon: UserCog },

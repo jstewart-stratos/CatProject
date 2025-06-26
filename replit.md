@@ -134,6 +134,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **June 26, 2025**: Removed Quick Onboarding component as Full Onboarding has replaced this functionality
+  - ✅ **Removed Quick Onboarding from sidebar navigation**: Simplified menu to show only "Client Onboarding" pointing to full 7-step process
+  - ✅ **Deleted obsolete component files**: Removed client-onboarding.tsx and client-onboarding-simple.tsx files
+  - ✅ **Updated routing configuration**: Removed /client-onboarding routes from App.tsx to use only /client-onboarding-full
+  - ✅ **Enhanced Power of Attorney form for IRA accounts**: Fixed conditional logic to show Power of Attorney section for all IRA account types
+  - ✅ **Added Investment Horizon & Liquidity Needs for IRA accounts**: Extended form section visibility to include IRA alongside Individual and Joint accounts
+  - ✅ **Fixed account creation validation**: Resolved beneficiary percentage field type conversion and Investment Time Horizon requirement issues
 - **June 26, 2025**: Successfully resolved account creation validation errors and completed functional account form
   - ✅ **Fixed schema validation errors**: Resolved grantTradingAuthority boolean type conflicts and approximateAccountValue data type issues
   - ✅ **Enhanced boolean field transformation**: Applied comprehensive Yes/No to true/false conversion for all Trading Authority and Trading Options fields
@@ -324,8 +331,7 @@ Preferred communication style: Simple, everyday language.
 7. **Financial Information** - Yes/No with conditional percentage allocation fields
 
 ### Routes
-- `/client-onboarding` - Simple 3-step version (working)
-- `/client-onboarding-full` - Complete 7-step version (new)
+- `/client-onboarding-full` - Complete 7-step version (primary onboarding flow)
 
 ### Features
 - Step-by-step navigation with progress tracking
