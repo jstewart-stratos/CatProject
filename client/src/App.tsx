@@ -13,6 +13,7 @@ import ImportExport from "@/pages/import-export";
 import Users from "@/pages/users";
 import Groups from "@/pages/groups";
 import AccountFormEnhanced from "@/pages/account-form-enhanced";
+import ClientDetails from "@/pages/client-details";
 
 import ClientOnboardingFull from "@/pages/client-onboarding-full";
 
@@ -30,6 +31,7 @@ function Router() {
         <>
           <Route path="/" component={Dashboard} />
           <Route path="/clients" component={Clients} />
+          <Route path="/clients/:id" component={ClientDetails} />
           <Route path="/client-onboarding-full" component={ClientOnboardingFull} />
           <Route path="/accounts" component={Accounts} />
           <Route path="/account-form" component={AccountFormEnhanced} />

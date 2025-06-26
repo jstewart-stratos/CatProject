@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { isUnauthorizedError } from "@/lib/authUtils";
@@ -18,6 +19,7 @@ import { Plus, Search, Eye, Edit, Trash2 } from "lucide-react";
 export default function Clients() {
   const { toast } = useToast();
   const { isAuthenticated, isLoading } = useAuth();
+  const [, navigate] = useLocation();
   const [search, setSearch] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState<any>(null);
@@ -120,8 +122,7 @@ export default function Clients() {
   };
 
   const openDetailsModal = (client: any) => {
-    setClientToView(client);
-    setIsDetailsModalOpen(true);
+    navigate(`/clients/${client.id}`);
   };
 
   const closeDetailsModal = () => {
