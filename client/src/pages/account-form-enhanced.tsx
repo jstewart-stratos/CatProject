@@ -51,7 +51,7 @@ const accountFormSchema = z.object({
   decedentName: z.string().optional(),
   dateOfDeath: z.string().optional(),
   distributionTypes: z.string().optional(),
-  investmentTimeHorizon: z.string().optional(),
+  investmentTimeHorizon: z.string().min(1, "Investment Time Horizon is required"),
   fundsNeededIn: z.string().optional(),
   // ACH Information
   achAccounts: z.array(z.object({
@@ -1267,8 +1267,8 @@ export default function AccountFormEnhanced() {
           )}
         </div>
 
-        {/* Investment Horizon & Liquidity Needs - Show for Joint accounts always, Individual accounts conditionally */}
-        {(accountType === 'Joint' || accountType === 'Individual') && (
+        {/* Investment Horizon & Liquidity Needs - Show for Joint, Individual, and IRA accounts */}
+        {(accountType === 'Joint' || accountType === 'Individual' || accountType === 'IRA') && (
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Investment Horizon & Liquidity Needs</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
