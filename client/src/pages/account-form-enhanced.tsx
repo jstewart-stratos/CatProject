@@ -508,10 +508,11 @@ export default function AccountFormEnhanced() {
                                    (transferOnDeathValue === 'Yes');
     
     // Power of Attorney is required/applicable for:
-    // 1. Trust accounts (trustee management)
-    // 2. Business accounts (authorized signers)
-    // 3. Estate accounts (executor authority)
-    // 4. 529 Plan registration type (parent/guardian for minor beneficiary)
+    // 1. All IRA account types (required for retirement account management)
+    // 2. Trust accounts (trustee management)
+    // 3. Business accounts (authorized signers)
+    // 4. Estate accounts (executor authority)
+    // 5. 529 Plan registration type (parent/guardian for minor beneficiary)
     // Note: Guardianship, Conservatorship, and Minor Custodial accounts have legal authority 
     // established through court orders and do not require additional Power of Attorney
     const trustRegistrationTypes = [
@@ -520,6 +521,7 @@ export default function AccountFormEnhanced() {
     const businessRegistrationTypes = ['Corporation', 'LLC', 'Partnership'];
     
     const shouldShowPowerOfAttorney = 
+      accountType === 'IRA' ||
       trustRegistrationTypes.includes(registrationType) ||
       businessRegistrationTypes.includes(registrationType) ||
       registrationType === '529 Plan';
