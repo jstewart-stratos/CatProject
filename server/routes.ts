@@ -424,14 +424,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/accounts', isAuthenticated, async (req: any, res) => {
     try {
+      console.log("Received account data:", JSON.stringify(req.body, null, 2));
+      
       // Transform string boolean values to actual booleans
       const transformedBody = { ...req.body };
       
       // List of boolean fields that might come as strings
       const booleanFields = [
+        'checkwriting', 'debitCard', 'powerOfAttorney', 'tradingAuthority',
+        'transferOnDeath', 'addFullDiscretionaryTrading', 
+        'addStructuredProductTrading', 'tradeComplexETPs', 'addOptionsTrading',
         'wantCheckwriting', 'wantDebitCard', 'grantTradingAuthority', 
-        'grantPowerOfAttorney', 'addFullDiscretionaryTrading', 
-        'addStructuredProductTrading', 'tradeComplexETPs', 'addOptionsTrading'
+        'grantPowerOfAttorney', 'isLocked'
       ];
       
       booleanFields.forEach(field => {
@@ -443,18 +447,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
           transformedBody[field] = true;
         } else if (transformedBody[field] === 'false' || transformedBody[field] === false) {
           transformedBody[field] = false;
+        } else if (transformedBody[field] === undefined || transformedBody[field] === null) {
+          transformedBody[field] = false;
         }
       });
+      
+      // Handle numeric fields
+      if (transformedBody.clientId && typeof transformedBody.clientId === 'string') {
+        transformedBody.clientId = parseInt(transformedBody.clientId);
+      }
+      
+      console.log("Transformed account data:", JSON.stringify(transformedBody, null, 2));
       
       const accountData = insertAccountSchema.parse({
         ...transformedBody,
         createdBy: req.user.claims.sub
       });
+      
+      console.log("Parsed account data:", JSON.stringify(accountData, null, 2));
+      
       const account = await storage.createAccount(accountData);
       res.status(201).json(account);
     } catch (error) {
       console.error("Error creating account:", error);
-      res.status(500).json({ message: "Failed to create account" });
+      console.error("Error details:", error.message);
+      if (error.issues) {
+        console.error("Validation issues:", error.issues);
+      }
+      res.status(500).json({ 
+        message: "Failed to create account", 
+        error: error.message,
+        issues: error.issues || []
+      });
     }
   });
 
