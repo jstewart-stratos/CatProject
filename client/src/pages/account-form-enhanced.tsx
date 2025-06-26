@@ -347,14 +347,14 @@ export default function AccountFormEnhanced() {
   const registrationType = watchedValues.registrationType;
   const transferOnDeath = watchedValues.transferOnDeath;
 
-  // Reset program type and registration type when account type changes (but not when loading from draft)
+  // Reset program type and registration type when account type changes (but not when loading from draft or editing)
   useEffect(() => {
-    if (accountType && !currentDraftId) {
-      // Reset dependent fields when account type changes, but only if not loading from draft
+    if (accountType && !currentDraftId && !accountId) {
+      // Reset dependent fields when account type changes, but only if not loading from draft or editing existing account
       form.setValue('programType', '');
       form.setValue('registrationType', '');
     }
-  }, [accountType, form, currentDraftId]);
+  }, [accountType, form, currentDraftId, accountId]);
 
   // Get filtered program types based on account type - use useMemo for proper re-rendering
   const filteredProgramTypes = useMemo(() => {
@@ -1167,7 +1167,7 @@ export default function AccountFormEnhanced() {
           className="flex items-center gap-2"
         >
           <Save className="w-4 h-4" />
-          {saveDraftMutation.isPending ? "Saving..." : "Save Progress"}
+{saveDraftMutation.isPending ? "Saving..." : (accountId ? "Save Changes" : "Save Progress")}
         </Button>
         
         {!actuallyLastSection ? (
@@ -1308,7 +1308,7 @@ export default function AccountFormEnhanced() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Program Type <span className="text-red-500">*</span></FormLabel>
-              <Select key={`program-${accountType}`} onValueChange={field.onChange} value={field.value}>
+              <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
                     <SelectValue placeholder="Select" />
@@ -1331,7 +1331,7 @@ export default function AccountFormEnhanced() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Registration Type <span className="text-red-500">*</span></FormLabel>
-              <Select key={`registration-${accountType}`} onValueChange={field.onChange} value={field.value}>
+              <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400">
                     <SelectValue placeholder="Select" />
