@@ -138,6 +138,7 @@ Preferred communication style: Simple, everyday language.
   - ✅ **Applied group-based filtering to draft onboardings**: Updated `/api/draft-onboarding` endpoint to use same group filtering logic as regular clients
   - ✅ **Applied group-based filtering to draft accounts**: Updated `/api/draft-accounts` endpoint to show drafts from all group members
   - ✅ **Fixed Bruce Banner draft assignment**: Corrected user_id for draft onboarding record from NULL to proper user ID for klee
+  - ✅ **Fixed draft account user ID assignment**: Corrected NULL user_id values in draft_accounts table to proper user IDs for agarcia
   - ✅ **Added missing storage methods**: Implemented `getAllDraftOnboardings()`, `getDraftOnboardingsByGroups()`, `getAllDraftAccounts()`, and `getDraftAccountsByGroups()` methods for group-based draft visibility
   - ✅ **Enhanced draft sharing**: Users in same group can now see each other's draft onboarding clients and draft accounts for collaboration
   - ✅ **Maintained admin privileges**: Admin users continue to see all drafts across all groups
