@@ -67,7 +67,7 @@ export default function Groups() {
   const deleteGroupMutation = useMutation({
     mutationFn: async (groupId: number) => {
       console.log("Attempting to delete group:", groupId);
-      const response = await apiRequest(`/api/groups/${groupId}`, "DELETE");
+      const response = await apiRequest("DELETE", `/api/groups/${groupId}`);
       console.log("Delete response:", response);
       return response;
     },
