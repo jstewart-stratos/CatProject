@@ -35,7 +35,7 @@ import {
   type DraftAccount,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, like, desc, asc, sql, ilike, or } from "drizzle-orm";
+import { eq, and, like, desc, asc, sql, ilike, or, inArray } from "drizzle-orm";
 
 export interface IStorage {
   // User operations (mandatory for Replit Auth)
@@ -150,7 +150,39 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllUsers(): Promise<User[]> {
-    return await db.select().from(users).orderBy(asc(users.firstName));
+    const usersWithGroups = await db
+      .select({
+        id: users.id,
+        username: users.username,
+        email: users.email,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        role: users.role,
+        isActive: users.isActive,
+        lastLogin: users.lastLogin,
+        createdAt: users.createdAt,
+        updatedAt: users.updatedAt,
+        groups: sql<string>`COALESCE(
+          (SELECT JSON_AGG(
+            JSON_BUILD_OBJECT(
+              'id', g.id,
+              'name', g.name,
+              'description', g.description
+            )
+          )
+          FROM ${userGroups} ug
+          JOIN ${groups} g ON ug.group_id = g.id
+          WHERE ug.user_id = ${users.id}),
+          '[]'::json
+        )`
+      })
+      .from(users)
+      .orderBy(asc(users.firstName));
+
+    return usersWithGroups.map(user => ({
+      ...user,
+      groups: typeof user.groups === 'string' ? JSON.parse(user.groups) : user.groups
+    }));
   }
 
   async updateUser(id: string, data: Partial<User>): Promise<User> {
