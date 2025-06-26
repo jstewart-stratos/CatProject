@@ -134,6 +134,12 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **June 26, 2025**: Redesigned group interface with square cards and popup details modal
+  - ✅ **Square card layout**: Groups now display in clean 3-column grid with compact square cards
+  - ✅ **Card-based actions**: Edit, view details, and delete buttons integrated directly on each group card
+  - ✅ **Popup detail modal**: Click Users icon to open comprehensive modal showing group info and all members
+  - ✅ **No expansion behavior**: Removed card expansion for cleaner, more predictable interface
+  - ✅ **Enhanced member display**: Modal shows member avatars, names, usernames, and roles in organized grid
 - **June 26, 2025**: Simplified group management and updated user editing interface
   - ✅ **Simplified group creation form**: Removed complex permissions, focus purely on data sharing between team members
   - ✅ **Updated user editing interface**: When editing users, group membership now shows as read-only badges instead of editable checkboxes
