@@ -1474,8 +1474,26 @@ export default function AccountFormEnhanced() {
       <Sidebar currentView="accounts" />
       <div className="flex-1 flex flex-col">
         <TopBar title="Create New Account" subtitle="Enhanced account creation form" />
-        <main className="flex-1 overflow-auto">
-          <div className="max-w-6xl mx-auto p-6">
+        <main className="flex-1 overflow-auto p-6">
+          <div className="max-w-7xl mx-auto space-y-6">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+              <h1 className="text-2xl font-bold text-foreground">Create New Account</h1>
+              <div className="flex items-center gap-4">
+                {clientId && (
+                  <Badge variant="outline">
+                    Client ID: {clientId}
+                  </Badge>
+                )}
+                <Link href="/accounts">
+                  <Button variant="ghost" className="bg-muted text-muted-foreground hover:bg-accent">
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Back to Accounts
+                  </Button>
+                </Link>
+              </div>
+            </div>
+
             <div className="bg-card shadow-lg rounded-lg overflow-hidden">
               {/* Top Navigation Steps */}
               <div className="bg-muted border-b p-4">
@@ -1484,7 +1502,7 @@ export default function AccountFormEnhanced() {
                     <button
                       key={section.id}
                       type="button"
-                      className={`px-4 py-2 text-sm rounded-md transition-colors ${
+                      className={`px-3 py-2 text-sm rounded-md transition-colors ${
                         currentSection === section.id
                           ? 'bg-primary text-primary-foreground font-medium'
                           : completedSections.includes(section.id)
@@ -1501,27 +1519,9 @@ export default function AccountFormEnhanced() {
               </div>
 
               {/* Main Content */}
-              <div className="p-8 space-y-12 bg-background">
-                {/* Header */}
-                <div className="flex items-center justify-between mb-6">
-                  <h1 className="text-2xl font-bold text-foreground">Create New Account</h1>
-                  <div className="flex items-center gap-4">
-                    {clientId && (
-                      <Badge variant="outline">
-                        Client ID: {clientId}
-                      </Badge>
-                    )}
-                    <Link href="/accounts">
-                      <Button variant="ghost" className="bg-muted text-muted-foreground hover:bg-accent">
-                        <ArrowLeft className="h-4 w-4 mr-2" />
-                        Back to Accounts
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-12">
+              <div className="p-6 bg-background">
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               {currentSection === 'accountInfo' && renderAccountInfoSection()}
               
               {currentSection === 'achInfo' && (
