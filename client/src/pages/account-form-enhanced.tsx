@@ -884,7 +884,13 @@ export default function AccountFormEnhanced() {
   // Section validation functions
   const validateAccountInfo = () => {
     const values = form.getValues();
-    return !!(values.clientId && values.repId && values.accountType && values.programType && values.registrationType);
+    // Check for required fields, allowing empty strings to be considered invalid
+    const hasClientId = values.clientId && values.clientId > 0;
+    const hasAccountType = values.accountType && values.accountType.trim() !== "";
+    const hasProgramType = values.programType && values.programType.trim() !== "";
+    const hasRegistrationType = values.registrationType && values.registrationType.trim() !== "";
+    
+    return hasClientId && hasAccountType && hasProgramType && hasRegistrationType;
   };
 
   const validateACHInfo = () => {
@@ -1030,7 +1036,11 @@ export default function AccountFormEnhanced() {
   };
 
   const canCreateAccount = () => {
-    return validateAccountInfo() && validateAdditionalHolders() && validateBeneficiaries();
+    const accountValid = validateAccountInfo();
+    const additionalHoldersValid = validateAdditionalHolders();
+    const beneficiariesValid = validateBeneficiaries();
+    
+    return accountValid && additionalHoldersValid && beneficiariesValid;
   };
 
   const renderSectionNavigation = (sectionKey: string, isFirstSection: boolean = false, isLastSection: boolean = false) => {
