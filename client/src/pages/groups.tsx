@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Edit, Trash2, Users } from "lucide-react";
+import { Plus, Edit, Trash2, Users, X } from "lucide-react";
 
 export default function Groups() {
   const { toast } = useToast();
@@ -88,6 +88,32 @@ export default function Groups() {
       });
     },
   });
+
+  // Remove member from group mutation
+  const removeMemberMutation = useMutation({
+    mutationFn: async ({ groupId, userId }: { groupId: number; userId: string }) => {
+      await apiRequest("DELETE", `/api/groups/${groupId}/users/${userId}`);
+    },
+    onSuccess: (_, { groupId }) => {
+      // Refresh the group members for this specific group
+      fetchGroupMembers(groupId);
+      toast({
+        title: "Success",
+        description: "Member removed from group successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to remove member from group",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const removeMemberFromGroup = (groupId: number, userId: string) => {
+    removeMemberMutation.mutate({ groupId, userId });
+  };
 
   const openModal = (group?: any) => {
     setSelectedGroup(group || null);
@@ -271,6 +297,14 @@ export default function Groups() {
                             @{member.username || 'unknown'} • {member.role || 'user'}
                           </p>
                         </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeMemberFromGroup(selectedGroupForDetails.id, member.id)}
+                          className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
                       </div>
                     ))}
                   </div>
