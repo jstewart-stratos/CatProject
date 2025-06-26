@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { z } from "zod";
-import { insertGroupSchema } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
@@ -28,8 +27,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
 
-const groupFormSchema = insertGroupSchema.extend({
+const groupFormSchema = z.object({
   name: z.string().min(1, "Group name is required"),
+  description: z.string().optional(),
 });
 
 type GroupFormData = z.infer<typeof groupFormSchema>;
@@ -41,31 +41,22 @@ interface GroupModalProps {
   onSuccess: () => void;
 }
 
-const availablePermissions = [
-  "read_clients",
-  "write_clients",
-  "delete_clients",
-  "read_accounts",
-  "write_accounts",
-  "delete_accounts",
-  "import_data",
-  "export_data",
-  "user_management",
-  "group_management",
-  "view_audit_logs",
-];
-
 export default function GroupModal({ isOpen, onClose, group, onSuccess }: GroupModalProps) {
   const { toast } = useToast();
   const isEditing = !!group;
-  const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+
+  // Fetch available users
+  const { data: users = [] } = useQuery({
+    queryKey: ["/api/users"],
+    enabled: isOpen,
+  });
 
   const form = useForm<GroupFormData>({
     resolver: zodResolver(groupFormSchema),
     defaultValues: {
       name: "",
       description: "",
-      permissions: [],
       ...group,
     },
   });
@@ -75,43 +66,69 @@ export default function GroupModal({ isOpen, onClose, group, onSuccess }: GroupM
       form.reset({
         name: group.name || "",
         description: group.description || "",
-        permissions: group.permissions || [],
       });
-      setSelectedPermissions(group.permissions || []);
+      // Get existing group members if editing
+      if (group.id) {
+        fetchGroupMembers(group.id);
+      }
     } else {
       form.reset({
         name: "",
         description: "",
-        permissions: [],
       });
-      setSelectedPermissions([]);
+      setSelectedUsers([]);
     }
   }, [group, form]);
 
-  const handlePermissionChange = (permission: string, checked: boolean) => {
-    let newPermissions: string[];
-    if (checked) {
-      newPermissions = [...selectedPermissions, permission];
-    } else {
-      newPermissions = selectedPermissions.filter(p => p !== permission);
+  const fetchGroupMembers = async (groupId: string) => {
+    try {
+      const response = await apiRequest("GET", `/api/groups/${groupId}/members`);
+      setSelectedUsers(response.map((member: any) => member.userId));
+    } catch (error) {
+      console.error("Error fetching group members:", error);
     }
-    setSelectedPermissions(newPermissions);
-    form.setValue("permissions", newPermissions);
+  };
+
+  const handleUserSelection = (userId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedUsers([...selectedUsers, userId]);
+    } else {
+      setSelectedUsers(selectedUsers.filter(id => id !== userId));
+    }
   };
 
   const mutation = useMutation({
     mutationFn: async (data: GroupFormData) => {
-      const payload = {
-        ...data,
-        permissions: selectedPermissions,
-      };
       const url = isEditing ? `/api/groups/${group.id}` : "/api/groups";
       const method = isEditing ? "PUT" : "POST";
-      return await apiRequest(method, url, payload);
+      
+      // Create the group first
+      const groupResponse = await apiRequest(method, url, data);
+      
+      // If we have selected users, add them to the group
+      if (selectedUsers.length > 0) {
+        const groupId = isEditing ? group.id : groupResponse.id;
+        
+        // Clear existing members if editing
+        if (isEditing) {
+          await apiRequest("DELETE", `/api/groups/${groupId}/members`);
+        }
+        
+        // Add selected users
+        await apiRequest("POST", `/api/groups/${groupId}/members`, {
+          userIds: selectedUsers
+        });
+      }
+      
+      return groupResponse;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/groups"] });
       onSuccess();
+      toast({
+        title: "Success",
+        description: `Group ${isEditing ? "updated" : "created"} successfully`,
+      });
     },
     onError: (error) => {
       if (isUnauthorizedError(error)) {
@@ -156,7 +173,7 @@ export default function GroupModal({ isOpen, onClose, group, onSuccess }: GroupM
                 <FormItem>
                   <FormLabel>Group Name *</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Enter group name" />
+                    <Input {...field} placeholder="Enter group name (e.g., Sales Team, Operations Team)" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -172,7 +189,7 @@ export default function GroupModal({ isOpen, onClose, group, onSuccess }: GroupM
                   <FormControl>
                     <Textarea 
                       {...field} 
-                      placeholder="Describe the purpose and responsibilities of this group"
+                      placeholder="Describe the purpose of this group and what data members will share"
                       rows={3}
                     />
                   </FormControl>
@@ -182,51 +199,68 @@ export default function GroupModal({ isOpen, onClose, group, onSuccess }: GroupM
             />
 
             <div>
-              <FormLabel className="text-base">Permissions</FormLabel>
+              <FormLabel className="text-base">Group Members</FormLabel>
               <p className="text-sm text-muted-foreground mb-4">
-                Select the permissions that members of this group will have
+                Select users who will be able to share and view each other's client and account data
               </p>
               
-              <div className="grid grid-cols-2 gap-4">
-                {availablePermissions.map((permission) => (
-                  <div key={permission} className="flex items-center space-x-2">
+              <div className="grid grid-cols-1 gap-3 max-h-64 overflow-y-auto border rounded-md p-3">
+                {users?.map((user: any) => (
+                  <div key={user.id} className="flex items-center space-x-3">
                     <Checkbox
-                      id={permission}
-                      checked={selectedPermissions.includes(permission)}
+                      id={user.id}
+                      checked={selectedUsers.includes(user.id)}
                       onCheckedChange={(checked) => 
-                        handlePermissionChange(permission, checked as boolean)
+                        handleUserSelection(user.id, checked as boolean)
                       }
                     />
                     <label 
-                      htmlFor={permission}
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      htmlFor={user.id}
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex-1"
                     >
-                      {permission.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase())}
+                      {user.firstName} {user.lastName} ({user.username}) - {user.role}
                     </label>
                   </div>
                 ))}
               </div>
 
-              {selectedPermissions.length > 0 && (
+              {selectedUsers.length > 0 && (
                 <div className="mt-4">
-                  <p className="text-sm font-medium mb-2">Selected Permissions:</p>
+                  <p className="text-sm text-muted-foreground mb-2">Selected members ({selectedUsers.length}):</p>
                   <div className="flex flex-wrap gap-2">
-                    {selectedPermissions.map((permission) => (
-                      <Badge key={permission} variant="secondary">
-                        {permission.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase())}
-                      </Badge>
-                    ))}
+                    {selectedUsers.map((userId) => {
+                      const user = users?.find((u: any) => u.id === userId);
+                      return user ? (
+                        <Badge 
+                          key={userId} 
+                          variant="secondary" 
+                          className="flex items-center gap-1"
+                        >
+                          {user.firstName} {user.lastName}
+                          <X 
+                            className="h-3 w-3 cursor-pointer" 
+                            onClick={() => handleUserSelection(userId, false)}
+                          />
+                        </Badge>
+                      ) : null;
+                    })}
                   </div>
                 </div>
               )}
             </div>
 
-            <div className="flex items-center justify-end space-x-4 pt-6 border-t border-slate-200">
+            <div className="flex justify-end space-x-2">
               <Button type="button" variant="outline" onClick={onClose}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={mutation.isPending}>
-                {mutation.isPending ? "Saving..." : isEditing ? "Update Group" : "Create Group"}
+              <Button 
+                type="submit" 
+                disabled={mutation.isPending}
+              >
+                {mutation.isPending 
+                  ? (isEditing ? "Updating..." : "Creating...") 
+                  : (isEditing ? "Update Group" : "Create Group")
+                }
               </Button>
             </div>
           </form>
