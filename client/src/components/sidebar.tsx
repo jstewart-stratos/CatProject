@@ -17,11 +17,11 @@ export default function Sidebar({ currentView }: SidebarProps) {
           'Content-Type': 'application/json',
         },
       });
-      window.location.href = '/login';
+      window.location.href = '/';
     } catch (error) {
       console.error('Logout error:', error);
-      // Fallback: redirect to login page anyway
-      window.location.href = '/login';
+      // Fallback: redirect to landing page anyway
+      window.location.href = '/';
     }
   };
 
