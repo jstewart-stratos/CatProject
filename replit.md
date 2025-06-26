@@ -143,7 +143,7 @@ Preferred communication style: Simple, everyday language.
   - ✅ **Added missing storage methods**: Implemented `getAllDraftOnboardings()`, `getDraftOnboardingsByGroups()`, `getAllDraftAccounts()`, and `getDraftAccountsByGroups()` methods for group-based draft visibility
   - ✅ **Enhanced draft sharing**: Users in same group can now see each other's draft onboarding clients and draft accounts for collaboration
   - ✅ **Maintained admin privileges**: Admin users continue to see all drafts across all groups
-  - ✅ **Secured navigation menu**: Standard users no longer see User Management and Groups sections in sidebar navigation
+  - ✅ **Secured navigation menu**: Standard users no longer see User Management and Groups sections in sidebar navigation, while admins and transition specialists maintain access
 - **June 26, 2025**: Successfully created test client and account data for Amanda Garcia and Kevin Le
   - ✅ **Amanda Garcia clients**: Created 2 complete client profiles with comprehensive financial data, investment experience, and trusted contacts
   - ✅ **Kevin Le clients**: Created 3 complete client profiles with varying account types (Individual, IRA) and investment strategies  

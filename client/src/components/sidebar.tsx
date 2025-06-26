@@ -40,7 +40,7 @@ export default function Sidebar({ currentView }: SidebarProps) {
   // Filter menu items based on user role
   const menuItems = allMenuItems.filter(item => {
     if (item.adminOnly) {
-      return user?.role === 'admin';
+      return user?.role === 'admin' || user?.role === 'transition_specialist';
     }
     return true;
   });
