@@ -51,7 +51,7 @@ const accountFormSchema = z.object({
   decedentName: z.string().optional(),
   dateOfDeath: z.string().optional(),
   distributionTypes: z.string().optional(),
-  investmentTimeHorizon: z.string().min(1, "Investment Time Horizon is required"),
+  investmentTimeHorizon: z.string().optional(),
   fundsNeededIn: z.string().optional(),
   // ACH Information
   achAccounts: z.array(z.object({
@@ -2663,7 +2663,13 @@ export default function AccountFormEnhanced() {
                                 <FormLabel className="text-base font-medium">Percentage</FormLabel>
                                 <div className="flex gap-2">
                                   <FormControl>
-                                    <Input placeholder="%" {...field} className="w-20" />
+                                    <Input 
+                                      placeholder="%" 
+                                      type="number"
+                                      {...field}
+                                      onChange={(e) => field.onChange(Number(e.target.value))}
+                                      className="w-20" 
+                                    />
                                   </FormControl>
                                   <span className="flex items-center text-gray-500">%</span>
                                 </div>
