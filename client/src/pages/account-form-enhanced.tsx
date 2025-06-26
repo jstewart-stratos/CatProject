@@ -1475,7 +1475,7 @@ export default function AccountFormEnhanced() {
       <div className="flex-1 flex flex-col">
         <TopBar title="Create New Account" subtitle="Enhanced account creation form" />
         <main className="flex-1 overflow-auto p-4">
-          <div className="max-w-2xl ml-96 space-y-3">
+          <div className="max-w-4xl ml-96 space-y-3">
             {/* Header */}
             <div className="flex items-center justify-between">
               <h1 className="text-xl font-bold text-foreground">Create New Account</h1>
@@ -1497,12 +1497,12 @@ export default function AccountFormEnhanced() {
             <div className="bg-card shadow rounded-lg overflow-hidden">
               {/* Top Navigation Steps */}
               <div className="bg-muted border-b p-2">
-                <div className="grid grid-cols-3 gap-1">
+                <div className="grid grid-cols-4 gap-2">
                   {navigationSections.map((section, index) => (
                     <button
                       key={section.id}
                       type="button"
-                      className={`px-1 py-1 text-xs rounded transition-colors truncate ${
+                      className={`px-2 py-2 text-sm rounded transition-colors ${
                         currentSection === section.id
                           ? 'bg-primary text-primary-foreground font-medium'
                           : completedSections.includes(section.id)
@@ -1513,7 +1513,7 @@ export default function AccountFormEnhanced() {
                       title={section.label}
                     >
                       <span className="mr-1">{index + 1}.</span>
-                      <span className="truncate">{section.label}</span>
+                      <span>{section.label}</span>
                     </button>
                   ))}
                 </div>
@@ -1522,7 +1522,7 @@ export default function AccountFormEnhanced() {
               {/* Main Content */}
               <div className="p-3 bg-background">
                 <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               {currentSection === 'accountInfo' && renderAccountInfoSection()}
               
               {currentSection === 'achInfo' && (
