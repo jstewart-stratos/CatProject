@@ -478,6 +478,13 @@ export const insertFileUploadSchema = createInsertSchema(fileUploads).omit({
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
+export type UserWithGroups = User & {
+  groups: Array<{
+    id: number;
+    name: string;
+    description: string | null;
+  }>;
+};
 export type InsertGroup = z.infer<typeof insertGroupSchema>;
 export type Group = typeof groups.$inferSelect;
 export type InsertClient = z.infer<typeof insertClientSchema>;

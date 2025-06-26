@@ -11,6 +11,7 @@ import {
   fileUploads,
   type User,
   type UpsertUser,
+  type UserWithGroups,
   type Group,
   type InsertGroup,
   type Client,
@@ -42,7 +43,7 @@ export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
   getUserByEmail(email: string): Promise<User | undefined>;
-  getAllUsers(): Promise<User[]>;
+  getAllUsers(): Promise<UserWithGroups[]>;
   updateUser(id: string, data: Partial<User>): Promise<User>;
   deleteUser(id: string): Promise<void>;
 
@@ -149,7 +150,7 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
-  async getAllUsers(): Promise<User[]> {
+  async getAllUsers(): Promise<UserWithGroups[]> {
     // First get all users
     const allUsers = await db.select().from(users).orderBy(asc(users.firstName));
     
@@ -165,16 +166,22 @@ export class DatabaseStorage implements IStorage {
       .innerJoin(groups, eq(userGroups.groupId, groups.id));
 
     // Combine the data
-    return allUsers.map(user => ({
-      ...user,
-      groups: userGroupRelations
+    const usersWithGroups = allUsers.map(user => {
+      const userGroups = userGroupRelations
         .filter(relation => relation.userId === user.id)
         .map(relation => ({
           id: relation.groupId,
           name: relation.groupName,
           description: relation.groupDescription
-        }))
-    }));
+        }));
+      
+      return {
+        ...user,
+        groups: userGroups
+      };
+    });
+
+    return usersWithGroups as UserWithGroups[];
   }
 
   async updateUser(id: string, data: Partial<User>): Promise<User> {
