@@ -789,6 +789,7 @@ export class DatabaseStorage implements IStorage {
       .select({
         id: draftAccounts.id,
         userId: draftAccounts.userId,
+        draftName: draftAccounts.draftName,
         formData: draftAccounts.formData,
         currentSection: draftAccounts.currentSection,
         lastModified: draftAccounts.lastModified,
