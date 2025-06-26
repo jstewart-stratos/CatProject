@@ -57,7 +57,7 @@ export default function ClientDetails() {
   return (
     <div className="flex h-screen bg-background">
       <Sidebar currentView="clients" />
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col ml-64">
         <div className="border-b border-border bg-background p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
