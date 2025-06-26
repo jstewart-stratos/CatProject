@@ -2669,7 +2669,21 @@ export default function AccountFormEnhanced() {
                                 <FormItem>
                                   <FormLabel className="text-base font-medium">Date Of Birth</FormLabel>
                                   <FormControl>
-                                    <Input placeholder="mm/dd/yyyy" {...field} />
+                                    <Input 
+                                      placeholder="MM/DD/YYYY" 
+                                      {...field}
+                                      onChange={(e) => {
+                                        let value = e.target.value.replace(/\D/g, '');
+                                        if (value.length >= 2) {
+                                          value = value.substring(0, 2) + '/' + value.substring(2);
+                                        }
+                                        if (value.length >= 5) {
+                                          value = value.substring(0, 5) + '/' + value.substring(5, 9);
+                                        }
+                                        field.onChange(value);
+                                      }}
+                                      maxLength={10}
+                                    />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
@@ -2682,7 +2696,21 @@ export default function AccountFormEnhanced() {
                                 <FormItem>
                                   <FormLabel className="text-base font-medium">SSN</FormLabel>
                                   <FormControl>
-                                    <Input placeholder="123456789" {...field} />
+                                    <Input 
+                                      placeholder="XXX-XX-XXXX" 
+                                      {...field}
+                                      onChange={(e) => {
+                                        let value = e.target.value.replace(/\D/g, '');
+                                        if (value.length >= 3) {
+                                          value = value.substring(0, 3) + '-' + value.substring(3);
+                                        }
+                                        if (value.length >= 6) {
+                                          value = value.substring(0, 6) + '-' + value.substring(6, 10);
+                                        }
+                                        field.onChange(value);
+                                      }}
+                                      maxLength={11}
+                                    />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
