@@ -150,7 +150,7 @@ export const accounts = pgTable("accounts", {
   
   // Investment Details
   investmentObjective: varchar("investment_objective"),
-  approximateAccountValue: decimal("approximate_account_value"),
+  approximateAccountValue: varchar("approximate_account_value"),
   expectedAccountValue: decimal("expected_account_value"),
   investmentTimeHorizon: varchar("investment_time_horizon"),
   fundsNeededIn: varchar("funds_needed_in"),
