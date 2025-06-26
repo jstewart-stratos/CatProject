@@ -87,15 +87,23 @@ export default function GroupModal({ isOpen, onClose, group, onSuccess }: GroupM
 
   const fetchGroupMembers = async (groupId: string) => {
     try {
-      const response = await apiRequest("GET", `/api/groups/${groupId}/members`);
+      const response = await fetch(`/api/groups/${groupId}/members`, {
+        credentials: "include",
+      });
       
-      // The API response should already be full user objects, not just userIds
-      if (Array.isArray(response)) {
-        const memberIds = response.map((member: any) => member.id || member.userId);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const members = await response.json();
+      console.log("Fetched group members:", members);
+      
+      if (Array.isArray(members)) {
+        const memberIds = members.map((member: any) => member.id);
         setSelectedUsers(memberIds);
-        setGroupMembers(response);
+        setGroupMembers(members);
       } else {
-        console.error("Unexpected response format:", response);
+        console.error("Unexpected response format:", members);
         setSelectedUsers([]);
         setGroupMembers([]);
       }

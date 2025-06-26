@@ -299,7 +299,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/groups/:id/members', isAuthenticated, checkPermission(['manage_groups', 'view_dashboard']), async (req, res) => {
     try {
       const { id } = req.params;
+      console.log(`Fetching members for group ${id}`);
       const members = await storage.getGroupMembers(parseInt(id));
+      console.log(`Found ${members.length} members:`, members);
       res.json(members);
     } catch (error) {
       console.error("Error fetching group members:", error);
