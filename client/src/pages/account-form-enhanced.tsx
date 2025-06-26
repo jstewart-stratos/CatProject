@@ -1476,27 +1476,32 @@ export default function AccountFormEnhanced() {
         <TopBar title="Create New Account" subtitle="Enhanced account creation form" />
         <main className="flex-1 overflow-auto">
           <div className="max-w-6xl mx-auto p-6">
-            <div className="bg-card shadow-lg rounded-lg overflow-hidden flex">
-              {/* Sidebar Navigation */}
-              <nav className="w-1/4 bg-muted p-6 space-y-2 sticky top-0">
-                {navigationSections.map((section) => (
-                  <button
-                    key={section.id}
-                    type="button"
-                    className={`nav-btn w-full text-left px-3 py-2 rounded-r ${
-                      currentSection === section.id
-                        ? 'bg-background border-l-4 border-primary text-primary font-medium'
-                        : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-                    }`}
-                    onClick={() => setCurrentSection(section.id)}
-                  >
-                    {section.label}
-                  </button>
-                ))}
-        </nav>
+            <div className="bg-card shadow-lg rounded-lg overflow-hidden">
+              {/* Top Navigation Steps */}
+              <div className="bg-muted border-b p-4">
+                <div className="flex flex-wrap gap-2">
+                  {navigationSections.map((section, index) => (
+                    <button
+                      key={section.id}
+                      type="button"
+                      className={`px-4 py-2 text-sm rounded-md transition-colors ${
+                        currentSection === section.id
+                          ? 'bg-primary text-primary-foreground font-medium'
+                          : completedSections.includes(section.id)
+                          ? 'bg-accent text-accent-foreground'
+                          : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                      }`}
+                      onClick={() => setCurrentSection(section.id)}
+                    >
+                      <span className="mr-2">{index + 1}.</span>
+                      {section.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
               {/* Main Content */}
-              <div className="w-3/4 p-8 space-y-12 bg-background">
+              <div className="p-8 space-y-12 bg-background">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6">
                   <h1 className="text-2xl font-bold text-foreground">Create New Account</h1>
@@ -3375,9 +3380,9 @@ export default function AccountFormEnhanced() {
               
 
 
-            </form>
-          </Form>
-        </div>
+                </form>
+              </Form>
+              </div>
             </div>
           </div>
         </main>
