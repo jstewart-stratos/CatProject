@@ -52,6 +52,17 @@ export default function Groups() {
     }
   };
 
+  // Fetch member counts for all groups when groups are loaded
+  useEffect(() => {
+    if (groups && groups.length > 0) {
+      groups.forEach((group: any) => {
+        if (!groupMembers[group.id]) {
+          fetchGroupMembers(group.id);
+        }
+      });
+    }
+  }, [groups]);
+
   // Delete group mutation
   const deleteGroupMutation = useMutation({
     mutationFn: async (groupId: number) => {

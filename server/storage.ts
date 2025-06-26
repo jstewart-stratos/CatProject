@@ -56,6 +56,7 @@ export interface IStorage {
   addUserToGroup(userId: string, groupId: number): Promise<void>;
   removeUserFromGroup(userId: string, groupId: number): Promise<void>;
   getUserGroups(userId: string): Promise<Group[]>;
+  getGroupMembers(groupId: number): Promise<User[]>;
 
   // Client operations
   createClient(client: InsertClient): Promise<Client>;
@@ -247,6 +248,15 @@ export class DatabaseStorage implements IStorage {
       .innerJoin(groups, eq(userGroups.groupId, groups.id))
       .where(eq(userGroups.userId, userId));
     return result.map(r => r.group);
+  }
+
+  async getGroupMembers(groupId: number): Promise<User[]> {
+    const result = await db
+      .select({ user: users })
+      .from(userGroups)
+      .innerJoin(users, eq(userGroups.userId, users.id))
+      .where(eq(userGroups.groupId, groupId));
+    return result.map(r => r.user);
   }
 
   // Client operations

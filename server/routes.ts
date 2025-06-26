@@ -296,6 +296,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get('/api/groups/:id/members', isAuthenticated, checkPermission(['manage_groups', 'view_dashboard']), async (req, res) => {
+    try {
+      const { id } = req.params;
+      const members = await storage.getGroupMembers(parseInt(id));
+      res.json(members);
+    } catch (error) {
+      console.error("Error fetching group members:", error);
+      res.status(500).json({ message: "Failed to fetch group members" });
+    }
+  });
+
   app.post('/api/groups/:groupId/users/:userId', isAuthenticated, checkPermission(['manage_groups']), async (req, res) => {
     try {
       const { groupId, userId } = req.params;

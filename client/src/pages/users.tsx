@@ -259,11 +259,14 @@ export default function Users() {
                           <TableCell className="text-sm text-slate-600">
                             {user.groups && user.groups.length > 0 ? (
                               <div className="flex flex-wrap gap-1">
-                                {user.groups.map((group: any) => (
-                                  <Badge key={group.id} variant="outline" className="text-xs">
-                                    {group.name}
-                                  </Badge>
-                                ))}
+                                {[...new Set(user.groups.map((group: any) => group.id))].map(groupId => {
+                                  const group = user.groups.find((g: any) => g.id === groupId);
+                                  return (
+                                    <Badge key={`${user.id}-${groupId}`} variant="outline" className="text-xs">
+                                      {group.name}
+                                    </Badge>
+                                  );
+                                })}
                               </div>
                             ) : (
                               <span className="text-slate-400">No groups</span>
