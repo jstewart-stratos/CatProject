@@ -845,14 +845,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/draft-accounts', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
+      const formData = req.body.formData || {};
+      
+      // Generate a meaningful draft name based on client and account type
+      let draftName = "New Account Draft";
+      if (formData.clientId) {
+        try {
+          const client = await storage.getClient(formData.clientId);
+          if (client) {
+            const clientName = `${client.firstName || ''} ${client.lastName || ''}`.trim();
+            const accountType = formData.accountType || 'Account';
+            draftName = `${clientName} - ${accountType}`;
+          }
+        } catch (error) {
+          console.error('Error fetching client for draft name:', error);
+          // Fall back to generic name if client fetch fails
+        }
+      }
+
       const draftData = {
         ...req.body,
         userId,
+        draftName,
       };
 
       // Check if user already has a draft with similar account data
       const existingDrafts = await storage.getUserDraftAccounts(userId);
-      const formData = draftData.formData || {};
       
       // Look for existing draft with matching client and account data
       const existingDraft = existingDrafts.find((draft: any) => {
@@ -875,8 +893,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       if (existingDraft) {
-        // Update existing draft instead of creating new one
-        const updatedDraft = await storage.updateDraftAccount(existingDraft.id, draftData);
+        // Update existing draft instead of creating new one, but also update the name
+        const updatedDraftData = { ...draftData, draftName };
+        const updatedDraft = await storage.updateDraftAccount(existingDraft.id, updatedDraftData);
         res.json(updatedDraft);
       } else {
         // Create new draft only if no match found
