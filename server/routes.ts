@@ -392,14 +392,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Public onboarding endpoint (no authentication required)
+  // Public onboarding endpoint (no authentication required, but records user if authenticated)
   app.post('/api/onboarding/client', async (req: any, res) => {
     try {
       console.log("Received onboarding client data:", req.body);
       
+      // Check if user is authenticated and record their ID
+      let createdBy = null;
+      if (req.session && req.session.user && req.session.user.id) {
+        createdBy = req.session.user.id;
+        console.log("Authenticated user creating client:", createdBy);
+      }
+      
       const clientData = insertClientSchema.parse({
         ...req.body,
-        createdBy: null
+        createdBy
       });
       console.log("Parsed onboarding client data:", clientData);
       
