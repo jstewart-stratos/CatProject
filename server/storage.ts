@@ -150,38 +150,30 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllUsers(): Promise<User[]> {
-    const usersWithGroups = await db
+    // First get all users
+    const allUsers = await db.select().from(users).orderBy(asc(users.firstName));
+    
+    // Then get all user-group relationships
+    const userGroupRelations = await db
       .select({
-        id: users.id,
-        username: users.username,
-        email: users.email,
-        firstName: users.firstName,
-        lastName: users.lastName,
-        role: users.role,
-        isActive: users.isActive,
-        lastLogin: users.lastLogin,
-        createdAt: users.createdAt,
-        updatedAt: users.updatedAt,
-        groups: sql<string>`COALESCE(
-          (SELECT JSON_AGG(
-            JSON_BUILD_OBJECT(
-              'id', g.id,
-              'name', g.name,
-              'description', g.description
-            )
-          )
-          FROM ${userGroups} ug
-          JOIN ${groups} g ON ug.group_id = g.id
-          WHERE ug.user_id = ${users.id}),
-          '[]'::json
-        )`
+        userId: userGroups.userId,
+        groupId: userGroups.groupId,
+        groupName: groups.name,
+        groupDescription: groups.description
       })
-      .from(users)
-      .orderBy(asc(users.firstName));
+      .from(userGroups)
+      .innerJoin(groups, eq(userGroups.groupId, groups.id));
 
-    return usersWithGroups.map(user => ({
+    // Combine the data
+    return allUsers.map(user => ({
       ...user,
-      groups: typeof user.groups === 'string' ? JSON.parse(user.groups) : user.groups
+      groups: userGroupRelations
+        .filter(relation => relation.userId === user.id)
+        .map(relation => ({
+          id: relation.groupId,
+          name: relation.groupName,
+          description: relation.groupDescription
+        }))
     }));
   }
 
