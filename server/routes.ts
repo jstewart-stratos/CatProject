@@ -759,9 +759,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/draft-onboarding', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
-      const drafts = await storage.getUserDraftOnboardings(userId);
-      res.json(drafts);
+      // Apply group-based filtering for draft onboardings
+      if (req.userRole === 'admin') {
+        // Admins see all drafts
+        const drafts = await storage.getAllDraftOnboardings();
+        res.json(drafts);
+      } else {
+        // All other users see drafts from their group members
+        const groupIds = req.userGroups.map((g: any) => g.id);
+        const drafts = await storage.getDraftOnboardingsByGroups(groupIds);
+        res.json(drafts);
+      }
     } catch (error) {
       console.error('Error fetching draft onboardings:', error);
       res.status(500).json({ message: 'Failed to fetch draft onboardings' });

@@ -134,6 +134,12 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **June 26, 2025**: Fixed draft client visibility issue for group-based data sharing
+  - ✅ **Applied group-based filtering to draft onboardings**: Updated `/api/draft-onboarding` endpoint to use same group filtering logic as regular clients
+  - ✅ **Fixed Bruce Banner draft assignment**: Corrected user_id for draft onboarding record from NULL to proper user ID for klee
+  - ✅ **Added missing storage methods**: Implemented `getAllDraftOnboardings()` and `getDraftOnboardingsByGroups()` methods for group-based draft visibility
+  - ✅ **Enhanced draft sharing**: Users in same group can now see each other's draft onboarding clients for collaboration
+  - ✅ **Maintained admin privileges**: Admin users continue to see all drafts across all groups
 - **June 26, 2025**: Successfully created test client and account data for Amanda Garcia and Kevin Le
   - ✅ **Amanda Garcia clients**: Created 2 complete client profiles with comprehensive financial data, investment experience, and trusted contacts
   - ✅ **Kevin Le clients**: Created 3 complete client profiles with varying account types (Individual, IRA) and investment strategies  
