@@ -116,9 +116,11 @@ export default function GroupModal({ isOpen, onClose, group, onSuccess }: GroupM
   // Filter users for search (exclude current members)
   const availableUsers = users?.filter((user: any) => 
     !selectedUsers.includes(user.id) &&
-    (user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-     user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-     user.username.toLowerCase().includes(searchTerm.toLowerCase()))
+    (
+      (user.firstName?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+      (user.lastName?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+      (user.username?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+    )
   ) || [];
 
   const mutation = useMutation({
@@ -239,7 +241,7 @@ export default function GroupModal({ isOpen, onClose, group, onSuccess }: GroupM
                         variant="secondary" 
                         className="flex items-center gap-1"
                       >
-                        {member.firstName} {member.lastName}
+                        {(member.firstName || '')} {(member.lastName || '')}
                         <X 
                           className="h-3 w-3 cursor-pointer hover:text-destructive" 
                           onClick={() => removeUserFromGroup(member.id)}
@@ -286,9 +288,11 @@ export default function GroupModal({ isOpen, onClose, group, onSuccess }: GroupM
                             onClick={() => addUserToGroup(user)}
                           >
                             <div>
-                              <p className="font-medium">{user.firstName} {user.lastName}</p>
+                              <p className="font-medium">
+                                {(user.firstName || '')} {(user.lastName || '')}
+                              </p>
                               <p className="text-sm text-muted-foreground">
-                                @{user.username} • {user.role}
+                                @{user.username || 'unknown'} • {user.role || 'user'}
                               </p>
                             </div>
                             <Plus className="h-4 w-4 text-muted-foreground" />
