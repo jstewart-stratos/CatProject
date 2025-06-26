@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { insertUserSchema } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -33,6 +33,7 @@ const userFormSchema = z.object({
   email: z.string().email("Invalid email address"),
   role: z.string().min(1, "Role is required"),
   isActive: z.boolean().default(true),
+  groupIds: z.array(z.number()).optional(),
 });
 
 type UserFormData = z.infer<typeof userFormSchema>;
@@ -47,6 +48,16 @@ interface UserModalProps {
 export default function UserModal({ isOpen, onClose, user, onSuccess }: UserModalProps) {
   const { toast } = useToast();
   const isEditing = !!user;
+
+  const { data: groups = [] } = useQuery({
+    queryKey: ["/api/groups"],
+    enabled: isOpen,
+  });
+
+  const { data: userGroups = [] } = useQuery({
+    queryKey: ["/api/users", user?.id, "groups"],
+    enabled: isOpen && isEditing,
+  });
 
   const form = useForm<UserFormData>({
     resolver: zodResolver(userFormSchema),
@@ -68,6 +79,7 @@ export default function UserModal({ isOpen, onClose, user, onSuccess }: UserModa
         email: user.email || "",
         role: user.role || "user",
         isActive: user.isActive !== undefined ? user.isActive : true,
+        groupIds: userGroups.map((g: any) => g.id) || [],
       });
     } else {
       form.reset({
@@ -76,9 +88,10 @@ export default function UserModal({ isOpen, onClose, user, onSuccess }: UserModa
         email: "",
         role: "user",
         isActive: true,
+        groupIds: [],
       });
     }
-  }, [user, form]);
+  }, [user, form, userGroups]);
 
   const mutation = useMutation({
     mutationFn: async (data: UserFormData) => {
@@ -188,6 +201,64 @@ export default function UserModal({ isOpen, onClose, user, onSuccess }: UserModa
                       <SelectItem value="viewer">Viewer</SelectItem>
                     </SelectContent>
                   </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Group Selection */}
+            <FormField
+              control={form.control}
+              name="groupIds"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Groups *</FormLabel>
+                  <div className="grid grid-cols-1 gap-2 max-h-40 overflow-y-auto border rounded-md p-3">
+                    {groups.map((group: any) => {
+                      const isChecked = field.value?.includes(group.id) || false;
+                      const selectedRole = form.watch("role");
+                      const isStandardUser = selectedRole === "user";
+                      const currentSelections = field.value || [];
+                      const canSelect = !isStandardUser || currentSelections.length === 0;
+                      
+                      return (
+                        <div key={group.id} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`group-${group.id}`}
+                            checked={isChecked}
+                            disabled={!canSelect && !isChecked}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                if (isStandardUser) {
+                                  // Standard users can only be in one group
+                                  field.onChange([group.id]);
+                                } else {
+                                  // Admin/Transition specialists can be in multiple groups
+                                  field.onChange([...currentSelections, group.id]);
+                                }
+                              } else {
+                                field.onChange(currentSelections.filter((id: number) => id !== group.id));
+                              }
+                            }}
+                          />
+                          <label 
+                            htmlFor={`group-${group.id}`} 
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                          >
+                            {group.name}
+                          </label>
+                        </div>
+                      );
+                    })}
+                    {groups.length === 0 && (
+                      <p className="text-sm text-muted-foreground">No groups available</p>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {form.watch("role") === "user" 
+                      ? "Standard users can only be in one group" 
+                      : "Admin and Transition Specialists can be in multiple groups"}
+                  </p>
                   <FormMessage />
                 </FormItem>
               )}

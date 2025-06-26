@@ -157,8 +157,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         email: z.string().email(),
         role: z.string(),
         isActive: z.boolean().default(true),
+        groupIds: z.array(z.number()).optional(),
       });
-      const userData = userCreateSchema.parse(req.body);
+      const { groupIds, ...userData } = userCreateSchema.parse(req.body);
       
       // For creating users via admin, we need to generate an ID
       const newUser = {
@@ -167,6 +168,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
       
       const user = await storage.upsertUser(newUser);
+      
+      // Add user to selected groups
+      if (groupIds && groupIds.length > 0) {
+        for (const groupId of groupIds) {
+          await storage.addUserToGroup(user.id, groupId);
+        }
+      }
+      
       res.status(201).json(user);
     } catch (error) {
       console.error("Error creating user:", error);
@@ -184,13 +193,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
         email: z.string().email().optional(),
         role: z.string().optional(),
         isActive: z.boolean().optional(),
+        groupIds: z.array(z.number()).optional(),
       });
-      const updateData = userUpdateSchema.parse(req.body);
+      const { groupIds, ...updateData } = userUpdateSchema.parse(req.body);
       const user = await storage.updateUser(id, updateData);
+      
+      // Update group memberships if provided
+      if (groupIds !== undefined) {
+        // First, remove user from all current groups
+        const currentGroups = await storage.getUserGroups(id);
+        for (const group of currentGroups) {
+          await storage.removeUserFromGroup(id, group.id);
+        }
+        
+        // Then add user to selected groups
+        for (const groupId of groupIds) {
+          await storage.addUserToGroup(id, groupId);
+        }
+      }
+      
       res.json(user);
     } catch (error) {
       console.error("Error updating user:", error);
       res.status(500).json({ message: "Failed to update user" });
+    }
+  });
+
+  app.get('/api/users/:id/groups', isAuthenticated, checkPermission(['manage_users']), async (req, res) => {
+    try {
+      const { id } = req.params;
+      const groups = await storage.getUserGroups(id);
+      res.json(groups);
+    } catch (error) {
+      console.error("Error fetching user groups:", error);
+      res.status(500).json({ message: "Failed to fetch user groups" });
     }
   });
 
