@@ -623,6 +623,11 @@ export default function AccountFormEnhanced() {
   });
 
   const onSubmit = (data: AccountFormData) => {
+    console.log('Form submission triggered with data:', data);
+    console.log('Form validation state:', form.formState.isValid);
+    console.log('Form errors:', form.formState.errors);
+    
+    // Submit the data directly without complex transformations for now
     createAccountMutation.mutate(data);
   };
 
@@ -943,6 +948,16 @@ export default function AccountFormEnhanced() {
             type="submit"
             disabled={!canCreateAccount()}
             className="flex items-center gap-2"
+            onClick={(e) => {
+              e.preventDefault();
+              console.log('Create Account button clicked');
+              console.log('Form errors:', form.formState.errors);
+              console.log('Form is valid:', form.formState.isValid);
+              console.log('Can create account:', canCreateAccount());
+              
+              // Manually trigger form submission
+              form.handleSubmit(onSubmit)();
+            }}
           >
             Create Account
             <Check className="w-4 h-4" />
