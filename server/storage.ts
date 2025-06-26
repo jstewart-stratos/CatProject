@@ -374,15 +374,16 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllAccounts(search?: string, accountType?: string, limit = 50, offset = 0): Promise<{ accounts: Account[]; total: number }> {
-    let query = db
-      .select({
-        account: accounts,
-        client: clients,
-      })
+    // Use a simpler approach to avoid nested select issues
+    let baseQuery = db
+      .select()
       .from(accounts)
       .innerJoin(clients, eq(accounts.clientId, clients.id));
     
-    let countQuery = db.select({ count: sql<number>`count(*)` }).from(accounts);
+    let countQuery = db
+      .select({ count: sql<number>`count(*)` })
+      .from(accounts)
+      .innerJoin(clients, eq(accounts.clientId, clients.id));
 
     const conditions = [];
     
@@ -390,7 +391,9 @@ export class DatabaseStorage implements IStorage {
       const searchCondition = or(
         ilike(clients.firstName, `%${search}%`),
         ilike(clients.lastName, `%${search}%`),
-        ilike(clients.emailAddress, `%${search}%`)
+        ilike(clients.entityName, `%${search}%`),
+        ilike(accounts.accountType, `%${search}%`),
+        ilike(accounts.programType, `%${search}%`)
       );
       conditions.push(searchCondition);
     }
@@ -401,17 +404,23 @@ export class DatabaseStorage implements IStorage {
 
     if (conditions.length > 0) {
       const whereCondition = conditions.length === 1 ? conditions[0] : and(...conditions);
-      query = query.where(whereCondition);
+      baseQuery = baseQuery.where(whereCondition);
       countQuery = countQuery.where(whereCondition);
     }
 
-    const [accountsResult, totalResult] = await Promise.all([
-      query.orderBy(desc(accounts.createdAt)).limit(limit).offset(offset),
+    const [rawResults, totalResult] = await Promise.all([
+      baseQuery.orderBy(desc(accounts.createdAt)).limit(limit).offset(offset),
       countQuery
     ]);
 
+    // Transform results to include client data properly
+    const accounts = rawResults.map((row: any) => ({
+      ...row.accounts,
+      client: row.clients
+    }));
+
     return {
-      accounts: accountsResult.map(r => ({ ...r.account, client: r.client })),
+      accounts,
       total: totalResult[0].count
     };
   }
