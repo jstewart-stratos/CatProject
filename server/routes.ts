@@ -125,10 +125,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // User management routes
-  app.get('/api/users', isAuthenticated, checkPermission(['manage_users']), async (req, res) => {
+  app.get('/api/users', isAuthenticated, checkPermission(['manage_users']), async (req: any, res) => {
     try {
-      const users = await storage.getAllUsers();
-      res.json(users);
+      // Admins see all users, transitions specialists see users from all their groups,
+      // but transitions specialists need manage_users permission for this endpoint
+      if (req.userRole === 'admin') {
+        const users = await storage.getAllUsers();
+        res.json(users);
+      } else if (req.userRole === 'transition_specialist') {
+        // Transitions specialists see users from all groups they're assigned to
+        // This supports their cross-group user management role
+        const groupIds = req.userGroups.map((g: any) => g.id);
+        const users = await storage.getUsersByGroups(groupIds);
+        res.json(users);
+      } else {
+        // This shouldn't happen as only admin and transition_specialist have manage_users permission
+        // but safety fallback
+        const users = await storage.getAllUsers();
+        res.json(users);
+      }
     } catch (error) {
       console.error("Error fetching users:", error);
       res.status(500).json({ message: "Failed to fetch users" });
@@ -361,7 +376,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { search, limit = '50', offset = '0' } = req.query;
       
-      // Admins see all clients, group members see clients from their groups
+      // Admins see all clients, transitions specialists see clients from all their groups, 
+      // other users see clients from their groups
       if (req.userRole === 'admin') {
         const result = await storage.getAllClients(
           search as string,
@@ -369,8 +385,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
           parseInt(offset as string)
         );
         res.json(result);
+      } else if (req.userRole === 'transition_specialist') {
+        // Transitions specialists see clients from all groups they're assigned to
+        // This supports their cross-group client processing role
+        const groupIds = req.userGroups.map((g: any) => g.id);
+        const result = await storage.getClientsByGroups(
+          groupIds,
+          search as string,
+          parseInt(limit as string),
+          parseInt(offset as string)
+        );
+        res.json(result);
       } else {
-        // All other users see clients from their group members
+        // Standard users see clients from their group members only
         const groupIds = req.userGroups.map((g: any) => g.id);
         const result = await storage.getClientsByGroups(
           groupIds,
@@ -502,7 +529,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { search, accountType, limit = '50', offset = '0' } = req.query;
       
-      // Admins see all accounts, group members see accounts from their groups
+      // Admins see all accounts, transitions specialists see accounts from all their groups,
+      // other users see accounts from their groups
       if (req.userRole === 'admin') {
         const result = await storage.getAllAccounts(
           search as string,
@@ -511,8 +539,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
           parseInt(offset as string)
         );
         res.json(result);
+      } else if (req.userRole === 'transition_specialist') {
+        // Transitions specialists see accounts from all groups they're assigned to
+        // This supports their cross-group account processing role
+        const groupIds = req.userGroups.map((g: any) => g.id);
+        const result = await storage.getAccountsByGroups(
+          groupIds,
+          search as string,
+          accountType as string,
+          parseInt(limit as string),
+          parseInt(offset as string)
+        );
+        res.json(result);
       } else {
-        // All other users see accounts from their group members
+        // Standard users see accounts from their group members only
         const groupIds = req.userGroups.map((g: any) => g.id);
         const result = await storage.getAccountsByGroups(
           groupIds,

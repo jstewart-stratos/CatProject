@@ -44,6 +44,7 @@ export interface IStorage {
   upsertUser(user: UpsertUser): Promise<User>;
   getUserByEmail(email: string): Promise<User | undefined>;
   getAllUsers(): Promise<UserWithGroups[]>;
+  getUsersByGroups(groupIds: number[]): Promise<UserWithGroups[]>;
   updateUser(id: string, data: Partial<User>): Promise<User>;
   deleteUser(id: string): Promise<void>;
 
@@ -190,6 +191,57 @@ export class DatabaseStorage implements IStorage {
       return {
         ...user,
         groups: userGroups
+      };
+    });
+
+    return usersWithGroups as UserWithGroups[];
+  }
+
+  async getUsersByGroups(groupIds: number[]): Promise<UserWithGroups[]> {
+    // Get all users who are members of the specified groups
+    const groupMembers = await db
+      .selectDistinct({ userId: userGroups.userId })
+      .from(userGroups)
+      .where(inArray(userGroups.groupId, groupIds));
+    
+    const memberUserIds = groupMembers.map(member => member.userId);
+    
+    if (memberUserIds.length === 0) {
+      return [];
+    }
+    
+    // Get users data for those user IDs
+    const filteredUsers = await db
+      .select()
+      .from(users)
+      .where(inArray(users.id, memberUserIds))
+      .orderBy(asc(users.firstName));
+    
+    // Get all user-group relationships for these users
+    const userGroupRelations = await db
+      .select({
+        userId: userGroups.userId,
+        groupId: userGroups.groupId,
+        groupName: groups.name,
+        groupDescription: groups.description
+      })
+      .from(userGroups)
+      .innerJoin(groups, eq(userGroups.groupId, groups.id))
+      .where(inArray(userGroups.userId, memberUserIds));
+
+    // Combine the data
+    const usersWithGroups = filteredUsers.map(user => {
+      const userGroupsData = userGroupRelations
+        .filter(relation => relation.userId === user.id)
+        .map(relation => ({
+          id: relation.groupId,
+          name: relation.groupName,
+          description: relation.groupDescription
+        }));
+      
+      return {
+        ...user,
+        groups: userGroupsData
       };
     });
 
