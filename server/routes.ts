@@ -974,13 +974,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: 'Draft onboarding not found' });
       }
 
-      // Ensure user can only delete their own drafts
-      if (existingDraft.userId !== req.user?.claims?.sub) {
-        return res.status(403).json({ message: 'Access denied' });
+      // Apply group-based access control instead of user-only access
+      if (req.userRole === 'admin') {
+        // Admins can delete any draft
+        await storage.deleteDraftOnboarding(id);
+        res.json({ message: 'Draft onboarding deleted successfully' });
+      } else {
+        // Check if user can access this draft through group membership
+        const groupIds = req.userGroups.map((g: any) => g.id);
+        const accessibleDrafts = await storage.getDraftOnboardingsByGroups(groupIds);
+        const canAccess = accessibleDrafts.some(d => d.id === id);
+        
+        if (!canAccess) {
+          return res.status(403).json({ message: 'Access denied' });
+        }
+        
+        await storage.deleteDraftOnboarding(id);
+        res.json({ message: 'Draft onboarding deleted successfully' });
       }
-
-      await storage.deleteDraftOnboarding(id);
-      res.json({ message: 'Draft onboarding deleted successfully' });
     } catch (error) {
       console.error('Error deleting draft onboarding:', error);
       res.status(500).json({ message: 'Failed to delete draft onboarding' });
