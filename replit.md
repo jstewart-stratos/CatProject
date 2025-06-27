@@ -171,6 +171,12 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **June 27, 2025**: Fixed draft client deletion permissions by implementing group-based access control
+  - ✅ **Updated DELETE /api/draft-onboarding/:id endpoint** - Changed from user-only access control to group-based permissions matching other draft endpoints
+  - ✅ **Enabled cross-group draft deletion** - Users can now delete draft clients created by members of their groups
+  - ✅ **Maintained admin privileges** - Admin users retain ability to delete any draft across all groups
+  - ✅ **Consistent permission pattern** - All draft operations (onboarding and accounts) now use unified group-based access control
+  - ✅ **User confirmed functionality** - Draft deletion working without "Access denied" errors
 - **June 27, 2025**: Successfully completed bulk account management functionality with comprehensive selection and deletion capabilities
   - ✅ **Added bulk selection interface** - Implemented checkboxes for individual account selection and "Select All" functionality in table header
   - ✅ **Created conditional Delete Selected button** - Button appears only when accounts are selected, shows count of selected items
