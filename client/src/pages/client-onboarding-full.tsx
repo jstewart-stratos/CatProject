@@ -12,7 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { ChevronLeft, ChevronRight, CheckCircle, InfoIcon, Save, FileText } from "lucide-react";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -454,6 +454,14 @@ export default function ClientOnboardingFull() {
     },
     onSuccess: (data) => {
       console.log("Client operation successful:", data);
+      
+      // Invalidate client-related queries to refresh UI
+      if (editClientId) {
+        queryClient.invalidateQueries({ queryKey: ["/api/clients"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/clients", editClientId] });
+        queryClient.invalidateQueries({ queryKey: ["/api/audit-logs"] });
+      }
+      
       // Delete the draft if it was loaded from a draft
       if (currentDraftId) {
         deleteDraftMutation.mutate(currentDraftId);
