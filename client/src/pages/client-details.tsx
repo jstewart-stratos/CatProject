@@ -23,7 +23,16 @@ export default function ClientDetails() {
   });
 
   const { data: auditLogs, isLoading: auditLoading } = useQuery({
-    queryKey: [`/api/audit-logs`, { entityType: 'clients', entityId: id }],
+    queryKey: [`/api/audit-logs`, id],
+    queryFn: async () => {
+      const params = new URLSearchParams({
+        entityType: 'client',
+        entityId: id
+      });
+      const response = await fetch(`/api/audit-logs?${params}`);
+      if (!response.ok) throw new Error('Failed to fetch audit logs');
+      return response.json();
+    },
     enabled: !!id,
   });
 

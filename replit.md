@@ -171,6 +171,12 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **June 27, 2025**: Fixed audit trail filtering in client details page and resolved duplicate audit log creation
+  - ✅ **Identified root cause of duplicate audit logs** - Legacy audit middleware running alongside new AuditHelper system
+  - ✅ **Disabled legacy audit middleware** - Commented out old middleware that was creating duplicate entries with null summaries and "clients" entityType
+  - ✅ **Fixed client-specific audit trail filtering** - Updated client details page to properly filter audit logs by specific client ID using custom queryFn with URLSearchParams
+  - ✅ **Enhanced fallback display logic** - Improved audit log display across all interfaces to handle legacy data with better entity name formatting
+  - ✅ **Eliminated duplicate "Updates" display** - Client updates now create only one comprehensive audit log entry with meaningful summaries
 - **June 27, 2025**: Enhanced audit logs with meaningful entity names across all activity timelines
   - ✅ **Added entity name resolution system** - Created resolveEntityName method to lookup actual client names, account details, user info, and group names
   - ✅ **Enhanced audit summary generation** - Audit logs now show "Updated client: John Doe (modified firstName, email)" instead of "Updated client #75"
