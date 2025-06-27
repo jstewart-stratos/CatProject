@@ -88,7 +88,7 @@ export default function ClientDetails() {
                   Add Account
                 </Button>
               </Link>
-              <Button variant="outline">
+              <Button variant="outline" onClick={() => window.location.href = `/client-onboarding-full?editId=${id}`}>
                 <Edit className="h-4 w-4 mr-2" />
                 Edit Client
               </Button>
