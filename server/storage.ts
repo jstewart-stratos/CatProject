@@ -414,13 +414,13 @@ export class DatabaseStorage implements IStorage {
     ]);
 
     // Transform results to include client data properly
-    const accounts = rawResults.map((row: any) => ({
+    const accountsWithClients = rawResults.map((row: any) => ({
       ...row.accounts,
       client: row.clients
     }));
 
     return {
-      accounts,
+      accounts: accountsWithClients,
       total: totalResult[0].count
     };
   }
@@ -477,13 +477,13 @@ export class DatabaseStorage implements IStorage {
     ]);
 
     // Transform results to include client data properly
-    const accounts = rawResults.map((row: any) => ({
+    const accountsList = rawResults.map((row: any) => ({
       ...row.accounts,
       client: row.clients
     }));
 
     return {
-      accounts,
+      accounts: accountsList,
       total: totalResult[0].count
     };
   }
