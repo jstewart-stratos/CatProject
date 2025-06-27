@@ -368,7 +368,9 @@ export default function ClientDetails() {
                   </div>
                 ) : auditLogs && Array.isArray(auditLogs) && auditLogs.length > 0 ? (
                   <div className="space-y-4">
-                    {auditLogs.slice(0, 10).map((log: any) => (
+                    {auditLogs.slice(0, 10).map((log: any) => {
+                      console.log('Client details audit log:', log);
+                      return (
                       <div key={log.id} className="flex items-start space-x-4 border-b border-slate-200 pb-4 last:border-b-0">
                         <div className="flex-shrink-0">
                           <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
@@ -395,7 +397,8 @@ export default function ClientDetails() {
                           )}
                         </div>
                       </div>
-                    ))}
+                      );
+                    })}
                     {auditLogs && auditLogs.length > 10 && (
                       <div className="text-center pt-4">
                         <Link to="/audit-logs">
