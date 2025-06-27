@@ -57,9 +57,7 @@ export default function Accounts() {
   // Delete draft mutation
   const deleteDraftMutation = useMutation({
     mutationFn: async (draftId: number) => {
-      return await apiRequest(`/api/draft-accounts/${draftId}`, {
-        method: "DELETE",
-      });
+      return await apiRequest("DELETE", `/api/draft-accounts/${draftId}`);
     },
     onSuccess: () => {
       refetchDrafts();

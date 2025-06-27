@@ -434,83 +434,56 @@ export class DatabaseStorage implements IStorage {
     
     const memberUserIds = groupMembers.map(member => member.userId);
     
-    // Get accounts created by users in the same groups (via client relationship)
-    let query = db
-      .select({
-        id: accounts.id,
-        clientId: accounts.clientId,
-        accountType: accounts.accountType,
-        programType: accounts.programType,
-        registrationType: accounts.registrationType,
-        advisorFee: accounts.advisorFee,
-        advisoryBillingCycle: accounts.advisoryBillingCycle,
-        iraType: accounts.iraType,
-        transferOnDeath: accounts.transferOnDeath,
-        investmentObjective: accounts.investmentObjective,
-        investmentTimeHorizon: accounts.investmentTimeHorizon,
-        fundsNeededIn: accounts.fundsNeededIn,
-        approximateAccountValue: accounts.approximateAccountValue,
-        deliveringFirm: accounts.deliveringFirm,
-        contraAccount: accounts.contraAccount,
-        repId: accounts.repId,
-        notes: accounts.notes,
-        isLocked: accounts.isLocked,
-        createdAt: accounts.createdAt,
-        updatedAt: accounts.updatedAt,
-        client: {
-          id: clients.id,
-          firstName: clients.firstName,
-          lastName: clients.lastName,
-          entityName: clients.entityName
-        }
-      })
+    // Use the same approach as getAllAccounts to avoid complex select issues
+    let baseQuery = db
+      .select()
       .from(accounts)
       .innerJoin(clients, eq(accounts.clientId, clients.id));
-      
+    
     let countQuery = db
       .select({ count: sql<number>`count(*)` })
       .from(accounts)
       .innerJoin(clients, eq(accounts.clientId, clients.id));
-    
-    const groupCondition = inArray(clients.createdBy, memberUserIds);
-    query = query.where(groupCondition);
-    countQuery = countQuery.where(groupCondition);
 
-    // Build additional conditions
-    let additionalConditions = [];
+    const conditions = [];
+    
+    // Add group condition
+    conditions.push(inArray(clients.createdBy, memberUserIds));
 
     if (search) {
-      additionalConditions.push(
-        or(
-          ilike(clients.firstName, `%${search}%`),
-          ilike(clients.lastName, `%${search}%`),
-          ilike(clients.entityName, `%${search}%`),
-          ilike(accounts.accountType, `%${search}%`),
-          ilike(accounts.programType, `%${search}%`)
-        )
+      const searchCondition = or(
+        ilike(clients.firstName, `%${search}%`),
+        ilike(clients.lastName, `%${search}%`),
+        ilike(clients.entityName, `%${search}%`),
+        ilike(accounts.accountType, `%${search}%`),
+        ilike(accounts.programType, `%${search}%`)
       );
+      conditions.push(searchCondition);
     }
 
     if (accountType && accountType !== 'all') {
-      additionalConditions.push(
-        ilike(accounts.accountType, `%${accountType}%`)
-      );
+      conditions.push(eq(accounts.accountType, accountType));
     }
 
-    // Apply all conditions
-    if (additionalConditions.length > 0) {
-      const finalCondition = and(groupCondition, ...additionalConditions);
-      query = query.where(finalCondition);
-      countQuery = countQuery.where(finalCondition);
+    if (conditions.length > 0) {
+      const whereCondition = conditions.length === 1 ? conditions[0] : and(...conditions);
+      baseQuery = baseQuery.where(whereCondition);
+      countQuery = countQuery.where(whereCondition);
     }
 
-    const [accountsResult, totalResult] = await Promise.all([
-      query.orderBy(desc(accounts.createdAt)).limit(limit).offset(offset),
+    const [rawResults, totalResult] = await Promise.all([
+      baseQuery.orderBy(desc(accounts.createdAt)).limit(limit).offset(offset),
       countQuery
     ]);
 
+    // Transform results to include client data properly
+    const accounts = rawResults.map((row: any) => ({
+      ...row.accounts,
+      client: row.clients
+    }));
+
     return {
-      accounts: accountsResult,
+      accounts,
       total: totalResult[0].count
     };
   }
