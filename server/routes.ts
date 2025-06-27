@@ -1454,8 +1454,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         parseInt(offset as string)
       );
       
-      // Return just the logs array for the frontend
-      res.json(result.logs || []);
+      // Map the logs to match frontend expectations
+      const mappedLogs = result.logs.map(log => ({
+        ...log,
+        createdAt: log.createdAt ? log.createdAt.toISOString() : new Date().toISOString()
+      }));
+      
+      res.json(mappedLogs);
     } catch (error) {
       console.error("Error fetching audit logs:", error);
       res.status(500).json({ message: "Failed to fetch audit logs" });

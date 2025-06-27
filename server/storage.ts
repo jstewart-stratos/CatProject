@@ -847,7 +847,22 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAuditLogs(entityType?: string, entityId?: string, limit = 100, offset = 0): Promise<{ logs: AuditLog[]; total: number }> {
-    let query = db.select().from(auditLogs);
+    // Use specific column selection to avoid issues with schema mismatch
+    let query = db.select({
+      id: auditLogs.id,
+      entityType: auditLogs.entityType,
+      entityId: auditLogs.entityId,
+      action: auditLogs.action,
+      summary: auditLogs.summary,
+      userId: auditLogs.userId,
+      userName: auditLogs.userName,
+      createdAt: auditLogs.createdAt,
+      ipAddress: auditLogs.ipAddress,
+      userAgent: auditLogs.userAgent,
+      changes: auditLogs.changes,
+      metadata: auditLogs.metadata
+    }).from(auditLogs);
+    
     let countQuery = db.select({ count: sql<number>`count(*)` }).from(auditLogs);
 
     const conditions = [];
