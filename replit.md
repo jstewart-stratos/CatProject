@@ -171,6 +171,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **June 27, 2025**: Enhanced audit logs with meaningful entity names across all activity timelines
+  - ✅ **Added entity name resolution system** - Created resolveEntityName method to lookup actual client names, account details, user info, and group names
+  - ✅ **Enhanced audit summary generation** - Audit logs now show "Updated client: John Doe (modified firstName, email)" instead of "Updated client #75"
+  - ✅ **Updated client details activity timeline** - Client audit trails now display meaningful client names and change descriptions
+  - ✅ **Fixed account details modal audit display** - Corrected API response format handling to show account-specific audit logs properly
+  - ✅ **Enhanced main audit logs page** - All audit activity now shows entity names like "Created new client: Amanda Garcia" or "Deleted account: Kevin Le - Individual Brokerage"
+  - ✅ **Improved audit trail readability** - Users can now easily understand what changed, when, and for which specific clients/accounts
 - **June 27, 2025**: Successfully completed client details UI display fixes and confirmed full functionality
   - ✅ **Fixed missing middleName field display** - Added middleName field to Personal Information section in client details view
   - ✅ **Corrected audit logs data structure access** - Fixed UI component to access auditLogs array directly instead of auditLogs.logs

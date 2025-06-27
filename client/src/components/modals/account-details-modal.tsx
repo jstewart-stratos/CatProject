@@ -302,9 +302,9 @@ export default function AccountDetailsModal({ account, isOpen, onClose, onEdit }
                     </div>
                   ))}
                 </div>
-              ) : auditLogs && auditLogs.logs && auditLogs.logs.length > 0 ? (
+              ) : auditLogs && Array.isArray(auditLogs) && auditLogs.length > 0 ? (
                 <div className="space-y-4 max-h-64 overflow-y-auto">
-                  {auditLogs.logs.slice(0, 5).map((log: any) => (
+                  {auditLogs.slice(0, 5).map((log: any) => (
                     <div key={log.id} className="flex items-start space-x-4 border-b border-slate-200 pb-4 last:border-b-0">
                       <div className="flex-shrink-0">
                         <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center">
@@ -337,10 +337,10 @@ export default function AccountDetailsModal({ account, isOpen, onClose, onEdit }
                       </div>
                     </div>
                   ))}
-                  {auditLogs.logs.length > 5 && (
+                  {auditLogs.length > 5 && (
                     <div className="text-center pt-2">
                       <span className="text-xs text-slate-500">
-                        Showing recent 5 of {auditLogs.logs.length} total changes
+                        Showing recent 5 of {auditLogs.length} total changes
                       </span>
                     </div>
                   )}
