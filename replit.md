@@ -171,6 +171,14 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **June 27, 2025**: Successfully completed dynamic Entity client form with conditional field display based on ID Type selection
+  - ✅ **Added conditional Entity form logic** - Entity forms now dynamically show different fields based on ID Type (SSN vs TIN/EIN) selection
+  - ✅ **Implemented SSN-based Individual fields** - When SSN is selected, form shows First Name, Middle Name, Last Name, Date of Birth fields instead of DBA field
+  - ✅ **Enhanced TIN/EIN business entity handling** - When TIN/EIN is selected, form displays DBA/Trade Name field appropriate for business entities
+  - ✅ **Updated Entity Type dropdown** - Limited to exactly 3 options: Company, Estate, Trust per business requirements
+  - ✅ **Enhanced Residency Status options** - Updated with specific U.S.-focused options: "U.S. Citizen w/ a U.S. Address", "U.S. Entity w/ a U.S. Address", "Resident Alien"
+  - ✅ **Added comprehensive country dropdown** - Citizenship/Legal Establishment field now includes 30+ world countries for international entity support
+  - ✅ **Maintained field formatting** - All conditional fields retain proper name capitalization and input formatting features
 - **June 27, 2025**: Completed comprehensive security review and implemented critical security fixes
   - ✅ **Fixed session configuration** - Enforced secure cookies in production with sameSite protection and proper session secret validation
   - ✅ **Added rate limiting** - Implemented general API rate limiting (100 req/15min) and strict auth rate limiting (5 attempts/15min)
