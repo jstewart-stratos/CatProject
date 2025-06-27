@@ -171,6 +171,12 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **June 27, 2025**: Fixed critical database and API errors affecting accounts functionality
+  - ✅ **Resolved database query errors**: Fixed variable naming conflicts in getAccountsByGroups method that were causing "Cannot access before initialization" errors
+  - ✅ **Fixed DELETE API requests**: Corrected apiRequest parameter order for draft account deletion functionality  
+  - ✅ **Simplified Drizzle ORM queries**: Updated account query methods to use consistent patterns and avoid complex select structure issues
+  - ✅ **Confirmed delete functionality**: Draft accounts can now be deleted successfully with proper group-based access control and confirmation dialogs
+  - ✅ **Restored accounts page functionality**: Accounts page now loads properly without 500 errors and displays account data correctly
 - **June 26, 2025**: Completed critical group-based draft sharing functionality and fixed draft naming issues
   - ✅ **Fixed individual draft access routes**: Updated GET/PUT `/api/draft-onboarding/:id` and `/api/draft-accounts/:id` to use group-based access control instead of user-only restrictions
   - ✅ **Enabled cross-user collaboration**: Users agarcia and klee in "Test 1" group can now access and edit each other's draft onboarding and draft accounts
