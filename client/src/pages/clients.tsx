@@ -62,6 +62,9 @@ export default function Clients() {
     enabled: isAuthenticated,
   });
 
+  // Debug logging
+  console.log('Frontend state - selectedGroupId:', selectedGroupId, 'search:', search);
+
   // Fetch draft onboardings
   const { data: draftsData, isLoading: draftsLoading, refetch: refetchDrafts } = useQuery({
     queryKey: ["/api/draft-onboarding"],
