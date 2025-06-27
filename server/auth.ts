@@ -13,14 +13,19 @@ export function getSession() {
     ttl: sessionTtl,
     tableName: "sessions",
   });
+  if (!process.env.SESSION_SECRET) {
+    throw new Error('SESSION_SECRET environment variable is required');
+  }
+
   return session({
-    secret: process.env.SESSION_SECRET || 'dev-secret-key',
+    secret: process.env.SESSION_SECRET,
     store: sessionStore,
     resave: false,
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: false, // Set to true in production with HTTPS
+      secure: process.env.NODE_ENV === 'production', // Auto-detect production
+      sameSite: 'strict', // CSRF protection
       maxAge: sessionTtl,
     },
   });
@@ -35,11 +40,20 @@ export async function setupAuth(app: Express) {
     try {
       const { username, password } = req.body;
       
-      if (!username || !password) {
-        return res.status(400).json({ message: "Username and password are required" });
+      // Input validation and sanitization
+      if (!username || !password || typeof username !== 'string' || typeof password !== 'string') {
+        return res.status(400).json({ message: "Valid username and password are required" });
       }
+      
+      // Length limits to prevent DOS
+      if (username.length > 100 || password.length > 200) {
+        return res.status(400).json({ message: "Username or password too long" });
+      }
+      
+      // Basic sanitization
+      const sanitizedUsername = username.trim().toLowerCase();
 
-      const user = await storage.getUserByUsername(username);
+      const user = await storage.getUserByUsername(sanitizedUsername);
       if (!user) {
         return res.status(401).json({ message: "Invalid username or password" });
       }
