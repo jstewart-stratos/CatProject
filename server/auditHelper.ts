@@ -58,7 +58,7 @@ export class AuditHelper {
       const summary = this.generateSummary(entityType, action, changes, entityId);
 
       // Create audit log entry
-      await db.insert(auditLogs).values({
+      const auditLogData = {
         entityType,
         entityId: String(entityId),
         action,
@@ -70,7 +70,13 @@ export class AuditHelper {
         userAgent,
         sessionId,
         metadata: Object.keys(metadata).length > 0 ? metadata : null,
-      });
+      };
+      
+      console.log('Creating audit log entry:', auditLogData);
+      
+      await db.insert(auditLogs).values(auditLogData);
+      
+      console.log('Audit log entry created successfully');
 
     } catch (error) {
       console.error('Failed to create audit log:', error);

@@ -505,6 +505,13 @@ export class DatabaseStorage implements IStorage {
     
     // Create audit log for client update
     if (auditContext && oldClient) {
+      console.log('Creating audit log for client update:', {
+        clientId: client.id,
+        hasOldData: !!oldClient,
+        hasRequest: !!auditContext.req,
+        userId: (auditContext.req as any)?.user?.id || (auditContext.req as any)?.session?.user?.id
+      });
+      
       await AuditHelper.createAuditLog({
         entityType: 'client',
         entityId: client.id,
@@ -513,6 +520,13 @@ export class DatabaseStorage implements IStorage {
         newData: client,
         context: AuditHelper.createContext(auditContext.req!),
         metadata: { source: 'client_edit_form' }
+      });
+      
+      console.log('Audit log creation completed for client', client.id);
+    } else {
+      console.log('Skipping audit log creation:', {
+        hasAuditContext: !!auditContext,
+        hasOldClient: !!oldClient
       });
     }
     
