@@ -171,6 +171,16 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **June 27, 2025**: Successfully implemented comprehensive global search functionality with keyboard shortcuts and permission-based filtering
+  - ✅ **Built SearchDialog component**: Professional modal interface with real-time search results and keyboard navigation
+  - ✅ **Enhanced TopBar with search trigger**: Click search bar or press Ctrl+K (⌘K on Mac) to activate global search
+  - ✅ **Added search API endpoint**: `/api/search` with group-based permission filtering and comprehensive result formatting
+  - ✅ **Implemented database search methods**: `searchClients()`, `searchAccounts()`, `searchClientsByGroups()`, `searchAccountsByGroups()` for efficient data retrieval
+  - ✅ **Added permission-based search filtering**: Admins see all results, other users see only data from their group members
+  - ✅ **Created comprehensive search fields**: Searches client names, emails, Rep IDs, account types, program types, and associated client information
+  - ✅ **Built intuitive result display**: Shows results with type badges (client/account), descriptions, and direct navigation to detail pages
+  - ✅ **Added keyboard shortcuts**: Ctrl+K (⌘K on Mac) opens search dialog from anywhere in the application
+  - ✅ **User confirmed functionality**: Search successfully finds clients like "Amanda Garcia" and accounts like "Individual Brokerage" with proper group-based filtering
 - **June 27, 2025**: Successfully resolved group filtering functionality across both clients and accounts pages
   - ✅ **Fixed React Query parameter serialization issue**: Identified that React Query wasn't automatically converting object parameters in queryKey to URL query parameters
   - ✅ **Implemented custom queryFn for clients page**: Created explicit URL parameter building using URLSearchParams to properly send groupId parameter to backend
