@@ -273,7 +273,8 @@ export default function ClientOnboardingFull() {
     queryKey: ["/api/clients", editClientId],
     queryFn: async () => {
       if (!editClientId) return null;
-      return await apiRequest("GET", `/api/clients/${editClientId}`);
+      const response = await apiRequest("GET", `/api/clients/${editClientId}`);
+      return await response.json();
     },
     enabled: !!editClientId,
     retry: false,
@@ -302,7 +303,11 @@ export default function ClientOnboardingFull() {
 
   // Load existing client data when existingClient is fetched
   useEffect(() => {
+    console.log("Edit client effect - existingClient:", existingClient);
+    console.log("Edit client effect - editClientId:", editClientId);
+    
     if (existingClient) {
+      console.log("Loading existing client data into form:", existingClient);
       // Map client data to form format
       const clientFormData = {
         clientType: existingClient.clientType || "individual",
