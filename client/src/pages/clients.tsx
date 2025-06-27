@@ -59,6 +59,17 @@ export default function Clients() {
 
   const { data: clientsData, isLoading: clientsLoading, refetch } = useQuery({
     queryKey: ["/api/clients", { search, groupId: selectedGroupId !== "all" ? selectedGroupId : undefined }],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (search) params.set('search', search);
+      if (selectedGroupId !== "all") params.set('groupId', selectedGroupId);
+      const queryString = params.toString();
+      const url = `/api/clients${queryString ? `?${queryString}` : ''}`;
+      console.log('Frontend making request to:', url);
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`${response.status}: ${await response.text()}`);
+      return response.json();
+    },
     enabled: isAuthenticated,
   });
 
