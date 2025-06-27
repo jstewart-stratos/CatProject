@@ -171,6 +171,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **June 27, 2025**: Successfully resolved group filtering functionality across both clients and accounts pages
+  - ✅ **Fixed React Query parameter serialization issue**: Identified that React Query wasn't automatically converting object parameters in queryKey to URL query parameters
+  - ✅ **Implemented custom queryFn for clients page**: Created explicit URL parameter building using URLSearchParams to properly send groupId parameter to backend
+  - ✅ **Implemented custom queryFn for accounts page**: Applied the same fix to accounts page for consistent group filtering behavior
+  - ✅ **Verified group filtering functionality**: Both clients and accounts pages now properly filter data by selected group, with backend receiving correct groupId parameters
+  - ✅ **Maintained transitions specialist cross-group access**: Users can still filter by specific groups while maintaining their ability to see data from multiple groups
+  - ✅ **Cleaned up debug logging**: Removed console logs for production-ready implementation
 - **June 27, 2025**: Fixed critical database and API errors affecting accounts functionality
   - ✅ **Resolved database query errors**: Fixed variable naming conflicts in getAccountsByGroups method that were causing "Cannot access before initialization" errors
   - ✅ **Fixed DELETE API requests**: Corrected apiRequest parameter order for draft account deletion functionality  

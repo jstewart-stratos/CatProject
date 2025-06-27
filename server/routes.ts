@@ -1371,6 +1371,78 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Global search route
+  app.get('/api/search', isAuthenticated, checkPermission(['view_clients']), async (req: any, res) => {
+    try {
+      const { q, limit = '20' } = req.query;
+      
+      if (!q || (q as string).trim().length < 2) {
+        return res.json({ results: [] });
+      }
+      
+      const searchTerm = (q as string).trim();
+      const searchLimit = parseInt(limit as string);
+      
+      // Apply same permission logic as clients endpoint
+      let clientResults: any[] = [];
+      let accountResults: any[] = [];
+      
+      if (req.userRole === 'admin') {
+        // Admin sees all results
+        const [clients, accounts] = await Promise.all([
+          storage.searchClients(searchTerm, searchLimit),
+          storage.searchAccounts(searchTerm, searchLimit)
+        ]);
+        clientResults = clients;
+        accountResults = accounts;
+      } else {
+        // Non-admin users see results from their groups only
+        const groupIds = req.userGroups.map((g: any) => g.id);
+        const [clients, accounts] = await Promise.all([
+          storage.searchClientsByGroups(groupIds, searchTerm, searchLimit),
+          storage.searchAccountsByGroups(groupIds, searchTerm, searchLimit)
+        ]);
+        clientResults = clients;
+        accountResults = accounts;
+      }
+      
+      // Format results with type indicators
+      const results = [
+        ...clientResults.map((client: any) => ({
+          id: client.id,
+          type: 'client',
+          title: `${client.firstName || ''} ${client.lastName || ''}`.trim(),
+          subtitle: client.email || '',
+          description: `Client • Rep ID: ${client.repId || 'N/A'}`,
+          url: `/clients/${client.id}`
+        })),
+        ...accountResults.map((account: any) => ({
+          id: account.id,
+          type: 'account',
+          title: `Account #${account.id}`,
+          subtitle: `${account.clientFirstName || ''} ${account.clientLastName || ''}`.trim(),
+          description: `${account.accountType || ''} ${account.programType || ''} • ${account.status || ''}`,
+          url: `/accounts?accountId=${account.id}`
+        }))
+      ];
+      
+      // Sort by relevance (client names first, then accounts)
+      results.sort((a, b) => {
+        if (a.type === 'client' && b.type === 'account') return -1;
+        if (a.type === 'account' && b.type === 'client') return 1;
+        return a.title.localeCompare(b.title);
+      });
+      
+      res.json({
+        results: results.slice(0, searchLimit),
+        totalFound: results.length
+      });
+    } catch (error) {
+      console.error("Error performing global search:", error);
+      res.status(500).json({ message: "Failed to perform search" });
+    }
+  });
+
   // Audit log routes
   app.get('/api/audit-logs', isAuthenticated, async (req, res) => {
     try {

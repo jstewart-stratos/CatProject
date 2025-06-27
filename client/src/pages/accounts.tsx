@@ -68,7 +68,7 @@ export default function Accounts() {
       if (selectedGroupId !== "all") params.set('groupId', selectedGroupId);
       const queryString = params.toString();
       const url = `/api/accounts${queryString ? `?${queryString}` : ''}`;
-      console.log('Accounts frontend making request to:', url);
+
       const response = await fetch(url);
       if (!response.ok) throw new Error(`${response.status}: ${await response.text()}`);
       return response.json();
@@ -76,14 +76,7 @@ export default function Accounts() {
     enabled: isAuthenticated,
   });
 
-  // Debug logging
-  console.log('Accounts page - Current filters:', { 
-    selectedGroupId, 
-    search, 
-    accountType,
-    userRole: userData?.role,
-    groupsAvailable: groupsData?.length || 0
-  });
+
 
   // Query for user's draft accounts
   const { data: draftAccounts, isLoading: draftsLoading, refetch: refetchDrafts } = useQuery({

@@ -131,6 +131,12 @@ export interface IStorage {
   getDraftAccountsByGroups(groupIds: number[]): Promise<DraftAccount[]>;
   updateDraftAccount(id: number, data: Partial<DraftAccount>): Promise<DraftAccount>;
   deleteDraftAccount(id: number): Promise<void>;
+
+  // Global search operations
+  searchClients(searchTerm: string, limit: number): Promise<any[]>;
+  searchClientsByGroups(groupIds: number[], searchTerm: string, limit: number): Promise<any[]>;
+  searchAccounts(searchTerm: string, limit: number): Promise<any[]>;
+  searchAccountsByGroups(groupIds: number[], searchTerm: string, limit: number): Promise<any[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1058,6 +1064,117 @@ export class DatabaseStorage implements IStorage {
     await db
       .delete(draftAccounts)
       .where(eq(draftAccounts.id, id));
+  }
+
+  // Global search implementations
+  async searchClients(searchTerm: string, limit: number): Promise<any[]> {
+    return await db
+      .select({
+        id: clients.id,
+        firstName: clients.firstName, 
+        lastName: clients.lastName,
+        email: clients.email,
+        repId: clients.repId,
+      })
+      .from(clients)
+      .where(
+        or(
+          ilike(clients.firstName, `%${searchTerm}%`),
+          ilike(clients.lastName, `%${searchTerm}%`),
+          ilike(clients.email, `%${searchTerm}%`),
+          ilike(clients.repId, `%${searchTerm}%`),
+          ilike(sql`${clients.firstName} || ' ' || ${clients.lastName}`, `%${searchTerm}%`)
+        )
+      )
+      .limit(limit);
+  }
+
+  async searchClientsByGroups(groupIds: number[], searchTerm: string, limit: number): Promise<any[]> {
+    if (groupIds.length === 0) {
+      return [];
+    }
+
+    return await db
+      .select({
+        id: clients.id,
+        firstName: clients.firstName,
+        lastName: clients.lastName,
+        email: clients.email,
+        repId: clients.repId,
+      })
+      .from(clients)
+      .innerJoin(userGroups, eq(clients.createdBy, userGroups.userId))
+      .where(
+        and(
+          inArray(userGroups.groupId, groupIds),
+          or(
+            ilike(clients.firstName, `%${searchTerm}%`),
+            ilike(clients.lastName, `%${searchTerm}%`),
+            ilike(clients.email, `%${searchTerm}%`),
+            ilike(clients.repId, `%${searchTerm}%`),
+            ilike(sql`${clients.firstName} || ' ' || ${clients.lastName}`, `%${searchTerm}%`)
+          )
+        )
+      )
+      .limit(limit);
+  }
+
+  async searchAccounts(searchTerm: string, limit: number): Promise<any[]> {
+    return await db
+      .select({
+        id: accounts.id,
+        accountType: accounts.accountType,
+        programType: accounts.programType,
+        status: accounts.status,
+        clientFirstName: clients.firstName,
+        clientLastName: clients.lastName,
+      })
+      .from(accounts)
+      .innerJoin(clients, eq(accounts.clientId, clients.id))
+      .where(
+        or(
+          ilike(sql`${accounts.id}::text`, `%${searchTerm}%`),
+          ilike(accounts.accountType, `%${searchTerm}%`),
+          ilike(accounts.programType, `%${searchTerm}%`),
+          ilike(clients.firstName, `%${searchTerm}%`),
+          ilike(clients.lastName, `%${searchTerm}%`),
+          ilike(sql`${clients.firstName} || ' ' || ${clients.lastName}`, `%${searchTerm}%`)
+        )
+      )
+      .limit(limit);
+  }
+
+  async searchAccountsByGroups(groupIds: number[], searchTerm: string, limit: number): Promise<any[]> {
+    if (groupIds.length === 0) {
+      return [];
+    }
+
+    return await db
+      .select({
+        id: accounts.id,
+        accountType: accounts.accountType,
+        programType: accounts.programType,
+        status: accounts.status,
+        clientFirstName: clients.firstName,
+        clientLastName: clients.lastName,
+      })
+      .from(accounts)
+      .innerJoin(clients, eq(accounts.clientId, clients.id))
+      .innerJoin(userGroups, eq(clients.createdBy, userGroups.userId))
+      .where(
+        and(
+          inArray(userGroups.groupId, groupIds),
+          or(
+            ilike(sql`${accounts.id}::text`, `%${searchTerm}%`),
+            ilike(accounts.accountType, `%${searchTerm}%`),
+            ilike(accounts.programType, `%${searchTerm}%`),
+            ilike(clients.firstName, `%${searchTerm}%`),
+            ilike(clients.lastName, `%${searchTerm}%`),
+            ilike(sql`${clients.firstName} || ' ' || ${clients.lastName}`, `%${searchTerm}%`)
+          )
+        )
+      )
+      .limit(limit);
   }
 }
 

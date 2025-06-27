@@ -1,7 +1,7 @@
-import { useState } from "react";
-import { Input } from "@/components/ui/input";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Search, Bell } from "lucide-react";
+import SearchDialog from "./search-dialog";
 
 interface TopBarProps {
   title: string;
@@ -9,7 +9,24 @@ interface TopBarProps {
 }
 
 export default function TopBar({ title, subtitle }: TopBarProps) {
-  const [search, setSearch] = useState("");
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  const handleSearchClick = () => {
+    setIsSearchOpen(true);
+  };
+
+  // Add global keyboard listener
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsSearchOpen(true);
+      }
+    };
+
+    document.addEventListener('keydown', handleGlobalKeyDown);
+    return () => document.removeEventListener('keydown', handleGlobalKeyDown);
+  }, []);
 
   return (
     <header className="bg-white shadow-sm border-b border-slate-200 px-6 py-4">
@@ -20,16 +37,19 @@ export default function TopBar({ title, subtitle }: TopBarProps) {
         </div>
         
         <div className="flex items-center space-x-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-            <Input
-              type="text"
-              placeholder="Search clients, accounts..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-80 pl-10"
-            />
-          </div>
+          <Button
+            variant="outline"
+            className="w-80 justify-start text-slate-500 font-normal"
+            onClick={handleSearchClick}
+          >
+            <Search className="h-4 w-4 mr-2" />
+            Search clients, accounts...
+            <div className="ml-auto flex items-center gap-1">
+              <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-slate-100 px-1.5 font-mono text-[10px] font-medium text-slate-600">
+                <span className="text-xs">⌘</span>K
+              </kbd>
+            </div>
+          </Button>
           
           <Button variant="ghost" size="sm" className="relative">
             <Bell className="h-5 w-5" />
@@ -39,6 +59,8 @@ export default function TopBar({ title, subtitle }: TopBarProps) {
           </Button>
         </div>
       </div>
+
+      <SearchDialog open={isSearchOpen} onOpenChange={setIsSearchOpen} />
     </header>
   );
 }

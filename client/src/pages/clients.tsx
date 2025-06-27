@@ -65,7 +65,7 @@ export default function Clients() {
       if (selectedGroupId !== "all") params.set('groupId', selectedGroupId);
       const queryString = params.toString();
       const url = `/api/clients${queryString ? `?${queryString}` : ''}`;
-      console.log('Frontend making request to:', url);
+
       const response = await fetch(url);
       if (!response.ok) throw new Error(`${response.status}: ${await response.text()}`);
       return response.json();
@@ -73,8 +73,7 @@ export default function Clients() {
     enabled: isAuthenticated,
   });
 
-  // Debug logging
-  console.log('Frontend state - selectedGroupId:', selectedGroupId, 'search:', search);
+
 
   // Fetch draft onboardings
   const { data: draftsData, isLoading: draftsLoading, refetch: refetchDrafts } = useQuery({
