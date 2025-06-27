@@ -86,30 +86,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
   await setupAuth(app);
 
   // Audit logging middleware
-  const auditLog = async (req: any, res: any, next: any) => {
-    const originalJson = res.json;
-    res.json = function(data: any) {
-      if (req.user && req.method !== 'GET') {
-        const entityType = req.path.split('/')[2]; // Extract entity from /api/clients, /api/accounts, etc.
-        const entityId = req.params.id || 'new';
-        const action = req.method === 'POST' ? 'create' : req.method === 'PUT' ? 'update' : 'delete';
-        
-        storage.createAuditLog({
-          entityType,
-          entityId: String(entityId),
-          action,
-          changes: req.body,
-          userId: req.user.id, // Use the user id directly
-          ipAddress: req.ip,
-          userAgent: req.get('User-Agent') || '',
-        }).catch(console.error);
-      }
-      return originalJson.call(this, data);
-    };
-    next();
-  };
+  // Legacy audit middleware disabled - now using enhanced AuditHelper system for comprehensive audit logging
+  // const auditLog = async (req: any, res: any, next: any) => {
+  //   const originalJson = res.json;
+  //   res.json = function(data: any) {
+  //     if (req.user && req.method !== 'GET') {
+  //       const entityType = req.path.split('/')[2]; // Extract entity from /api/clients, /api/accounts, etc.
+  //       const entityId = req.params.id || 'new';
+  //       const action = req.method === 'POST' ? 'create' : req.method === 'PUT' ? 'update' : 'delete';
+  //       
+  //       storage.createAuditLog({
+  //         entityType,
+  //         entityId: String(entityId),
+  //         action,
+  //         changes: req.body,
+  //         userId: req.user.id, // Use the user id directly
+  //         ipAddress: req.ip,
+  //         userAgent: req.get('User-Agent') || '',
+  //       }).catch(console.error);
+  //     }
+  //     return originalJson.call(this, data);
+  //   };
+  //   next();
+  // };
 
-  app.use('/api', auditLog);
+  // app.use('/api', auditLog);
 
   // Auth routes (handled by setupAuth now)
 

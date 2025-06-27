@@ -242,7 +242,7 @@ export default function AuditLogs() {
                         ID: {log.entityId}
                       </span>
                     </div>
-                    <p className="font-medium text-sm">{log.summary || `${log.action} ${log.entityType} ${log.entityId}`}</p>
+                    <p className="font-medium text-sm">{log.summary || `${log.action} ${log.entityType.replace('clients', 'client')} ${log.entityId}`}</p>
                     <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
                       <div className="flex items-center gap-1">
                         <User className="w-3 h-3" />
