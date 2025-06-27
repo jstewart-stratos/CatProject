@@ -113,6 +113,10 @@ export default function ClientDetails() {
                       <p className="text-slate-800">{client.firstName || "N/A"}</p>
                     </div>
                     <div>
+                      <label className="text-sm font-medium text-slate-600">Middle Name</label>
+                      <p className="text-slate-800">{client.middleName || "N/A"}</p>
+                    </div>
+                    <div>
                       <label className="text-sm font-medium text-slate-600">Last Name</label>
                       <p className="text-slate-800">{client.lastName || "N/A"}</p>
                     </div>
@@ -362,9 +366,9 @@ export default function ClientDetails() {
                       </div>
                     ))}
                   </div>
-                ) : auditLogs && auditLogs.logs && auditLogs.logs.length > 0 ? (
+                ) : auditLogs && Array.isArray(auditLogs) && auditLogs.length > 0 ? (
                   <div className="space-y-4">
-                    {auditLogs.logs.slice(0, 10).map((log: any) => (
+                    {auditLogs.slice(0, 10).map((log: any) => (
                       <div key={log.id} className="flex items-start space-x-4 border-b border-slate-200 pb-4 last:border-b-0">
                         <div className="flex-shrink-0">
                           <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
@@ -397,7 +401,7 @@ export default function ClientDetails() {
                         </div>
                       </div>
                     ))}
-                    {auditLogs.logs.length > 10 && (
+                    {auditLogs && auditLogs.length > 10 && (
                       <div className="text-center pt-4">
                         <Link to="/audit-logs">
                           <Button variant="outline" size="sm">
