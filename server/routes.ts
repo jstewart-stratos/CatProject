@@ -374,7 +374,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Client management routes
   app.get('/api/clients', isAuthenticated, checkPermission(['view_clients']), async (req: any, res) => {
     try {
-      const { search, limit = '50', offset = '0' } = req.query;
+      const { search, groupId, limit = '50', offset = '0' } = req.query;
+      
+      // If groupId is specified, filter by that specific group (for transitions specialists)
+      if (groupId && req.userRole === 'transition_specialist') {
+        // Verify the transitions specialist has access to this group
+        const userGroupIds = req.userGroups.map((g: any) => g.id);
+        const requestedGroupId = parseInt(groupId as string);
+        if (!userGroupIds.includes(requestedGroupId)) {
+          return res.status(403).json({ message: "Access denied to this group" });
+        }
+        const result = await storage.getClientsByGroups(
+          [requestedGroupId],
+          search as string,
+          parseInt(limit as string),
+          parseInt(offset as string)
+        );
+        res.json(result);
+        return;
+      }
       
       // Admins see all clients, transitions specialists see clients from all their groups, 
       // other users see clients from their groups
@@ -527,7 +545,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Account management routes
   app.get('/api/accounts', isAuthenticated, checkPermission(['view_accounts']), async (req: any, res) => {
     try {
-      const { search, accountType, limit = '50', offset = '0' } = req.query;
+      const { search, accountType, groupId, limit = '50', offset = '0' } = req.query;
+      
+      // If groupId is specified, filter by that specific group (for transitions specialists)
+      if (groupId && req.userRole === 'transition_specialist') {
+        // Verify the transitions specialist has access to this group
+        const userGroupIds = req.userGroups.map((g: any) => g.id);
+        const requestedGroupId = parseInt(groupId as string);
+        if (!userGroupIds.includes(requestedGroupId)) {
+          return res.status(403).json({ message: "Access denied to this group" });
+        }
+        const result = await storage.getAccountsByGroups(
+          [requestedGroupId],
+          search as string,
+          accountType as string,
+          parseInt(limit as string),
+          parseInt(offset as string)
+        );
+        res.json(result);
+        return;
+      }
       
       // Admins see all accounts, transitions specialists see accounts from all their groups,
       // other users see accounts from their groups

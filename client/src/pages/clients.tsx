@@ -14,14 +14,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search, Eye, Edit, Trash2 } from "lucide-react";
+import { Plus, Search, Eye, Edit, Trash2, Filter } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function Clients() {
   const { toast } = useToast();
   const { isAuthenticated, isLoading } = useAuth();
   const [, navigate] = useLocation();
   const [search, setSearch] = useState("");
+  const [selectedGroupId, setSelectedGroupId] = useState<string>("all");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState<any>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
@@ -43,8 +45,20 @@ export default function Clients() {
     }
   }, [isAuthenticated, isLoading, toast]);
 
+  // Fetch user data to check role
+  const { data: userData } = useQuery({
+    queryKey: ["/api/auth/user"],
+    enabled: isAuthenticated,
+  });
+
+  // Fetch groups for filter dropdown (only for transitions specialists)
+  const { data: groupsData } = useQuery({
+    queryKey: ["/api/groups"],
+    enabled: isAuthenticated && userData?.role === 'transition_specialist',
+  });
+
   const { data: clientsData, isLoading: clientsLoading, refetch } = useQuery({
-    queryKey: ["/api/clients", { search }],
+    queryKey: ["/api/clients", { search, groupId: selectedGroupId !== "all" ? selectedGroupId : undefined }],
     enabled: isAuthenticated,
   });
 
@@ -231,14 +245,36 @@ export default function Clients() {
                     Delete Selected ({selectedClientIds.size})
                   </Button>
                 )}
-                <div className="relative">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-                  <Input
-                    placeholder="Search clients..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    className="pl-10 w-80"
-                  />
+                <div className="flex items-center space-x-3">
+                  {/* Group filter for transitions specialists */}
+                  {userData?.role === 'transition_specialist' && groupsData && (
+                    <div className="flex items-center space-x-2">
+                      <Filter className="h-4 w-4 text-slate-500" />
+                      <Select value={selectedGroupId} onValueChange={setSelectedGroupId}>
+                        <SelectTrigger className="w-48">
+                          <SelectValue placeholder="Filter by group..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Groups</SelectItem>
+                          {groupsData.map((group: any) => (
+                            <SelectItem key={group.id} value={group.id.toString()}>
+                              {group.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                  
+                  <div className="relative">
+                    <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                    <Input
+                      placeholder="Search clients..."
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      className="pl-10 w-80"
+                    />
+                  </div>
                 </div>
                 <Button onClick={() => window.location.href = '/client-onboarding-full'}>
                   <Plus className="h-4 w-4 mr-2" />
