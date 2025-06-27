@@ -843,14 +843,9 @@ export default function ClientOnboardingFull() {
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                  <SelectItem value="corporation">Corporation</SelectItem>
-                                  <SelectItem value="llc">LLC</SelectItem>
-                                  <SelectItem value="partnership">Partnership</SelectItem>
-                                  <SelectItem value="trust">Trust</SelectItem>
+                                  <SelectItem value="company">Company</SelectItem>
                                   <SelectItem value="estate">Estate</SelectItem>
-                                  <SelectItem value="nonprofit">Nonprofit</SelectItem>
-                                  <SelectItem value="government">Government Entity</SelectItem>
-                                  <SelectItem value="other">Other</SelectItem>
+                                  <SelectItem value="trust">Trust</SelectItem>
                                 </SelectContent>
                               </Select>
                               <FormMessage />
@@ -1119,12 +1114,39 @@ export default function ClientOnboardingFull() {
                           <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder="Select" />
+                                <SelectValue placeholder="Select Country" />
                               </SelectTrigger>
                             </FormControl>
-                            <SelectContent>
-                              <SelectItem value="us_citizen">{clientType === "entity" ? "US Entity" : "US Citizen"}</SelectItem>
-                              <SelectItem value="permanent_resident">{clientType === "entity" ? "Foreign Entity (US Operations)" : "Permanent Resident"}</SelectItem>
+                            <SelectContent className="max-h-[200px]">
+                              <SelectItem value="united_states">United States</SelectItem>
+                              <SelectItem value="canada">Canada</SelectItem>
+                              <SelectItem value="united_kingdom">United Kingdom</SelectItem>
+                              <SelectItem value="australia">Australia</SelectItem>
+                              <SelectItem value="germany">Germany</SelectItem>
+                              <SelectItem value="france">France</SelectItem>
+                              <SelectItem value="japan">Japan</SelectItem>
+                              <SelectItem value="china">China</SelectItem>
+                              <SelectItem value="india">India</SelectItem>
+                              <SelectItem value="brazil">Brazil</SelectItem>
+                              <SelectItem value="mexico">Mexico</SelectItem>
+                              <SelectItem value="south_korea">South Korea</SelectItem>
+                              <SelectItem value="italy">Italy</SelectItem>
+                              <SelectItem value="spain">Spain</SelectItem>
+                              <SelectItem value="netherlands">Netherlands</SelectItem>
+                              <SelectItem value="switzerland">Switzerland</SelectItem>
+                              <SelectItem value="sweden">Sweden</SelectItem>
+                              <SelectItem value="norway">Norway</SelectItem>
+                              <SelectItem value="denmark">Denmark</SelectItem>
+                              <SelectItem value="finland">Finland</SelectItem>
+                              <SelectItem value="belgium">Belgium</SelectItem>
+                              <SelectItem value="austria">Austria</SelectItem>
+                              <SelectItem value="ireland">Ireland</SelectItem>
+                              <SelectItem value="new_zealand">New Zealand</SelectItem>
+                              <SelectItem value="singapore">Singapore</SelectItem>
+                              <SelectItem value="hong_kong">Hong Kong</SelectItem>
+                              <SelectItem value="israel">Israel</SelectItem>
+                              <SelectItem value="south_africa">South Africa</SelectItem>
+                              <SelectItem value="russia">Russia</SelectItem>
                               <SelectItem value="other">Other</SelectItem>
                             </SelectContent>
                           </Select>
@@ -1138,16 +1160,17 @@ export default function ClientOnboardingFull() {
                       name="residencyStatus"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>{clientType === "entity" ? "Tax Status" : "Residency Status"}</FormLabel>
+                          <FormLabel>Residency Status</FormLabel>
                           <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder="Select" />
+                                <SelectValue placeholder="Select Status" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="resident">{clientType === "entity" ? "US Tax Entity" : "Resident"}</SelectItem>
-                              <SelectItem value="non_resident">{clientType === "entity" ? "Foreign Tax Entity" : "Non-Resident"}</SelectItem>
+                              <SelectItem value="us_citizen_us_address">U.S. Citizen w/ a U.S. Address</SelectItem>
+                              <SelectItem value="us_entity_us_address">U.S. Entity w/ a U.S. Address</SelectItem>
+                              <SelectItem value="resident_alien">Resident Alien</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />
