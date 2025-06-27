@@ -492,7 +492,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       console.log("Parsed client data:", clientData);
       
-      const client = await storage.createClient(clientData);
+      const client = await storage.createClient(clientData, { req });
       console.log("Created client:", client);
       res.status(201).json(client);
     } catch (error) {
@@ -505,11 +505,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/clients/:id', isAuthenticated, async (req, res) => {
+  app.put('/api/clients/:id', isAuthenticated, async (req: any, res) => {
     try {
       const { id } = req.params;
       const updateData = insertClientSchema.partial().parse(req.body);
-      const client = await storage.updateClient(parseInt(id), updateData);
+      const client = await storage.updateClient(parseInt(id), updateData, { req });
       res.json(client);
     } catch (error) {
       console.error("Error updating client:", error);
@@ -517,16 +517,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/clients/bulk', isAuthenticated, async (req, res) => {
+  app.delete('/api/clients/bulk', isAuthenticated, async (req: any, res) => {
     try {
       const { clientIds } = req.body;
       if (!Array.isArray(clientIds) || clientIds.length === 0) {
         return res.status(400).json({ message: "Client IDs array is required" });
       }
       
-      // Delete each client
+      // Delete each client with audit logging
       for (const clientId of clientIds) {
-        await storage.deleteClient(parseInt(clientId));
+        await storage.deleteClient(parseInt(clientId), { req });
       }
       
       res.status(204).send();
@@ -536,10 +536,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/clients/:id', isAuthenticated, async (req, res) => {
+  app.delete('/api/clients/:id', isAuthenticated, async (req: any, res) => {
     try {
       const { id } = req.params;
-      await storage.deleteClient(parseInt(id));
+      await storage.deleteClient(parseInt(id), { req });
       res.status(204).send();
     } catch (error) {
       console.error("Error deleting client:", error);
@@ -685,7 +685,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log("Parsed account data:", JSON.stringify(accountData, null, 2));
       
-      const account = await storage.createAccount(accountData);
+      const account = await storage.createAccount(accountData, { req });
       res.status(201).json(account);
     } catch (error) {
       console.error("Error creating account:", error);
@@ -701,11 +701,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/accounts/:id', isAuthenticated, async (req, res) => {
+  app.put('/api/accounts/:id', isAuthenticated, async (req: any, res) => {
     try {
       const { id } = req.params;
       const updateData = insertAccountSchema.partial().parse(req.body);
-      const account = await storage.updateAccount(parseInt(id), updateData);
+      const account = await storage.updateAccount(parseInt(id), updateData, { req });
       res.json(account);
     } catch (error) {
       console.error("Error updating account:", error);
@@ -1453,7 +1453,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         parseInt(limit as string),
         parseInt(offset as string)
       );
-      res.json(result);
+      
+      // Return just the logs array for the frontend
+      res.json(result.logs || []);
     } catch (error) {
       console.error("Error fetching audit logs:", error);
       res.status(500).json({ message: "Failed to fetch audit logs" });

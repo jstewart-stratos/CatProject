@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Database, BarChart3, Users, Wallet, ArrowLeftRight, UserCog, UsersIcon, LogOut, UserPlus } from "lucide-react";
+import { Database, BarChart3, Users, Wallet, ArrowLeftRight, UserCog, UsersIcon, LogOut, UserPlus, FileText } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
 interface SidebarProps {
@@ -33,6 +33,7 @@ export default function Sidebar({ currentView }: SidebarProps) {
     { id: "client-onboarding-full", path: "/client-onboarding-full", label: "Client Onboarding", icon: UserPlus, adminOnly: false },
     { id: "accounts", path: "/accounts", label: "Accounts", icon: Wallet, adminOnly: false },
     { id: "import-export", path: "/import-export", label: "Import/Export", icon: ArrowLeftRight, adminOnly: false },
+    { id: "audit-logs", path: "/audit-logs", label: "Audit Logs", icon: FileText, adminOnly: false },
     { id: "users", path: "/users", label: "User Management", icon: UserCog, adminOnly: true },
     { id: "groups", path: "/groups", label: "Groups", icon: UsersIcon, adminOnly: true },
   ];

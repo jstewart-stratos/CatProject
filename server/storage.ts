@@ -37,6 +37,8 @@ import {
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, like, desc, asc, sql, ilike, or, inArray, not } from "drizzle-orm";
+import { AuditHelper } from "./auditHelper";
+import type { Request } from "express";
 
 export interface IStorage {
   // User operations (mandatory for Replit Auth)
@@ -331,8 +333,21 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Client operations
-  async createClient(client: InsertClient): Promise<Client> {
+  async createClient(client: InsertClient, auditContext?: { req?: Request }): Promise<Client> {
     const [newClient] = await db.insert(clients).values(client).returning();
+    
+    // Create audit log for client creation
+    if (auditContext) {
+      await AuditHelper.createAuditLog({
+        entityType: 'client',
+        entityId: newClient.id,
+        action: 'create',
+        newData: newClient,
+        context: AuditHelper.createContext(auditContext.req!),
+        metadata: { source: 'client_creation_form' }
+      });
+    }
+    
     return newClient;
   }
 
@@ -470,22 +485,70 @@ export class DatabaseStorage implements IStorage {
     };
   }
 
-  async updateClient(id: number, data: Partial<Client>): Promise<Client> {
+  async updateClient(id: number, data: Partial<Client>, auditContext?: { req?: Request }): Promise<Client> {
+    // Get old data for audit comparison
+    const oldClient = await this.getClient(id);
+    
     const [client] = await db
       .update(clients)
       .set({ ...data, updatedAt: new Date() })
       .where(eq(clients.id, id))
       .returning();
+    
+    // Create audit log for client update
+    if (auditContext && oldClient) {
+      await AuditHelper.createAuditLog({
+        entityType: 'client',
+        entityId: client.id,
+        action: 'update',
+        oldData: oldClient,
+        newData: client,
+        context: AuditHelper.createContext(auditContext.req!),
+        metadata: { source: 'client_edit_form' }
+      });
+    }
+    
     return client;
   }
 
-  async deleteClient(id: number): Promise<void> {
+  async deleteClient(id: number, auditContext?: { req?: Request }): Promise<void> {
+    // Get client data before deletion for audit
+    const clientData = await this.getClient(id);
+    
     await db.delete(clients).where(eq(clients.id, id));
+    
+    // Create audit log for client deletion
+    if (auditContext && clientData) {
+      await AuditHelper.createAuditLog({
+        entityType: 'client',
+        entityId: id,
+        action: 'delete',
+        oldData: clientData,
+        context: AuditHelper.createContext(auditContext.req!),
+        metadata: { source: 'client_management_page' }
+      });
+    }
   }
 
   // Account operations
-  async createAccount(account: InsertAccount): Promise<Account> {
+  async createAccount(account: InsertAccount, auditContext?: { req?: Request }): Promise<Account> {
     const [newAccount] = await db.insert(accounts).values(account).returning();
+    
+    // Create audit log for account creation
+    if (auditContext) {
+      await AuditHelper.createAuditLog({
+        entityType: 'account',
+        entityId: newAccount.id,
+        action: 'create',
+        newData: newAccount,
+        context: AuditHelper.createContext(auditContext.req!),
+        metadata: { 
+          source: 'account_creation_form',
+          clientId: newAccount.clientId 
+        }
+      });
+    }
+    
     return newAccount;
   }
 
@@ -810,6 +873,22 @@ export class DatabaseStorage implements IStorage {
       logs: logsResult,
       total: totalResult[0].count
     };
+  }
+
+  async getAuditLogsByClient(clientId: number, limit = 50, offset = 0): Promise<{ logs: AuditLog[]; total: number }> {
+    return this.getAuditLogs('client', clientId.toString(), limit, offset);
+  }
+
+  async getAuditLogsByAccount(accountId: number, limit = 50, offset = 0): Promise<{ logs: AuditLog[]; total: number }> {
+    return this.getAuditLogs('account', accountId.toString(), limit, offset);
+  }
+
+  async getRecentAuditLogs(limit = 20): Promise<AuditLog[]> {
+    return await db
+      .select()
+      .from(auditLogs)
+      .orderBy(desc(auditLogs.createdAt))
+      .limit(limit);
   }
 
   // File Upload operations

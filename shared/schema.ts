@@ -303,18 +303,26 @@ export const directBusiness = pgTable("direct_business", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// Audit Log table
+// Enhanced Audit Log table for comprehensive tracking
 export const auditLogs = pgTable("audit_logs", {
   id: serial("id").primaryKey(),
-  entityType: varchar("entity_type").notNull(), // client, account, user, group
+  entityType: varchar("entity_type").notNull(), // client, account, user, group, beneficiary, ach_information
   entityId: varchar("entity_id").notNull(),
-  action: varchar("action").notNull(), // create, update, delete, view
-  changes: jsonb("changes"), // before/after values
+  action: varchar("action").notNull(), // create, update, delete, view, login, logout, export, import
+  changes: jsonb("changes"), // { before: {}, after: {}, fields: [] }
+  summary: text("summary"), // Human-readable description of the change
   userId: varchar("user_id").references(() => users.id),
+  userName: varchar("user_name"), // Store user name for historical reference
   ipAddress: varchar("ip_address"),
   userAgent: text("user_agent"),
+  sessionId: varchar("session_id"), // Track session for correlation
+  metadata: jsonb("metadata"), // Additional context (form name, bulk operation, etc.)
   createdAt: timestamp("created_at").defaultNow(),
-});
+}, (table) => [
+  index("idx_audit_entity").on(table.entityType, table.entityId),
+  index("idx_audit_user").on(table.userId),
+  index("idx_audit_created").on(table.createdAt),
+]);
 
 // File Uploads table
 export const fileUploads = pgTable("file_uploads", {

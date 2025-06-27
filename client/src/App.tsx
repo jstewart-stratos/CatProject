@@ -14,6 +14,7 @@ import Users from "@/pages/users";
 import Groups from "@/pages/groups";
 import AccountFormEnhanced from "@/pages/account-form-enhanced";
 import ClientDetails from "@/pages/client-details";
+import AuditLogs from "@/pages/audit-logs";
 
 import ClientOnboardingFull from "@/pages/client-onboarding-full";
 
@@ -39,6 +40,7 @@ function Router() {
           <Route path="/import-export" component={ImportExport} />
           <Route path="/users" component={Users} />
           <Route path="/groups" component={Groups} />
+          <Route path="/audit-logs" component={AuditLogs} />
         </>
       )}
       <Route component={NotFound} />
