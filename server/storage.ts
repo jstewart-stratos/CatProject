@@ -1073,7 +1073,7 @@ export class DatabaseStorage implements IStorage {
         id: clients.id,
         firstName: clients.firstName, 
         lastName: clients.lastName,
-        email: clients.email,
+        emailAddress: clients.emailAddress,
         repId: clients.repId,
       })
       .from(clients)
@@ -1081,9 +1081,8 @@ export class DatabaseStorage implements IStorage {
         or(
           ilike(clients.firstName, `%${searchTerm}%`),
           ilike(clients.lastName, `%${searchTerm}%`),
-          ilike(clients.email, `%${searchTerm}%`),
-          ilike(clients.repId, `%${searchTerm}%`),
-          ilike(sql`${clients.firstName} || ' ' || ${clients.lastName}`, `%${searchTerm}%`)
+          ilike(clients.emailAddress, `%${searchTerm}%`),
+          ilike(clients.repId, `%${searchTerm}%`)
         )
       )
       .limit(limit);
@@ -1133,12 +1132,62 @@ export class DatabaseStorage implements IStorage {
       .innerJoin(clients, eq(accounts.clientId, clients.id))
       .where(
         or(
-          ilike(sql`${accounts.id}::text`, `%${searchTerm}%`),
           ilike(accounts.accountType, `%${searchTerm}%`),
           ilike(accounts.programType, `%${searchTerm}%`),
           ilike(clients.firstName, `%${searchTerm}%`),
-          ilike(clients.lastName, `%${searchTerm}%`),
-          ilike(sql`${clients.firstName} || ' ' || ${clients.lastName}`, `%${searchTerm}%`)
+          ilike(clients.lastName, `%${searchTerm}%`)
+        )
+      )
+      .limit(limit);
+  }
+
+  async searchClientsByGroups(groupIds: number[], searchTerm: string, limit: number): Promise<any[]> {
+    return await db
+      .select({
+        id: clients.id,
+        firstName: clients.firstName, 
+        lastName: clients.lastName,
+        emailAddress: clients.emailAddress,
+        repId: clients.repId,
+      })
+      .from(clients)
+      .innerJoin(userGroups, eq(clients.createdBy, userGroups.userId))
+      .where(
+        and(
+          inArray(userGroups.groupId, groupIds),
+          or(
+            ilike(clients.firstName, `%${searchTerm}%`),
+            ilike(clients.lastName, `%${searchTerm}%`),
+            ilike(clients.emailAddress, `%${searchTerm}%`),
+            ilike(clients.repId, `%${searchTerm}%`)
+          )
+        )
+      )
+      .limit(limit);
+  }
+
+  async searchAccountsByGroups(groupIds: number[], searchTerm: string, limit: number): Promise<any[]> {
+    return await db
+      .select({
+        id: accounts.id,
+        accountType: accounts.accountType,
+        programType: accounts.programType,
+        status: accounts.status,
+        clientFirstName: clients.firstName,
+        clientLastName: clients.lastName,
+      })
+      .from(accounts)
+      .innerJoin(clients, eq(accounts.clientId, clients.id))
+      .innerJoin(userGroups, eq(clients.createdBy, userGroups.userId))
+      .where(
+        and(
+          inArray(userGroups.groupId, groupIds),
+          or(
+            ilike(accounts.accountType, `%${searchTerm}%`),
+            ilike(accounts.programType, `%${searchTerm}%`),
+            ilike(clients.firstName, `%${searchTerm}%`),
+            ilike(clients.lastName, `%${searchTerm}%`)
+          )
         )
       )
       .limit(limit);
