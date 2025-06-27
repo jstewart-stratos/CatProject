@@ -643,13 +643,28 @@ export default function ClientOnboardingFull() {
               <CardContent className="pt-6">
                 <div className="text-center">
                   <CheckCircle className="mx-auto h-16 w-16 text-green-500 mb-4" />
-                  <h2 className="text-2xl font-bold mb-2">Onboarding Complete!</h2>
+                  <h2 className="text-2xl font-bold mb-2">
+                    {editClientId ? "Client Updated!" : "Onboarding Complete!"}
+                  </h2>
                   <p className="text-gray-600 mb-4">
-                    The client information has been successfully submitted.
+                    {editClientId 
+                      ? "The client information has been successfully updated."
+                      : "The client information has been successfully submitted."
+                    }
                   </p>
-                  <Button onClick={() => window.location.href = "/"}>
-                    Return to Dashboard
-                  </Button>
+                  <div className="flex gap-2 justify-center">
+                    <Button onClick={() => window.location.href = "/"}>
+                      Return to Dashboard
+                    </Button>
+                    {editClientId && (
+                      <Button 
+                        variant="outline" 
+                        onClick={() => window.location.href = "/clients"}
+                      >
+                        View All Clients
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -2364,34 +2379,56 @@ export default function ClientOnboardingFull() {
                   Previous
                 </Button>
 
-                {currentStep < steps.length ? (
-                  <Button type="button" onClick={handleNext}>
-                    Next
-                    <ChevronRight className="h-4 w-4 ml-2" />
-                  </Button>
-                ) : (
-                  <Button 
-                    type="button" 
-                    disabled={mutation.isPending}
-                    onClick={async () => {
-                      console.log("Submit button clicked");
-                      const formData = form.getValues();
-                      console.log("Current form data:", formData);
-                      
-                      // Manually trigger form submission
-                      const transformedData = {
-                        ...formData,
-                        hasInvestmentExperience: formData.hasInvestmentExperience === "yes",
-                        hasOtherInvestments: formData.hasOtherInvestments === "yes"
-                      };
-                      
-                      console.log("Submitting client data:", transformedData);
-                      mutation.mutate(transformedData);
-                    }}
-                  >
-                    {mutation.isPending ? "Submitting..." : "Submit"}
-                  </Button>
-                )}
+                <div className="flex gap-2">
+                  {/* Show Update Client button when editing */}
+                  {editClientId && (
+                    <Button 
+                      type="button" 
+                      disabled={mutation.isPending}
+                      onClick={async () => {
+                        const formData = form.getValues();
+                        
+                        // Transform data for submission
+                        const transformedData = {
+                          ...formData,
+                          hasInvestmentExperience: formData.hasInvestmentExperience === "yes",
+                          hasOtherInvestments: formData.hasOtherInvestments === "yes"
+                        };
+                        
+                        mutation.mutate(transformedData);
+                      }}
+                    >
+                      {mutation.isPending ? "Updating..." : "Update Client"}
+                    </Button>
+                  )}
+
+                  {/* Regular Next/Submit buttons for new clients or step-by-step editing */}
+                  {currentStep < steps.length ? (
+                    <Button type="button" onClick={handleNext}>
+                      Next
+                      <ChevronRight className="h-4 w-4 ml-2" />
+                    </Button>
+                  ) : (
+                    <Button 
+                      type="button" 
+                      disabled={mutation.isPending}
+                      onClick={async () => {
+                        const formData = form.getValues();
+                        
+                        // Manually trigger form submission
+                        const transformedData = {
+                          ...formData,
+                          hasInvestmentExperience: formData.hasInvestmentExperience === "yes",
+                          hasOtherInvestments: formData.hasOtherInvestments === "yes"
+                        };
+                        
+                        mutation.mutate(transformedData);
+                      }}
+                    >
+                      {mutation.isPending ? "Submitting..." : "Submit"}
+                    </Button>
+                  )}
+                </div>
               </div>
             </form>
           </Form>
