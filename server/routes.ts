@@ -124,6 +124,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get('/api/dashboard/business-metrics', isAuthenticated, async (req, res) => {
+    try {
+      const metrics = await storage.getBusinessMetrics();
+      res.json(metrics);
+    } catch (error) {
+      console.error("Error fetching business metrics:", error);
+      res.status(500).json({ message: "Failed to fetch business metrics" });
+    }
+  });
+
   // User management routes
   app.get('/api/users', isAuthenticated, checkPermission(['manage_users']), async (req: any, res) => {
     try {

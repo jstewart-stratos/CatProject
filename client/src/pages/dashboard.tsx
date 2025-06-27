@@ -40,6 +40,11 @@ export default function Dashboard() {
     enabled: isAuthenticated,
   });
 
+  const { data: businessMetrics, isLoading: metricsLoading } = useQuery({
+    queryKey: ["/api/dashboard/business-metrics"],
+    enabled: isAuthenticated,
+  });
+
   if (isLoading || !isAuthenticated) {
     return null;
   }
@@ -155,6 +160,145 @@ export default function Dashboard() {
                 </div>
               </CardContent>
             </Card>
+          </div>
+          
+          {/* Priority 1: Enhanced Business Metrics */}
+          <div className="mb-8">
+            <div className="flex items-center gap-2 mb-6">
+              <BarChart3 className="h-6 w-6 text-slate-700" />
+              <h2 className="text-xl font-semibold text-slate-800">Business Intelligence</h2>
+              <Badge variant="secondary">Priority 1</Badge>
+            </div>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6 mb-6">
+              {/* Account Type Breakdown */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-medium text-slate-600">Account Type Distribution</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {metricsLoading ? (
+                      <p className="text-slate-500 text-sm">Loading...</p>
+                    ) : (
+                      (businessMetrics?.accountTypeBreakdown || []).map((item, index) => (
+                        <div key={index} className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div 
+                              className="w-3 h-3 rounded-full" 
+                              style={{ backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444'][index % 4] }}
+                            ></div>
+                            <span className="text-sm font-medium">{item.type}</span>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-sm font-semibold">{item.count}</div>
+                            <div className="text-xs text-slate-500">{item.percentage}%</div>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Program Type Analytics */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-medium text-slate-600">Program Type Analytics</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {metricsLoading ? (
+                      <p className="text-slate-500 text-sm">Loading...</p>
+                    ) : (
+                      (businessMetrics?.programTypeAnalytics || []).map((item, index) => (
+                        <div key={index} className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div 
+                              className="w-3 h-3 rounded-full" 
+                              style={{ backgroundColor: ['#8b5cf6', '#06b6d4', '#84cc16', '#f97316'][index % 4] }}
+                            ></div>
+                            <span className="text-sm font-medium">{item.type}</span>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-sm font-semibold">{item.count}</div>
+                            <div className="text-xs text-slate-500">{item.percentage}%</div>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Account Status Pipeline */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-medium text-slate-600">Account Status Pipeline</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {metricsLoading ? (
+                      <p className="text-slate-500 text-sm">Loading...</p>
+                    ) : (
+                      (businessMetrics?.accountStatusPipeline || []).map((item, index) => {
+                        const statusColors = {
+                          'active': '#10b981',
+                          'pending': '#f59e0b', 
+                          'suspended': '#ef4444',
+                          'closed': '#6b7280'
+                        };
+                        return (
+                          <div key={index} className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <div 
+                                className="w-3 h-3 rounded-full" 
+                                style={{ backgroundColor: statusColors[item.status?.toLowerCase()] || '#6b7280' }}
+                              ></div>
+                              <span className="text-sm font-medium capitalize">{item.status}</span>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-sm font-semibold">{item.count}</div>
+                              <div className="text-xs text-slate-500">{item.percentage}%</div>
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Registration Type Insights */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-medium text-slate-600">Registration Insights</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {metricsLoading ? (
+                      <p className="text-slate-500 text-sm">Loading...</p>
+                    ) : (
+                      (businessMetrics?.registrationTypeInsights || []).slice(0, 6).map((item, index) => (
+                        <div key={index} className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div 
+                              className="w-3 h-3 rounded-full" 
+                              style={{ backgroundColor: ['#dc2626', '#059669', '#0891b2', '#7c3aed', '#db2777', '#ea580c'][index % 6] }}
+                            ></div>
+                            <span className="text-xs font-medium truncate">{item.type}</span>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-xs font-semibold">{item.count}</div>
+                            <div className="text-xs text-slate-500">{item.percentage}%</div>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
           
           {/* Business Metrics Charts */}

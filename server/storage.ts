@@ -147,6 +147,9 @@ export interface IStorage {
   searchClientsByGroups(groupIds: number[], searchTerm: string, limit: number): Promise<any[]>;
   searchAccounts(searchTerm: string, limit: number): Promise<any[]>;
   searchAccountsByGroups(groupIds: number[], searchTerm: string, limit: number): Promise<any[]>;
+
+  // Business metrics operations
+  getBusinessMetrics(): Promise<any>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1348,6 +1351,64 @@ export class DatabaseStorage implements IStorage {
         )
       )
       .limit(limit);
+  }
+
+  // Business metrics operations
+  async getBusinessMetrics(): Promise<any> {
+    const [
+      accountTypeBreakdown,
+      programTypeBreakdown,
+      accountStatusBreakdown,
+      registrationTypeBreakdown,
+      totalAccounts
+    ] = await Promise.all([
+      db.select({ 
+        type: accounts.accountType, 
+        count: sql<number>`count(*)` 
+      }).from(accounts).groupBy(accounts.accountType),
+      
+      db.select({ 
+        type: accounts.programType, 
+        count: sql<number>`count(*)` 
+      }).from(accounts).groupBy(accounts.programType),
+      
+      db.select({ 
+        status: accounts.status, 
+        count: sql<number>`count(*)` 
+      }).from(accounts).groupBy(accounts.status),
+      
+      db.select({ 
+        type: accounts.registrationType, 
+        count: sql<number>`count(*)` 
+      }).from(accounts).groupBy(accounts.registrationType),
+
+      db.select({ count: sql<number>`count(*)` }).from(accounts)
+    ]);
+
+    const total = totalAccounts[0]?.count || 0;
+
+    return {
+      accountTypeBreakdown: accountTypeBreakdown.map(item => ({
+        type: item.type || 'Unknown',
+        count: item.count,
+        percentage: total > 0 ? Math.round((item.count / total) * 100) : 0
+      })),
+      programTypeAnalytics: programTypeBreakdown.map(item => ({
+        type: item.type || 'Unknown', 
+        count: item.count,
+        percentage: total > 0 ? Math.round((item.count / total) * 100) : 0
+      })),
+      accountStatusPipeline: accountStatusBreakdown.map(item => ({
+        status: item.status || 'Unknown',
+        count: item.count,
+        percentage: total > 0 ? Math.round((item.count / total) * 100) : 0
+      })),
+      registrationTypeInsights: registrationTypeBreakdown.slice(0, 8).map(item => ({
+        type: item.type || 'Unknown',
+        count: item.count,
+        percentage: total > 0 ? Math.round((item.count / total) * 100) : 0
+      }))
+    };
   }
 }
 
