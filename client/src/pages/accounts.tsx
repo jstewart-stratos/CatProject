@@ -64,6 +64,15 @@ export default function Accounts() {
     enabled: isAuthenticated,
   });
 
+  // Debug logging
+  console.log('Accounts page - Current filters:', { 
+    selectedGroupId, 
+    search, 
+    accountType,
+    userRole: userData?.role,
+    groupsAvailable: groupsData?.length || 0
+  });
+
   // Query for user's draft accounts
   const { data: draftAccounts, isLoading: draftsLoading, refetch: refetchDrafts } = useQuery({
     queryKey: ["/api/draft-accounts"],

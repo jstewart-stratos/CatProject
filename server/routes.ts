@@ -375,6 +375,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/clients', isAuthenticated, checkPermission(['view_clients']), async (req: any, res) => {
     try {
       const { search, groupId, limit = '50', offset = '0' } = req.query;
+      console.log('Clients API - groupId:', groupId, 'userRole:', req.userRole, 'userGroups:', req.userGroups?.map((g: any) => g.id));
       
       // If groupId is specified, filter by that specific group (for transitions specialists)
       if (groupId && req.userRole === 'transition_specialist') {
@@ -546,15 +547,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/accounts', isAuthenticated, checkPermission(['view_accounts']), async (req: any, res) => {
     try {
       const { search, accountType, groupId, limit = '50', offset = '0' } = req.query;
+      console.log('Accounts API - groupId:', groupId, 'userRole:', req.userRole, 'userGroups:', req.userGroups?.map((g: any) => g.id));
       
       // If groupId is specified, filter by that specific group (for transitions specialists)
-      if (groupId && req.userRole === 'transition_specialist') {
+      if (groupId && groupId !== 'all' && req.userRole === 'transition_specialist') {
+        console.log('Applying group filter for groupId:', groupId);
         // Verify the transitions specialist has access to this group
         const userGroupIds = req.userGroups.map((g: any) => g.id);
         const requestedGroupId = parseInt(groupId as string);
         if (!userGroupIds.includes(requestedGroupId)) {
+          console.log('Access denied - user groups:', userGroupIds, 'requested:', requestedGroupId);
           return res.status(403).json({ message: "Access denied to this group" });
         }
+        console.log('Filtering accounts by group:', requestedGroupId);
         const result = await storage.getAccountsByGroups(
           [requestedGroupId],
           search as string,
@@ -562,6 +567,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           parseInt(limit as string),
           parseInt(offset as string)
         );
+        console.log('Filtered accounts result:', result.accounts?.length || 0, 'accounts found');
         res.json(result);
         return;
       }
