@@ -1,5 +1,6 @@
 import { db } from "./db";
-import { auditLogs } from "@shared/schema";
+import { auditLogs, clients, accounts, users, groups } from "@shared/schema";
+import { eq } from "drizzle-orm";
 import type { Request } from "express";
 
 interface AuditContext {
@@ -22,6 +23,79 @@ interface CreateAuditLogParams {
 }
 
 export class AuditHelper {
+  /**
+   * Resolve entity name for better audit readability
+   */
+  static async resolveEntityName(entityType: string, entityId: string | number): Promise<string> {
+    try {
+      const id = typeof entityId === 'string' ? parseInt(entityId) : entityId;
+      
+      switch (entityType) {
+        case 'client':
+        case 'clients':
+          const [client] = await db.select({
+            firstName: clients.firstName,
+            lastName: clients.lastName
+          }).from(clients).where(eq(clients.id, id));
+          
+          if (client) {
+            return `${client.firstName} ${client.lastName}`.trim();
+          }
+          break;
+          
+        case 'account':
+        case 'accounts':
+          const [account] = await db.select({
+            accountType: accounts.accountType,
+            programType: accounts.programType,
+            clientId: accounts.clientId
+          }).from(accounts).where(eq(accounts.id, id));
+          
+          if (account) {
+            // Get client name for context
+            const [accountClient] = await db.select({
+              firstName: clients.firstName,
+              lastName: clients.lastName
+            }).from(clients).where(eq(clients.id, account.clientId));
+            
+            const clientName = accountClient ? `${accountClient.firstName} ${accountClient.lastName}`.trim() : 'Unknown Client';
+            return `${clientName} - ${account.accountType} ${account.programType}`.trim();
+          }
+          break;
+          
+        case 'user':
+        case 'users':
+          const [user] = await db.select({
+            username: users.username,
+            firstName: users.firstName,
+            lastName: users.lastName
+          }).from(users).where(eq(users.id, entityId.toString()));
+          
+          if (user) {
+            const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim();
+            return fullName ? `${user.username} (${fullName})` : user.username;
+          }
+          break;
+          
+        case 'group':
+        case 'groups':
+          const [group] = await db.select({
+            name: groups.name
+          }).from(groups).where(eq(groups.id, id));
+          
+          if (group) {
+            return group.name;
+          }
+          break;
+      }
+      
+      return `${entityType} #${entityId}`;
+    } catch (error) {
+      console.error('Error resolving entity name:', error);
+      return `${entityType} #${entityId}`;
+    }
+  }
+
   /**
    * Create a comprehensive audit log entry
    */
@@ -51,11 +125,14 @@ export class AuditHelper {
         userAgent = userAgent || req.get('User-Agent');
       }
 
+      // Resolve entity name for better readability
+      const entityName = await this.resolveEntityName(entityType, entityId);
+      
       // Calculate changes
       const changes = this.calculateChanges(oldData, newData, action);
       
-      // Generate human-readable summary
-      const summary = this.generateSummary(entityType, action, changes, entityId);
+      // Generate human-readable summary with entity name
+      const summary = this.generateSummary(entityType, action, changes, entityId, entityName);
 
       // Create audit log entry
       const auditLogData = {
@@ -132,38 +209,38 @@ export class AuditHelper {
   /**
    * Generate human-readable summary of the change
    */
-  private static generateSummary(entityType: string, action: string, changes: any, entityId: string | number): string {
-    const entityName = this.getEntityDisplayName(entityType);
+  private static generateSummary(entityType: string, action: string, changes: any, entityId: string | number, entityName?: string): string {
+    const displayName = entityName || this.getEntityDisplayName(entityType);
     
     switch (action) {
       case 'create':
-        return `Created new ${entityName} with ID ${entityId}`;
+        return `Created new ${this.getEntityDisplayName(entityType)}: ${displayName}`;
       
       case 'delete':
-        return `Deleted ${entityName} with ID ${entityId}`;
+        return `Deleted ${this.getEntityDisplayName(entityType)}: ${displayName}`;
       
       case 'update':
         if (changes.fields && changes.fields.length > 0) {
           const fieldList = changes.fields.slice(0, 3).join(', ');
           const moreFields = changes.fields.length > 3 ? ` and ${changes.fields.length - 3} more` : '';
-          return `Updated ${entityName} ${entityId}: modified ${fieldList}${moreFields}`;
+          return `Updated ${this.getEntityDisplayName(entityType)}: ${displayName} (modified ${fieldList}${moreFields})`;
         }
-        return `Updated ${entityName} with ID ${entityId}`;
+        return `Updated ${this.getEntityDisplayName(entityType)}: ${displayName}`;
       
       case 'view':
-        return `Viewed ${entityName} with ID ${entityId}`;
+        return `Viewed ${this.getEntityDisplayName(entityType)}: ${displayName}`;
       
       case 'bulk_delete':
-        return `Bulk deleted ${entityName} records`;
+        return `Bulk deleted ${this.getEntityDisplayName(entityType)} records`;
       
       case 'export':
-        return `Exported ${entityName} data`;
+        return `Exported ${this.getEntityDisplayName(entityType)} data`;
       
       case 'import':
-        return `Imported ${entityName} data`;
+        return `Imported ${this.getEntityDisplayName(entityType)} data`;
       
       default:
-        return `${action} action on ${entityName} ${entityId}`;
+        return `${action} action on ${this.getEntityDisplayName(entityType)}: ${displayName}`;
     }
   }
 
