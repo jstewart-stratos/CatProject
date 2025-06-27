@@ -1,11 +1,13 @@
 import { useParams, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Edit, Plus, Eye } from "lucide-react";
+import { ArrowLeft, Edit, Plus, Eye, Clock, User, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
 import Sidebar from "@/components/sidebar";
+import { format } from "date-fns";
 
 export default function ClientDetails() {
   const { id } = useParams();
@@ -17,6 +19,11 @@ export default function ClientDetails() {
 
   const { data: accounts, isLoading: accountsLoading } = useQuery({
     queryKey: [`/api/accounts/by-client/${id}`],
+    enabled: !!id,
+  });
+
+  const { data: auditLogs, isLoading: auditLoading } = useQuery({
+    queryKey: [`/api/audit-logs`, { entityType: 'clients', entityId: id }],
     enabled: !!id,
   });
 
@@ -329,6 +336,81 @@ export default function ClientDetails() {
                         Create First Account
                       </Button>
                     </Link>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Audit Trail Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Activity className="w-5 h-5" />
+                  Audit Trail
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {auditLoading ? (
+                  <div className="space-y-3">
+                    {[...Array(3)].map((_, i) => (
+                      <div key={i} className="flex items-center space-x-4">
+                        <Skeleton className="h-4 w-4 rounded-full" />
+                        <div className="space-y-2 flex-1">
+                          <Skeleton className="h-4 w-3/4" />
+                          <Skeleton className="h-3 w-1/2" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : auditLogs && auditLogs.logs && auditLogs.logs.length > 0 ? (
+                  <div className="space-y-4">
+                    {auditLogs.logs.slice(0, 10).map((log: any) => (
+                      <div key={log.id} className="flex items-start space-x-4 border-b border-slate-200 pb-4 last:border-b-0">
+                        <div className="flex-shrink-0">
+                          <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                            <Activity className="w-4 h-4 text-blue-600" />
+                          </div>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <p className="text-sm font-medium text-slate-900">
+                              {log.action}
+                            </p>
+                            <div className="flex items-center text-xs text-slate-500">
+                              <Clock className="w-3 h-3 mr-1" />
+                              {format(new Date(log.createdAt), "MMM d, h:mm a")}
+                            </div>
+                          </div>
+                          {log.summary && (
+                            <p className="text-sm text-slate-600 mt-1">
+                              {log.summary}
+                            </p>
+                          )}
+                          {log.userName && (
+                            <div className="flex items-center mt-2">
+                              <User className="w-3 h-3 text-slate-400 mr-1" />
+                              <span className="text-xs text-slate-500">
+                                by {log.userName}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                    {auditLogs.logs.length > 10 && (
+                      <div className="text-center pt-4">
+                        <Link to="/audit-logs">
+                          <Button variant="outline" size="sm">
+                            View All Audit Logs
+                          </Button>
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-slate-500">
+                    <Activity className="w-12 h-12 mx-auto mb-4 text-slate-300" />
+                    <p>No audit history found for this client.</p>
                   </div>
                 )}
               </CardContent>

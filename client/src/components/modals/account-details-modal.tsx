@@ -2,8 +2,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Edit, User, Building, DollarSign, Shield, Users, FileText, Settings } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Edit, User, Building, DollarSign, Shield, Users, FileText, Settings, Activity, Clock } from "lucide-react";
 import { useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
+import { format } from "date-fns";
 
 interface AccountDetailsModalProps {
   account: any;
@@ -14,6 +17,12 @@ interface AccountDetailsModalProps {
 
 export default function AccountDetailsModal({ account, isOpen, onClose, onEdit }: AccountDetailsModalProps) {
   const [, setLocation] = useLocation();
+  
+  // Fetch audit logs for this account
+  const { data: auditLogs, isLoading: auditLoading } = useQuery({
+    queryKey: [`/api/audit-logs`, { entityType: 'account', entityId: account?.id }],
+    enabled: !!account?.id && isOpen,
+  });
   
   if (!account) return null;
 
@@ -273,6 +282,77 @@ export default function AccountDetailsModal({ account, isOpen, onClose, onEdit }
               </CardContent>
             </Card>
           )}
+
+          {/* Audit Trail Section */}
+          <Card className="md:col-span-2">
+            <CardHeader className="flex flex-row items-center space-y-0 pb-3">
+              <Activity className="h-5 w-5 text-blue-600 mr-2" />
+              <CardTitle className="text-lg">Audit Trail</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {auditLoading ? (
+                <div className="space-y-3">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className="flex items-center space-x-4">
+                      <Skeleton className="h-4 w-4 rounded-full" />
+                      <div className="space-y-2 flex-1">
+                        <Skeleton className="h-4 w-3/4" />
+                        <Skeleton className="h-3 w-1/2" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : auditLogs && auditLogs.logs && auditLogs.logs.length > 0 ? (
+                <div className="space-y-4 max-h-64 overflow-y-auto">
+                  {auditLogs.logs.slice(0, 5).map((log: any) => (
+                    <div key={log.id} className="flex items-start space-x-4 border-b border-slate-200 pb-4 last:border-b-0">
+                      <div className="flex-shrink-0">
+                        <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center">
+                          <Activity className="w-3 h-3 text-blue-600" />
+                        </div>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm font-medium text-slate-900">
+                            {log.action}
+                          </p>
+                          <div className="flex items-center text-xs text-slate-500">
+                            <Clock className="w-3 h-3 mr-1" />
+                            {format(new Date(log.createdAt), "MMM d, h:mm a")}
+                          </div>
+                        </div>
+                        {log.summary && (
+                          <p className="text-xs text-slate-600 mt-1">
+                            {log.summary}
+                          </p>
+                        )}
+                        {log.userName && (
+                          <div className="flex items-center mt-1">
+                            <User className="w-3 h-3 text-slate-400 mr-1" />
+                            <span className="text-xs text-slate-500">
+                              by {log.userName}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                  {auditLogs.logs.length > 5 && (
+                    <div className="text-center pt-2">
+                      <span className="text-xs text-slate-500">
+                        Showing recent 5 of {auditLogs.logs.length} total changes
+                      </span>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-6 text-slate-500">
+                  <Activity className="w-8 h-8 mx-auto mb-2 text-slate-300" />
+                  <p className="text-sm">No audit history found for this account.</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </DialogContent>
     </Dialog>
