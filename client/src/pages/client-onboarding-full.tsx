@@ -458,8 +458,9 @@ export default function ClientOnboardingFull() {
       // Invalidate client-related queries to refresh UI
       if (editClientId) {
         queryClient.invalidateQueries({ queryKey: ["/api/clients"] });
-        queryClient.invalidateQueries({ queryKey: ["/api/clients", editClientId] });
+        queryClient.invalidateQueries({ queryKey: [`/api/clients/${editClientId}`] });
         queryClient.invalidateQueries({ queryKey: ["/api/audit-logs"] });
+        queryClient.invalidateQueries({ queryKey: [`/api/audit-logs`, { entityType: 'clients', entityId: editClientId }] });
       }
       
       // Delete the draft if it was loaded from a draft
