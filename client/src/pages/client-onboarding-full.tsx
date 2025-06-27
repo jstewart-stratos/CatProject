@@ -457,10 +457,17 @@ export default function ClientOnboardingFull() {
       
       // Invalidate client-related queries to refresh UI
       if (editClientId) {
+        console.log("Invalidating queries for client:", editClientId);
+        
+        // Force immediate refetch instead of just invalidation
+        queryClient.refetchQueries({ queryKey: [`/api/clients/${editClientId}`] });
+        queryClient.refetchQueries({ queryKey: [`/api/audit-logs`, { entityType: 'clients', entityId: editClientId }] });
+        
+        // Also invalidate general queries
         queryClient.invalidateQueries({ queryKey: ["/api/clients"] });
-        queryClient.invalidateQueries({ queryKey: [`/api/clients/${editClientId}`] });
         queryClient.invalidateQueries({ queryKey: ["/api/audit-logs"] });
-        queryClient.invalidateQueries({ queryKey: [`/api/audit-logs`, { entityType: 'clients', entityId: editClientId }] });
+        
+        console.log("Cache invalidation completed");
       }
       
       // Delete the draft if it was loaded from a draft
