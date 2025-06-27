@@ -314,18 +314,13 @@ export default function AccountDetailsModal({ account, isOpen, onClose, onEdit }
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
                           <p className="text-sm font-medium text-slate-900">
-                            {log.action}
+                            {log.summary || log.action}
                           </p>
                           <div className="flex items-center text-xs text-slate-500">
                             <Clock className="w-3 h-3 mr-1" />
                             {format(new Date(log.createdAt), "MMM d, h:mm a")}
                           </div>
                         </div>
-                        {log.summary && (
-                          <p className="text-xs text-slate-600 mt-1">
-                            {log.summary}
-                          </p>
-                        )}
                         {log.userName && (
                           <div className="flex items-center mt-1">
                             <User className="w-3 h-3 text-slate-400 mr-1" />
