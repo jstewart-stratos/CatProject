@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import Sidebar from "@/components/sidebar";
+import TopBar from "@/components/top-bar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -95,14 +97,18 @@ export default function AuditLogs() {
   const uniqueActions = Array.from(new Set(auditLogs.map(log => log.action))).filter(Boolean);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Audit Logs</h1>
-          <p className="text-muted-foreground">
-            Complete activity tracking for all system changes
-          </p>
-        </div>
+    <div className="min-h-screen bg-slate-50">
+      <Sidebar currentView="audit-logs" />
+      <div className="ml-64">
+        <TopBar />
+        <div className="p-6 space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">Audit Logs</h1>
+              <p className="text-muted-foreground">
+                Complete activity tracking for all system changes
+              </p>
+            </div>
         <div className="flex items-center gap-2">
           <Calendar className="w-5 h-5 text-muted-foreground" />
           <span className="text-sm text-muted-foreground">
@@ -285,6 +291,8 @@ export default function AuditLogs() {
           )}
         </CardContent>
       </Card>
+        </div>
+      </div>
     </div>
   );
 }

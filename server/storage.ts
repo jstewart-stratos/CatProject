@@ -116,6 +116,14 @@ export interface IStorage {
     todayUpdates: number;
   }>;
 
+  // Advanced business metrics
+  getBusinessMetrics(): Promise<{
+    accountTypeBreakdown: Array<{ type: string; count: number; percentage: number }>;
+    programTypeAnalytics: Array<{ type: string; count: number; percentage: number }>;
+    accountStatusPipeline: Array<{ status: string; count: number; percentage: number }>;
+    registrationTypeInsights: Array<{ type: string; count: number; percentage: number }>;
+  }>;
+
   // Draft onboarding operations
   createDraftOnboarding(draft: InsertDraftOnboarding): Promise<DraftOnboarding>;
   getDraftOnboarding(id: number): Promise<DraftOnboarding | undefined>;
