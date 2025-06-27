@@ -303,11 +303,7 @@ export default function ClientOnboardingFull() {
 
   // Load existing client data when existingClient is fetched
   useEffect(() => {
-    console.log("Edit client effect - existingClient:", existingClient);
-    console.log("Edit client effect - editClientId:", editClientId);
-    
     if (existingClient) {
-      console.log("Loading existing client data into form:", existingClient);
       // Map client data to form format (using actual database field names)
       const clientFormData = {
         clientType: existingClient.clientType?.toLowerCase() || "individual",
@@ -375,8 +371,6 @@ export default function ClientOnboardingFull() {
         realEstatePercent: existingClient.realEstatePercent || "",
         otherPercent: existingClient.otherPercent || "",
       };
-      
-      console.log("Mapped form data:", clientFormData);
       
       // Populate form with client data
       form.reset(clientFormData);
@@ -946,7 +940,7 @@ export default function ClientOnboardingFull() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Citizenship / Legal Establishment</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select" />
@@ -969,7 +963,7 @@ export default function ClientOnboardingFull() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Residency Status</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select" />
@@ -1005,7 +999,7 @@ export default function ClientOnboardingFull() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Signing Method</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select" />
@@ -1092,7 +1086,7 @@ export default function ClientOnboardingFull() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>State</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select" />
@@ -1368,7 +1362,7 @@ export default function ClientOnboardingFull() {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Mailing State</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <Select onValueChange={field.onChange} value={field.value}>
                               <FormControl>
                                 <SelectTrigger>
                                   <SelectValue placeholder="Select" />
@@ -1486,7 +1480,7 @@ export default function ClientOnboardingFull() {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Status</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <Select onValueChange={field.onChange} value={field.value}>
                               <FormControl>
                                 <SelectTrigger>
                                   <SelectValue placeholder="Select" />
@@ -1513,7 +1507,7 @@ export default function ClientOnboardingFull() {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Industry</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <Select onValueChange={field.onChange} value={field.value}>
                               <FormControl>
                                 <SelectTrigger>
                                   <SelectValue placeholder="Select" />
@@ -1605,7 +1599,7 @@ export default function ClientOnboardingFull() {
                                 </TooltipContent>
                               </Tooltip>
                             </div>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <Select onValueChange={field.onChange} value={field.value}>
                               <FormControl>
                                 <SelectTrigger>
                                   <SelectValue placeholder="Select" />
@@ -1641,7 +1635,7 @@ export default function ClientOnboardingFull() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Annual Income</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select" />
@@ -1669,7 +1663,7 @@ export default function ClientOnboardingFull() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Tax Bracket</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select" />
@@ -1698,7 +1692,7 @@ export default function ClientOnboardingFull() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Net Worth</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select" />
@@ -1726,7 +1720,7 @@ export default function ClientOnboardingFull() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Liquid Net Worth</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select" />
@@ -1754,7 +1748,7 @@ export default function ClientOnboardingFull() {
                       render={({ field }) => (
                         <FormItem className="md:col-span-2">
                           <FormLabel>Source of Wealth</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select" />
@@ -1844,7 +1838,7 @@ export default function ClientOnboardingFull() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Relationship</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select" />
@@ -1912,7 +1906,7 @@ export default function ClientOnboardingFull() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>State</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select" />
