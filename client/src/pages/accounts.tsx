@@ -61,6 +61,18 @@ export default function Accounts() {
       accountType: accountType === "all" ? undefined : accountType,
       groupId: selectedGroupId !== "all" ? selectedGroupId : undefined 
     }],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (search) params.set('search', search);
+      if (accountType !== "all") params.set('accountType', accountType);
+      if (selectedGroupId !== "all") params.set('groupId', selectedGroupId);
+      const queryString = params.toString();
+      const url = `/api/accounts${queryString ? `?${queryString}` : ''}`;
+      console.log('Accounts frontend making request to:', url);
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`${response.status}: ${await response.text()}`);
+      return response.json();
+    },
     enabled: isAuthenticated,
   });
 
