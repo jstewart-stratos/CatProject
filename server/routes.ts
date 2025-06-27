@@ -138,16 +138,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User management routes
   app.get('/api/users', isAuthenticated, checkPermission(['manage_users']), async (req: any, res) => {
     try {
-      // Admins see all users, transitions specialists see users from all their groups,
-      // but transitions specialists need manage_users permission for this endpoint
-      if (req.userRole === 'admin') {
+      // Both admin and transition_specialist roles can see all users
+      // Transition specialists have cross-group user management privileges
+      if (req.userRole === 'admin' || req.userRole === 'transition_specialist') {
         const users = await storage.getAllUsers();
-        res.json(users);
-      } else if (req.userRole === 'transition_specialist') {
-        // Transitions specialists see users from all groups they're assigned to
-        // This supports their cross-group user management role
-        const groupIds = req.userGroups.map((g: any) => g.id);
-        const users = await storage.getUsersByGroups(groupIds);
         res.json(users);
       } else {
         // This shouldn't happen as only admin and transition_specialist have manage_users permission
