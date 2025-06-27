@@ -29,26 +29,36 @@ export default function TopBar({ title, subtitle }: TopBarProps) {
   }, []);
 
   return (
-    <header className="bg-white shadow-sm border-b border-slate-200 px-6 py-4">
+    <header className="hidden lg:block bg-white shadow-sm border-b border-slate-200 px-4 lg:px-6 py-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">{title}</h1>
-          <p className="text-slate-600">{subtitle}</p>
+          <h1 className="text-xl lg:text-2xl font-bold text-slate-800">{title}</h1>
+          <p className="text-sm lg:text-base text-slate-600">{subtitle}</p>
         </div>
         
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2 lg:space-x-4">
           <Button
             variant="outline"
-            className="w-80 justify-start text-slate-500 font-normal"
+            className="hidden sm:flex w-40 lg:w-80 justify-start text-slate-500 font-normal"
             onClick={handleSearchClick}
           >
             <Search className="h-4 w-4 mr-2" />
-            Search clients, accounts...
-            <div className="ml-auto flex items-center gap-1">
+            <span className="hidden lg:inline">Search clients, accounts...</span>
+            <span className="lg:hidden">Search...</span>
+            <div className="ml-auto hidden lg:flex items-center gap-1">
               <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-slate-100 px-1.5 font-mono text-[10px] font-medium text-slate-600">
                 <span className="text-xs">⌘</span>K
               </kbd>
             </div>
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            className="sm:hidden"
+            onClick={handleSearchClick}
+          >
+            <Search className="h-4 w-4" />
           </Button>
           
           <Button variant="ghost" size="sm" className="relative">

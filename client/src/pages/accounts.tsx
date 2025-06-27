@@ -229,17 +229,17 @@ export default function Accounts() {
   return (
     <div className="min-h-screen bg-slate-50">
       <Sidebar currentView="accounts" />
-      <div className="ml-64">
+      <div className="lg:ml-64 pt-16 lg:pt-0">
         <TopBar 
           title="Account Management" 
           subtitle="Track and manage client accounts"
         />
         
-        <div className="p-6">
+        <div className="p-4 lg:p-6">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-              <CardTitle>Account Management</CardTitle>
-              <div className="flex items-center space-x-3">
+            <CardHeader className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0 pb-4">
+              <CardTitle className="text-lg lg:text-xl">Account Management</CardTitle>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-3">
                 {selectedAccountIds.size > 0 && (
                   <Button 
                     variant="destructive" 

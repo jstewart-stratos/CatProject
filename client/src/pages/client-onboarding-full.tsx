@@ -690,23 +690,23 @@ export default function ClientOnboardingFull() {
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar currentView="client-onboarding-full" />
-      <div className="flex-1 p-6">
+      <div className="flex-1 lg:ml-64 pt-16 lg:pt-0 p-4 lg:p-6">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="mb-6">
-            <div className="flex justify-between items-start">
+            <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start space-y-4 lg:space-y-0">
               <div>
-                <h1 className="text-3xl font-bold text-slate-900 mb-2">
+                <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 mb-2">
                   {editClientId ? "Edit Client" : "Full Client Onboarding"}
                 </h1>
-                <p className="text-slate-600">
+                <p className="text-slate-600 text-sm lg:text-base">
                   {editClientId 
                     ? "Update client information across all steps" 
                     : "Complete 7-step client information collection process"
                   }
                 </p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <Button 
                   variant="outline" 
                   size="sm" 
@@ -2668,23 +2668,25 @@ export default function ClientOnboardingFull() {
               )}
 
               {/* Navigation buttons */}
-              <div className="flex justify-between pt-6">
+              <div className="flex flex-col sm:flex-row sm:justify-between pt-6 space-y-4 sm:space-y-0">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={prevStep}
                   disabled={currentStep === 1}
+                  className="w-full sm:w-auto"
                 >
                   <ChevronLeft className="h-4 w-4 mr-2" />
                   Previous
                 </Button>
 
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                   {/* Show Update Client button when editing */}
                   {editClientId && (
                     <Button 
                       type="button" 
                       disabled={mutation.isPending}
+                      className="w-full sm:w-auto"
                       onClick={async () => {
                         const formData = form.getValues();
                         
@@ -2704,7 +2706,7 @@ export default function ClientOnboardingFull() {
 
                   {/* Regular Next/Submit buttons for new clients or step-by-step editing */}
                   {currentStep < steps.length ? (
-                    <Button type="button" onClick={handleNext}>
+                    <Button type="button" onClick={handleNext} className="w-full sm:w-auto">
                       Next
                       <ChevronRight className="h-4 w-4 ml-2" />
                     </Button>
@@ -2712,6 +2714,7 @@ export default function ClientOnboardingFull() {
                     <Button 
                       type="button" 
                       disabled={mutation.isPending}
+                      className="w-full sm:w-auto"
                       onClick={async () => {
                         const formData = form.getValues();
                         

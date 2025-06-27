@@ -52,13 +52,13 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-slate-50">
       <Sidebar currentView="dashboard" />
-      <div className="ml-64">
+      <div className="lg:ml-64 pt-16 lg:pt-0">
         <TopBar 
           title="Dashboard" 
           subtitle="Overview of your data management system"
         />
         
-        <div className="p-6">
+        <div className="p-4 lg:p-6">
           {/* Enhanced Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
             <Card>
