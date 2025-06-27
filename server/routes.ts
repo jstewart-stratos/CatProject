@@ -150,7 +150,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { groupIds, ...userData } = userCreateSchema.parse(req.body);
       
       // Hash the password before storing
-      const bcrypt = require('bcryptjs');
+      const bcrypt = await import('bcryptjs');
       const hashedPassword = await bcrypt.hash(userData.password, 10);
       
       // For creating users via admin, we need to generate an ID
@@ -195,7 +195,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Hash password if provided  
       if (password) {
-        const bcrypt = require('bcryptjs');
+        const bcrypt = await import('bcryptjs');
         (updateData as any).password = await bcrypt.hash(password, 10);
       }
       const user = await storage.updateUser(id, updateData);
