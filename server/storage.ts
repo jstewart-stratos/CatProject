@@ -494,14 +494,22 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateClient(id: number, data: Partial<Client>, auditContext?: { req?: Request }): Promise<Client> {
+    console.log('updateClient called with:', { id, dataKeys: Object.keys(data), data });
+    
     // Get old data for audit comparison
     const oldClient = await this.getClient(id);
+    console.log('Old client data:', oldClient ? { id: oldClient.id, firstName: oldClient.firstName, middleName: oldClient.middleName } : 'not found');
+    
+    const updateData = { ...data, updatedAt: new Date() };
+    console.log('Update data being applied:', updateData);
     
     const [client] = await db
       .update(clients)
-      .set({ ...data, updatedAt: new Date() })
+      .set(updateData)
       .where(eq(clients.id, id))
       .returning();
+      
+    console.log('Updated client returned:', client ? { id: client.id, firstName: client.firstName, middleName: client.middleName } : 'not found');
     
     // Create audit log for client update
     if (auditContext && oldClient) {
