@@ -54,11 +54,11 @@ export default function Sidebar({ currentView }: SidebarProps) {
           <div className="w-10 h-10 flex items-center justify-center">
             <img 
               src={logoImage} 
-              alt="DataFlow Logo" 
+              alt="CatPrep Logo" 
               className="w-10 h-10 object-contain"
             />
           </div>
-          <span className="ml-3 text-xl font-bold text-slate-800">DataFlow</span>
+          <span className="ml-3 text-xl font-bold text-slate-800">CatPrep</span>
         </div>
         
         <nav className="flex-1 px-4 py-6">

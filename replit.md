@@ -1,8 +1,8 @@
-# DataFlow - Client Data Management System
+# CatPrep - Client Data Management System
 
 ## Overview
 
-DataFlow is a full-stack client data management system built with React, Express.js, and PostgreSQL. The application provides user authentication via Replit Auth, role-based access control, and comprehensive CRUD operations for managing clients, accounts, beneficiaries, and related financial data. The system includes file upload capabilities, audit logging, and import/export functionality.
+CatPrep is a full-stack client data management system built with React, Express.js, and PostgreSQL. The application provides user authentication via Replit Auth, role-based access control, and comprehensive CRUD operations for managing clients, accounts, beneficiaries, and related financial data. The system includes file upload capabilities, audit logging, and import/export functionality.
 
 ## System Architecture
 
@@ -179,11 +179,13 @@ Preferred communication style: Simple, everyday language.
   - ✅ **Added security headers** - Implemented Helmet middleware with Content Security Policy for XSS protection
   - ✅ **Strengthened payload limits** - Added 10MB limits on request body size to prevent DOS attacks
   - 🔧 **Security Assessment Summary**: Application now production-ready with enterprise-grade security measures
-- **June 27, 2025**: Updated application branding with custom Sunray logo
+- **June 27, 2025**: Application rebranded to CatPrep with custom Sunray logo
+  - ✅ **Renamed application from DataFlow to CatPrep** - Updated application name in sidebar navigation menu and login page title
   - ✅ **Replaced sidebar logo** - Updated navigation header to display custom Sunray sunburst logo instead of Database icon
   - ✅ **Updated login screen logo** - Replaced generic Database icon with professional Sunray brand logo on authentication page
   - ✅ **Maintained visual consistency** - Logo displays properly at appropriate sizes (40x40px in sidebar, 64x64px on login) with object-contain scaling
-  - ✅ **Enhanced brand identity** - Application now features consistent custom branding throughout user interface
+  - ✅ **Enhanced brand identity** - Application now features consistent CatPrep branding with custom logo throughout user interface
+  - ✅ **Updated documentation** - Modified replit.md header and overview to reflect new CatPrep name
 - **June 27, 2025**: Fixed user management permissions for transition specialist role enabling access to all users regardless of group membership
 - **June 27, 2025**: Prepared clean deployment version by clearing all sample data
   - ✅ **Cleared all test data** - Removed all sample clients, accounts, groups, and non-admin users

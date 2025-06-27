@@ -39,11 +39,11 @@ export default function Landing() {
             <div className="w-16 h-16 flex items-center justify-center mx-auto mb-4">
               <img 
                 src={logoImage} 
-                alt="DataFlow Logo" 
+                alt="CatPrep Logo" 
                 className="w-16 h-16 object-contain"
               />
             </div>
-            <CardTitle className="text-2xl font-bold text-slate-800">Welcome to DataFlow</CardTitle>
+            <CardTitle className="text-2xl font-bold text-slate-800">Welcome to CatPrep</CardTitle>
             <p className="text-slate-600 mt-2">Sign in to manage your client data</p>
           </div>
         </CardHeader>
