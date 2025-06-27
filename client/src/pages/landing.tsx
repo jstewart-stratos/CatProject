@@ -7,6 +7,7 @@ import { Database, LogIn, AlertCircle } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import logoImage from "@assets/Sunray Mark Only - Solid (2)_1751050129011.png";
 
 export default function Landing() {
   const [username, setUsername] = useState("");
@@ -35,8 +36,12 @@ export default function Landing() {
       <Card className="w-full max-w-md">
         <CardHeader>
           <div className="text-center">
-            <div className="w-16 h-16 bg-blue-500 rounded-xl flex items-center justify-center mx-auto mb-4">
-              <Database className="h-8 w-8 text-white" />
+            <div className="w-16 h-16 flex items-center justify-center mx-auto mb-4">
+              <img 
+                src={logoImage} 
+                alt="DataFlow Logo" 
+                className="w-16 h-16 object-contain"
+              />
             </div>
             <CardTitle className="text-2xl font-bold text-slate-800">Welcome to DataFlow</CardTitle>
             <p className="text-slate-600 mt-2">Sign in to manage your client data</p>

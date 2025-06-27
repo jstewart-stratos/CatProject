@@ -2,6 +2,7 @@ import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Database, BarChart3, Users, Wallet, ArrowLeftRight, UserCog, UsersIcon, LogOut, UserPlus, FileText } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import logoImage from "@assets/Sunray Mark Only - Solid (2)_1751050129011.png";
 
 interface SidebarProps {
   currentView: string;
@@ -50,8 +51,12 @@ export default function Sidebar({ currentView }: SidebarProps) {
     <div className="fixed inset-y-0 left-0 w-64 bg-white shadow-lg z-30">
       <div className="flex flex-col h-full">
         <div className="flex items-center px-6 py-4 border-b border-slate-200">
-          <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
-            <Database className="h-6 w-6 text-white" />
+          <div className="w-10 h-10 flex items-center justify-center">
+            <img 
+              src={logoImage} 
+              alt="DataFlow Logo" 
+              className="w-10 h-10 object-contain"
+            />
           </div>
           <span className="ml-3 text-xl font-bold text-slate-800">DataFlow</span>
         </div>
