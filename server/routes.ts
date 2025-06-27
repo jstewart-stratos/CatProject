@@ -724,10 +724,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/accounts/:id', isAuthenticated, async (req, res) => {
+  app.delete('/api/accounts/bulk', isAuthenticated, async (req: any, res) => {
+    try {
+      const { accountIds } = req.body;
+      if (!Array.isArray(accountIds) || accountIds.length === 0) {
+        return res.status(400).json({ message: "Account IDs array is required" });
+      }
+      
+      // Delete each account with audit logging
+      for (const accountId of accountIds) {
+        await storage.deleteAccount(parseInt(accountId), { req });
+      }
+      
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error bulk deleting accounts:", error);
+      res.status(500).json({ message: "Failed to delete accounts" });
+    }
+  });
+
+  app.delete('/api/accounts/:id', isAuthenticated, async (req: any, res) => {
     try {
       const { id } = req.params;
-      await storage.deleteAccount(parseInt(id));
+      await storage.deleteAccount(parseInt(id), { req });
       res.status(204).send();
     } catch (error) {
       console.error("Error deleting account:", error);

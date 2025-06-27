@@ -77,7 +77,7 @@ export interface IStorage {
   getAccountsByGroups(groupIds: number[], search?: string, accountType?: string, limit?: number, offset?: number): Promise<{ accounts: Account[]; total: number }>;
   getAccountsBySpecificGroup(groupId: number, search?: string, accountType?: string, limit?: number, offset?: number): Promise<{ accounts: Account[]; total: number }>;
   updateAccount(id: number, data: Partial<Account>): Promise<Account>;
-  deleteAccount(id: number): Promise<void>;
+  deleteAccount(id: number, auditContext?: { req?: Request }): Promise<void>;
   getAccountsByClient(clientId: number): Promise<Account[]>;
 
   // Beneficiary operations
@@ -796,8 +796,23 @@ export class DatabaseStorage implements IStorage {
     return account;
   }
 
-  async deleteAccount(id: number): Promise<void> {
+  async deleteAccount(id: number, auditContext?: { req?: Request }): Promise<void> {
+    // Get account data before deletion for audit
+    const accountData = await this.getAccount(id);
+    
     await db.delete(accounts).where(eq(accounts.id, id));
+    
+    // Create audit log for account deletion
+    if (auditContext && accountData) {
+      await AuditHelper.createAuditLog({
+        entityType: 'account',
+        entityId: id,
+        action: 'delete',
+        oldData: accountData,
+        context: AuditHelper.createContext(auditContext.req!),
+        metadata: { source: 'account_management_page' }
+      });
+    }
   }
 
   async getAccountsByClient(clientId: number): Promise<Account[]> {

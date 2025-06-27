@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, Search, Eye, Edit, Lock, Trash2, Filter } from "lucide-react";
 
 export default function Accounts() {
@@ -27,6 +28,7 @@ export default function Accounts() {
   const [selectedAccount, setSelectedAccount] = useState<any>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [selectedAccountForDetails, setSelectedAccountForDetails] = useState<any>(null);
+  const [selectedAccountIds, setSelectedAccountIds] = useState<Set<number>>(new Set());
 
   // Redirect to home if not authenticated
   useEffect(() => {
@@ -118,6 +120,40 @@ export default function Accounts() {
     },
   });
 
+  // Bulk delete mutation
+  const bulkDeleteMutation = useMutation({
+    mutationFn: async (accountIds: number[]) => {
+      return await apiRequest("DELETE", "/api/accounts/bulk", { accountIds });
+    },
+    onSuccess: () => {
+      refetch();
+      setSelectedAccountIds(new Set());
+      toast({
+        title: "Success!",
+        description: `${selectedAccountIds.size} account(s) have been deleted successfully.`,
+      });
+    },
+    onError: (error: Error) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      
+      toast({
+        title: "Error",
+        description: "Failed to delete accounts. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const openModal = (account?: any) => {
     setSelectedAccount(account || null);
     setIsModalOpen(true);
@@ -158,6 +194,34 @@ export default function Accounts() {
     }
   };
 
+  // Bulk selection handlers
+  const toggleAccountSelection = (accountId: number) => {
+    const newSelected = new Set(selectedAccountIds);
+    if (newSelected.has(accountId)) {
+      newSelected.delete(accountId);
+    } else {
+      newSelected.add(accountId);
+    }
+    setSelectedAccountIds(newSelected);
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedAccountIds.size === accountsData?.accounts?.length) {
+      setSelectedAccountIds(new Set());
+    } else {
+      const allIds = new Set(accountsData?.accounts?.map((account: any) => account.id) || []);
+      setSelectedAccountIds(allIds);
+    }
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedAccountIds.size === 0) return;
+    
+    if (confirm(`Are you sure you want to delete ${selectedAccountIds.size} account(s)? This action cannot be undone.`)) {
+      bulkDeleteMutation.mutate(Array.from(selectedAccountIds));
+    }
+  };
+
   if (isLoading || !isAuthenticated) {
     return null;
   }
@@ -176,6 +240,16 @@ export default function Accounts() {
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
               <CardTitle>Account Management</CardTitle>
               <div className="flex items-center space-x-3">
+                {selectedAccountIds.size > 0 && (
+                  <Button 
+                    variant="destructive" 
+                    onClick={handleBulkDelete}
+                    disabled={bulkDeleteMutation.isPending}
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete Selected ({selectedAccountIds.size})
+                  </Button>
+                )}
                 <Select value={accountType} onValueChange={setAccountType}>
                   <SelectTrigger className="w-48">
                     <SelectValue placeholder="All Account Types" />
@@ -235,6 +309,12 @@ export default function Accounts() {
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead className="w-12">
+                        <Checkbox
+                          checked={selectedAccountIds.size === accountsData?.accounts?.length && accountsData?.accounts?.length > 0}
+                          onCheckedChange={toggleSelectAll}
+                        />
+                      </TableHead>
                       <TableHead>Account ID</TableHead>
                       <TableHead>Client</TableHead>
                       <TableHead>Type</TableHead>
@@ -246,13 +326,19 @@ export default function Accounts() {
                   <TableBody>
                     {accountsLoading ? (
                       <TableRow>
-                        <TableCell colSpan={6} className="text-center py-8">
+                        <TableCell colSpan={7} className="text-center py-8">
                           Loading accounts...
                         </TableCell>
                       </TableRow>
                     ) : accountsData?.accounts?.length > 0 ? (
                       accountsData.accounts.map((account: any) => (
                         <TableRow key={account.id}>
+                          <TableCell>
+                            <Checkbox
+                              checked={selectedAccountIds.has(account.id)}
+                              onCheckedChange={() => toggleAccountSelection(account.id)}
+                            />
+                          </TableCell>
                           <TableCell>
                             <div className="text-sm font-medium text-slate-800">
                               ACC-{account.id}
@@ -305,7 +391,7 @@ export default function Accounts() {
                       ))
                     ) : (
                       <TableRow>
-                        <TableCell colSpan={6} className="text-center py-8">
+                        <TableCell colSpan={7} className="text-center py-8">
                           No accounts found
                         </TableCell>
                       </TableRow>
