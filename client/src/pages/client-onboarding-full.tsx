@@ -159,17 +159,24 @@ export default function ClientOnboardingFull() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isCompleted, setIsCompleted] = useState(false);
   const [currentDraftId, setCurrentDraftId] = useState<number | null>(null);
+  const [editClientId, setEditClientId] = useState<number | null>(null);
   const [showDraftDialog, setShowDraftDialog] = useState(false);
   const [showLoadDialog, setShowLoadDialog] = useState(false);
   const [draftName, setDraftName] = useState("");
   const { toast } = useToast();
 
-  // Check for draftId in URL parameters
+  // Check for draftId and editId in URL parameters
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const draftId = urlParams.get('draftId');
+    const editId = urlParams.get('editId');
+    
     if (draftId && !isNaN(Number(draftId))) {
       setCurrentDraftId(Number(draftId));
+    }
+    
+    if (editId && !isNaN(Number(editId))) {
+      setEditClientId(Number(editId));
     }
   }, []);
 
@@ -261,6 +268,17 @@ export default function ClientOnboardingFull() {
     retry: false,
   });
 
+  // Query for existing client when editClientId is provided
+  const { data: existingClient, isLoading: isClientLoading } = useQuery({
+    queryKey: ["/api/clients", editClientId],
+    queryFn: async () => {
+      if (!editClientId) return null;
+      return await apiRequest("GET", `/api/clients/${editClientId}`);
+    },
+    enabled: !!editClientId,
+    retry: false,
+  });
+
   // Load draft data when specificDraft is fetched
   useEffect(() => {
     if (specificDraft && specificDraft.formData) {
@@ -281,6 +299,88 @@ export default function ClientOnboardingFull() {
       });
     }
   }, [specificDraft, form, toast]);
+
+  // Load existing client data when existingClient is fetched
+  useEffect(() => {
+    if (existingClient) {
+      // Map client data to form format
+      const clientFormData = {
+        clientType: existingClient.clientType || "individual",
+        ssn: existingClient.ssn || "",
+        firstName: existingClient.firstName || "",
+        middleName: existingClient.middleName || "",
+        lastName: existingClient.lastName || "",
+        alias: existingClient.alias || "",
+        citizenship: existingClient.citizenship || "",
+        residencyStatus: existingClient.residencyStatus || "",
+        dateOfBirth: existingClient.dateOfBirth || "",
+        signingMethod: existingClient.signingMethod || "",
+        emailAddress: existingClient.email || "",
+        legalAddress1: existingClient.legalAddress || "",
+        legalAddress2: "",
+        city: existingClient.legalCity || "",
+        state: existingClient.legalState || "",
+        zipCode: existingClient.legalZip || "",
+        homePhone: existingClient.homePhone || "",
+        mobilePhone: existingClient.mobilePhone || "",
+        businessPhone: existingClient.businessPhone || "",
+        mailingAddressSameAsAbove: !existingClient.mailingAddress,
+        mailingAddress1: existingClient.mailingAddress || "",
+        mailingAddress2: "",
+        mailingCity: existingClient.mailingCity || "",
+        mailingState: existingClient.mailingState || "",
+        mailingZipCode: existingClient.mailingZip || "",
+        employmentStatus: existingClient.employmentStatus || "",
+        industry: existingClient.industry || "",
+        occupation: existingClient.occupation || "",
+        employerName: existingClient.employer || "",
+        industryAffiliation: existingClient.industryAffiliation || "",
+        annualIncome: existingClient.annualIncome || "",
+        taxBracket: existingClient.taxBracket || "",
+        netWorth: existingClient.netWorth || "",
+        liquidNetWorth: existingClient.liquidNetWorth || "",
+        sourceOfWealth: existingClient.sourceOfWealth || "",
+        trustedContactFirstName: existingClient.trustedContactName?.split(' ')[0] || "",
+        trustedContactLastName: existingClient.trustedContactName?.split(' ').slice(1).join(' ') || "",
+        trustedContactRelationship: existingClient.trustedContactRelationship || "",
+        trustedContactAddress1: existingClient.trustedContactAddress || "",
+        trustedContactAddress2: "",
+        trustedContactCity: existingClient.trustedContactCity || "",
+        trustedContactState: existingClient.trustedContactState || "",
+        trustedContactZipCode: existingClient.trustedContactZip || "",
+        trustedContactEmail: existingClient.trustedContactEmail || "",
+        trustedContactPhone: existingClient.trustedContactPhone || "",
+        hasInvestmentExperience: existingClient.hasInvestmentExperience || "",
+        annuitiesYears: existingClient.annuitiesYears || "",
+        bondsYears: existingClient.bondsYears || "",
+        marginYears: existingClient.marginYears || "",
+        mutualFundsYears: existingClient.mutualFundsYears || "",
+        optionsYears: existingClient.optionsYears || "",
+        partnershipsYears: existingClient.partnershipsYears || "",
+        stocksYears: existingClient.stocksYears || "",
+        otherYears: existingClient.otherYears || "",
+        hasOtherInvestments: existingClient.hasOtherInvestments || "",
+        altInvestmentsPercent: existingClient.altInvestmentsPercent || "",
+        annuitiesPercent: existingClient.annuitiesPercent || "",
+        bondsPercent: existingClient.bondsPercent || "",
+        checkingSavingsPercent: existingClient.checkingSavingsPercent || "",
+        equitiesPercent: existingClient.equitiesPercent || "",
+        insurancePercent: existingClient.insurancePercent || "",
+        mutualFundsPercent: existingClient.mutualFundsPercent || "",
+        realEstatePercent: existingClient.realEstatePercent || "",
+        otherPercent: existingClient.otherPercent || "",
+      };
+      
+      // Populate form with client data
+      form.reset(clientFormData);
+      
+      // Show toast to indicate client data was loaded for editing
+      toast({
+        title: "Client Loaded",
+        description: `Editing ${existingClient.firstName} ${existingClient.lastName}`,
+      });
+    }
+  }, [existingClient, form, toast]);
 
   // Mutation for creating/updating draft onboarding
   const saveDraftMutation = useMutation({
@@ -342,10 +442,17 @@ export default function ClientOnboardingFull() {
   const mutation = useMutation({
     mutationFn: async (data: FormData) => {
       console.log("Submitting client data:", data);
-      return await apiRequest("POST", "/api/onboarding/client", data);
+      
+      if (editClientId) {
+        // Update existing client
+        return await apiRequest("PUT", `/api/clients/${editClientId}`, data);
+      } else {
+        // Create new client
+        return await apiRequest("POST", "/api/onboarding/client", data);
+      }
     },
     onSuccess: (data) => {
-      console.log("Client creation successful:", data);
+      console.log("Client operation successful:", data);
       // Delete the draft if it was loaded from a draft
       if (currentDraftId) {
         deleteDraftMutation.mutate(currentDraftId);
@@ -353,14 +460,14 @@ export default function ClientOnboardingFull() {
       setIsCompleted(true);
       toast({
         title: "Success!",
-        description: "Client onboarding completed successfully.",
+        description: editClientId ? "Client updated successfully." : "Client onboarding completed successfully.",
       });
     },
     onError: (error) => {
-      console.error("Error creating client:", error);
+      console.error("Error with client operation:", error);
       toast({
         title: "Error",
-        description: error.message || "Failed to create client. Please try again.",
+        description: error.message || `Failed to ${editClientId ? "update" : "create"} client. Please try again.`,
         variant: "destructive",
       });
     },
@@ -560,8 +667,15 @@ export default function ClientOnboardingFull() {
           <div className="mb-6">
             <div className="flex justify-between items-start">
               <div>
-                <h1 className="text-3xl font-bold text-slate-900 mb-2">Full Client Onboarding</h1>
-                <p className="text-slate-600">Complete 7-step client information collection process</p>
+                <h1 className="text-3xl font-bold text-slate-900 mb-2">
+                  {editClientId ? "Edit Client" : "Full Client Onboarding"}
+                </h1>
+                <p className="text-slate-600">
+                  {editClientId 
+                    ? "Update client information across all steps" 
+                    : "Complete 7-step client information collection process"
+                  }
+                </p>
               </div>
               <div className="flex gap-2">
                 <Button 
