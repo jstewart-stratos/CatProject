@@ -249,6 +249,7 @@ export default function ClientOnboardingFull() {
 
   // Watch for clientType changes
   const clientType = form.watch("clientType");
+  const entityIdType = form.watch("entityIdType");
 
   // Query for user's draft onboardings
   const { data: userDrafts, refetch: refetchDrafts } = useQuery({
@@ -948,6 +949,135 @@ export default function ClientOnboardingFull() {
                             </FormItem>
                           )}
                         />
+
+                        {/* Conditional fields based on ID Type for Entity */}
+                        {entityIdType !== "ssn" && (
+                          <FormField
+                            control={form.control}
+                            name="alias"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>DBA/Trade Name</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    placeholder="Enter DBA or trade name" 
+                                    value={field.value}
+                                    onChange={(e) => {
+                                      const formatted = e.target.value
+                                        .toLowerCase()
+                                        .split(' ')
+                                        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                        .join(' ');
+                                      field.onChange(formatted);
+                                    }}
+                                    onBlur={field.onBlur}
+                                    name={field.name}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        )}
+
+                        {entityIdType === "ssn" && (
+                          <>
+                            <FormField
+                              control={form.control}
+                              name="firstName"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>First Name *</FormLabel>
+                                  <FormControl>
+                                    <Input 
+                                      placeholder="Enter first name" 
+                                      value={field.value}
+                                      onChange={(e) => {
+                                        const formatted = e.target.value
+                                          .toLowerCase()
+                                          .split(' ')
+                                          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                          .join(' ');
+                                        field.onChange(formatted);
+                                      }}
+                                      onBlur={field.onBlur}
+                                      name={field.name}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={form.control}
+                              name="middleName"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Middle Name</FormLabel>
+                                  <FormControl>
+                                    <Input 
+                                      placeholder="Enter middle name" 
+                                      value={field.value}
+                                      onChange={(e) => {
+                                        const formatted = e.target.value
+                                          .toLowerCase()
+                                          .split(' ')
+                                          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                          .join(' ');
+                                        field.onChange(formatted);
+                                      }}
+                                      onBlur={field.onBlur}
+                                      name={field.name}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={form.control}
+                              name="lastName"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Last Name *</FormLabel>
+                                  <FormControl>
+                                    <Input 
+                                      placeholder="Enter last name" 
+                                      value={field.value}
+                                      onChange={(e) => {
+                                        const formatted = e.target.value
+                                          .toLowerCase()
+                                          .split(' ')
+                                          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                          .join(' ');
+                                        field.onChange(formatted);
+                                      }}
+                                      onBlur={field.onBlur}
+                                      name={field.name}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={form.control}
+                              name="dateOfBirth"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Date of Birth *</FormLabel>
+                                  <FormControl>
+                                    <Input type="date" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </>
+                        )}
                       </>
                     )}
 
