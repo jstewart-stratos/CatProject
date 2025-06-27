@@ -36,7 +36,7 @@ import {
   type DraftAccount,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, like, desc, asc, sql, ilike, or, inArray } from "drizzle-orm";
+import { eq, and, like, desc, asc, sql, ilike, or, inArray, not } from "drizzle-orm";
 
 export interface IStorage {
   // User operations (mandatory for Replit Auth)
@@ -64,6 +64,7 @@ export interface IStorage {
   getClient(id: number): Promise<Client | undefined>;
   getAllClients(search?: string, limit?: number, offset?: number): Promise<{ clients: Client[]; total: number }>;
   getClientsByGroups(groupIds: number[], search?: string, limit?: number, offset?: number): Promise<{ clients: Client[]; total: number }>;
+  getClientsBySpecificGroup(groupId: number, search?: string, limit?: number, offset?: number): Promise<{ clients: Client[]; total: number }>;
   updateClient(id: number, data: Partial<Client>): Promise<Client>;
   deleteClient(id: number): Promise<void>;
 
@@ -72,6 +73,7 @@ export interface IStorage {
   getAccount(id: number): Promise<Account | undefined>;
   getAllAccounts(search?: string, accountType?: string, limit?: number, offset?: number): Promise<{ accounts: Account[]; total: number }>;
   getAccountsByGroups(groupIds: number[], search?: string, accountType?: string, limit?: number, offset?: number): Promise<{ accounts: Account[]; total: number }>;
+  getAccountsBySpecificGroup(groupId: number, search?: string, accountType?: string, limit?: number, offset?: number): Promise<{ accounts: Account[]; total: number }>;
   updateAccount(id: number, data: Partial<Account>): Promise<Account>;
   deleteAccount(id: number): Promise<void>;
   getAccountsByClient(clientId: number): Promise<Account[]>;
@@ -401,6 +403,67 @@ export class DatabaseStorage implements IStorage {
     };
   }
 
+  async getClientsBySpecificGroup(groupId: number, search?: string, limit = 50, offset = 0): Promise<{ clients: Client[]; total: number }> {
+    // Get users who are ONLY in this specific group (excluding multi-group users like transition specialists)
+    const usersInMultipleGroups = await db
+      .select({ userId: userGroups.userId })
+      .from(userGroups)
+      .groupBy(userGroups.userId)
+      .having(sql`count(*) > 1`);
+    
+    const multiGroupUserIds = usersInMultipleGroups.map(user => user.userId);
+    
+    // Get users in the specific group, excluding those in multiple groups
+    const groupMembers = await db
+      .selectDistinct({ userId: userGroups.userId })
+      .from(userGroups)
+      .where(
+        and(
+          eq(userGroups.groupId, groupId),
+          multiGroupUserIds.length > 0 ? not(inArray(userGroups.userId, multiGroupUserIds)) : sql`true`
+        )
+      );
+    
+    const memberUserIds = groupMembers.map(member => member.userId);
+    
+    // Get clients created by users specific to this group only
+    let query = db.select().from(clients);
+    let countQuery = db.select({ count: sql<number>`count(*)` }).from(clients);
+    
+    if (memberUserIds.length === 0) {
+      // No users exclusively in this group, return empty result
+      return { clients: [], total: 0 };
+    }
+    
+    const groupCondition = inArray(clients.createdBy, memberUserIds);
+    query = query.where(groupCondition);
+    countQuery = countQuery.where(groupCondition);
+
+    if (search) {
+      const searchCondition = and(
+        groupCondition,
+        or(
+          ilike(clients.firstName, `%${search}%`),
+          ilike(clients.lastName, `%${search}%`),
+          ilike(clients.emailAddress, `%${search}%`),
+          ilike(clients.entityName, `%${search}%`)
+        )
+      );
+      query = query.where(searchCondition);
+      countQuery = countQuery.where(searchCondition);
+    }
+
+    const [clientsResult, totalResult] = await Promise.all([
+      query.orderBy(desc(clients.createdAt)).limit(limit).offset(offset),
+      countQuery
+    ]);
+
+    return {
+      clients: clientsResult,
+      total: totalResult[0].count
+    };
+  }
+
   async updateClient(id: number, data: Partial<Client>): Promise<Client> {
     const [client] = await db
       .update(clients)
@@ -500,6 +563,88 @@ export class DatabaseStorage implements IStorage {
     const conditions = [];
     
     // Add group condition
+    conditions.push(inArray(clients.createdBy, memberUserIds));
+
+    if (search) {
+      const searchCondition = or(
+        ilike(clients.firstName, `%${search}%`),
+        ilike(clients.lastName, `%${search}%`),
+        ilike(clients.entityName, `%${search}%`),
+        ilike(accounts.accountType, `%${search}%`),
+        ilike(accounts.programType, `%${search}%`)
+      );
+      conditions.push(searchCondition);
+    }
+
+    if (accountType && accountType !== 'all') {
+      conditions.push(eq(accounts.accountType, accountType));
+    }
+
+    if (conditions.length > 0) {
+      const whereCondition = conditions.length === 1 ? conditions[0] : and(...conditions);
+      baseQuery = baseQuery.where(whereCondition);
+      countQuery = countQuery.where(whereCondition);
+    }
+
+    const [rawResults, totalResult] = await Promise.all([
+      baseQuery.orderBy(desc(accounts.createdAt)).limit(limit).offset(offset),
+      countQuery
+    ]);
+
+    // Transform results to include client data properly
+    const accountsList = rawResults.map((row: any) => ({
+      ...row.accounts,
+      client: row.clients
+    }));
+
+    return {
+      accounts: accountsList,
+      total: totalResult[0].count
+    };
+  }
+
+  async getAccountsBySpecificGroup(groupId: number, search?: string, accountType?: string, limit = 50, offset = 0): Promise<{ accounts: Account[]; total: number }> {
+    // Get users who are ONLY in this specific group (excluding multi-group users like transition specialists)
+    const usersInMultipleGroups = await db
+      .select({ userId: userGroups.userId })
+      .from(userGroups)
+      .groupBy(userGroups.userId)
+      .having(sql`count(*) > 1`);
+    
+    const multiGroupUserIds = usersInMultipleGroups.map(user => user.userId);
+    
+    // Get users in the specific group, excluding those in multiple groups
+    const groupMembers = await db
+      .selectDistinct({ userId: userGroups.userId })
+      .from(userGroups)
+      .where(
+        and(
+          eq(userGroups.groupId, groupId),
+          multiGroupUserIds.length > 0 ? not(inArray(userGroups.userId, multiGroupUserIds)) : sql`true`
+        )
+      );
+    
+    const memberUserIds = groupMembers.map(member => member.userId);
+    
+    if (memberUserIds.length === 0) {
+      // No users exclusively in this group, return empty result
+      return { accounts: [], total: 0 };
+    }
+    
+    // Use the same approach as getAllAccounts to avoid complex select issues
+    let baseQuery = db
+      .select()
+      .from(accounts)
+      .innerJoin(clients, eq(accounts.clientId, clients.id));
+    
+    let countQuery = db
+      .select({ count: sql<number>`count(*)` })
+      .from(accounts)
+      .innerJoin(clients, eq(accounts.clientId, clients.id));
+
+    const conditions = [];
+    
+    // Add group condition - only accounts from clients created by users specific to this group
     conditions.push(inArray(clients.createdBy, memberUserIds));
 
     if (search) {
