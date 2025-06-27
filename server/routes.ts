@@ -185,11 +185,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         firstName: z.string().optional(),
         lastName: z.string().optional(),
         email: z.string().email().optional(),
+        username: z.string().optional(),
+        password: z.string().min(6).optional(),
         role: z.string().optional(),
         isActive: z.boolean().optional(),
         groupIds: z.array(z.number()).optional(),
       });
-      const { groupIds, ...updateData } = userUpdateSchema.parse(req.body);
+      const { groupIds, password, ...updateData } = userUpdateSchema.parse(req.body);
+      
+      // Hash password if provided  
+      if (password) {
+        const bcrypt = require('bcryptjs');
+        (updateData as any).password = await bcrypt.hash(password, 10);
+      }
       const user = await storage.updateUser(id, updateData);
       
       // Update group memberships if provided

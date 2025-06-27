@@ -28,7 +28,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
 
-const userFormSchema = z.object({
+// Create separate schemas for creating and editing users
+const createUserFormSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
   email: z.string().email("Invalid email address"),
@@ -39,7 +40,21 @@ const userFormSchema = z.object({
   groupIds: z.array(z.number()).optional(),
 });
 
-type UserFormData = z.infer<typeof userFormSchema>;
+const editUserFormSchema = z.object({
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+  email: z.string().email("Invalid email address"),
+  role: z.string().min(1, "Role is required"),
+  isActive: z.boolean().default(true),
+  username: z.string().min(1, "Username is required"),
+  password: z.string().optional().refine(
+    (val) => !val || val.length >= 6,
+    "Password must be at least 6 characters if provided"
+  ),
+  groupIds: z.array(z.number()).optional(),
+});
+
+type UserFormData = z.infer<typeof createUserFormSchema>;
 
 interface UserModalProps {
   isOpen: boolean;
@@ -63,7 +78,7 @@ export default function UserModal({ isOpen, onClose, user, onSuccess }: UserModa
   });
 
   const form = useForm<UserFormData>({
-    resolver: zodResolver(userFormSchema),
+    resolver: zodResolver(isEditing ? editUserFormSchema : createUserFormSchema),
     defaultValues: {
       firstName: "",
       lastName: "",
@@ -107,7 +122,13 @@ export default function UserModal({ isOpen, onClose, user, onSuccess }: UserModa
     mutationFn: async (data: UserFormData) => {
       const url = isEditing ? `/api/users/${user.id}` : "/api/users";
       const method = isEditing ? "PUT" : "POST";
-      return await apiRequest(method, url, data);
+      
+      // For editing, filter out empty password to avoid sending it
+      const submitData = isEditing && !data.password 
+        ? { ...data, password: undefined }
+        : data;
+        
+      return await apiRequest(method, url, submitData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/users"] });
