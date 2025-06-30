@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./auth";
+import { DocumentService } from "./documentService";
 import { 
   insertClientSchema, 
   insertAccountSchema, 
@@ -1960,6 +1961,106 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error processing accounts CSV:", error);
       res.status(500).json({ message: "Failed to process accounts CSV file" });
+    }
+  });
+
+  // Document template routes
+  app.get('/api/document-templates', isAuthenticated, async (req: any, res) => {
+    try {
+      const templates = await storage.getAllDocumentTemplates();
+      res.json(templates);
+    } catch (error) {
+      console.error('Error fetching document templates:', error);
+      res.status(500).json({ message: 'Failed to fetch document templates' });
+    }
+  });
+
+  app.post('/api/document-templates', isAuthenticated, async (req: any, res) => {
+    try {
+      const template = await storage.createDocumentTemplate(req.body);
+      res.json(template);
+    } catch (error) {
+      console.error('Error creating document template:', error);
+      res.status(500).json({ message: 'Failed to create document template' });
+    }
+  });
+
+  app.get('/api/document-templates/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const template = await storage.getDocumentTemplate(id);
+      if (!template) {
+        return res.status(404).json({ message: 'Template not found' });
+      }
+      res.json(template);
+    } catch (error) {
+      console.error('Error fetching document template:', error);
+      res.status(500).json({ message: 'Failed to fetch document template' });
+    }
+  });
+
+  // Generated document routes
+  app.get('/api/generated-documents', isAuthenticated, async (req: any, res) => {
+    try {
+      const documents = await storage.getAllGeneratedDocuments();
+      res.json(documents);
+    } catch (error) {
+      console.error('Error fetching generated documents:', error);
+      res.status(500).json({ message: 'Failed to fetch generated documents' });
+    }
+  });
+
+  app.get('/api/generated-documents/client/:clientId', isAuthenticated, async (req: any, res) => {
+    try {
+      const clientId = parseInt(req.params.clientId);
+      const documents = await storage.getGeneratedDocumentsByClient(clientId);
+      res.json(documents);
+    } catch (error) {
+      console.error('Error fetching client documents:', error);
+      res.status(500).json({ message: 'Failed to fetch client documents' });
+    }
+  });
+
+  app.get('/api/generated-documents/account/:accountId', isAuthenticated, async (req: any, res) => {
+    try {
+      const accountId = parseInt(req.params.accountId);
+      const documents = await storage.getGeneratedDocumentsByAccount(accountId);
+      res.json(documents);
+    } catch (error) {
+      console.error('Error fetching account documents:', error);
+      res.status(500).json({ message: 'Failed to fetch account documents' });
+    }
+  });
+
+  app.post('/api/generate-document', isAuthenticated, async (req: any, res) => {
+    try {
+      const { templateId, clientId, accountId } = req.body;
+      const userId = req.user?.claims?.sub;
+      
+      const generatedDoc = await DocumentService.generateDocument(
+        parseInt(templateId),
+        parseInt(clientId),
+        accountId ? parseInt(accountId) : undefined,
+        userId
+      );
+      
+      res.json(generatedDoc);
+    } catch (error) {
+      console.error('Error generating document:', error);
+      res.status(500).json({ message: 'Failed to generate document' });
+    }
+  });
+
+  app.get('/api/available-templates/:clientId/:accountId?', isAuthenticated, async (req: any, res) => {
+    try {
+      const clientId = parseInt(req.params.clientId);
+      const accountId = req.params.accountId ? parseInt(req.params.accountId) : undefined;
+      
+      const templates = await DocumentService.getAvailableTemplates(clientId, accountId);
+      res.json(templates);
+    } catch (error) {
+      console.error('Error fetching available templates:', error);
+      res.status(500).json({ message: 'Failed to fetch available templates' });
     }
   });
 

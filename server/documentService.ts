@@ -1,0 +1,268 @@
+import { storage } from "./storage";
+import type { Client, Account, DocumentTemplate, GeneratedDocument } from "@shared/schema";
+import fs from "fs/promises";
+import path from "path";
+
+interface DocumentField {
+  name: string;
+  type: "text" | "date" | "checkbox" | "select";
+  dataSource: string; // path to client/account data (e.g., "firstName", "accounts.accountType")
+  defaultValue?: string;
+  required?: boolean;
+}
+
+interface DocumentData {
+  [key: string]: string | number | boolean | Date | null;
+}
+
+export class DocumentService {
+  
+  /**
+   * Generate a document from a template using client and account data
+   */
+  static async generateDocument(
+    templateId: number,
+    clientId: number,
+    accountId?: number,
+    userId?: string
+  ): Promise<GeneratedDocument> {
+    // Get template configuration
+    const template = await storage.getDocumentTemplate(templateId);
+    if (!template) {
+      throw new Error("Template not found");
+    }
+
+    // Get client data
+    const client = await storage.getClient(clientId);
+    if (!client) {
+      throw new Error("Client not found");
+    }
+
+    // Get account data if specified
+    let account: Account | undefined;
+    if (accountId) {
+      account = await storage.getAccount(accountId);
+      if (!account) {
+        throw new Error("Account not found");
+      }
+    }
+
+    // Extract field values from client and account data
+    const documentData = this.extractFieldValues(template.fields as DocumentField[], client, account);
+
+    // Generate the document name
+    const documentName = this.generateDocumentName(template, client, account);
+
+    // For now, we'll create a simple text representation
+    // In a real implementation, you'd use a PDF library or template engine
+    const filePath = await this.createDocumentFile(template, documentData, documentName);
+
+    // Save the generated document record
+    const generatedDoc = await storage.createGeneratedDocument({
+      templateId,
+      clientId,
+      accountId: accountId || null,
+      documentName,
+      filePath,
+      generatedData: documentData,
+      status: "generated",
+      generatedBy: userId || null,
+    });
+
+    return generatedDoc;
+  }
+
+  /**
+   * Extract field values from client and account data based on field mapping
+   */
+  private static extractFieldValues(
+    fields: DocumentField[],
+    client: Client,
+    account?: Account
+  ): DocumentData {
+    const data: DocumentData = {};
+
+    for (const field of fields) {
+      let value: any = null;
+
+      // Handle nested field paths (e.g., "account.accountType")
+      if (field.dataSource.startsWith("account.") && account) {
+        const accountField = field.dataSource.replace("account.", "");
+        value = (account as any)[accountField];
+      } else {
+        // Direct client field
+        value = (client as any)[field.dataSource];
+      }
+
+      // Apply default value if no data found
+      if (value === null || value === undefined) {
+        value = field.defaultValue || "";
+      }
+
+      // Format dates
+      if (field.type === "date" && value instanceof Date) {
+        value = value.toLocaleDateString();
+      } else if (field.type === "date" && typeof value === "string" && value) {
+        value = new Date(value).toLocaleDateString();
+      }
+
+      data[field.name] = value;
+    }
+
+    return data;
+  }
+
+  /**
+   * Generate a document name based on template and client data
+   */
+  private static generateDocumentName(
+    template: DocumentTemplate,
+    client: Client,
+    account?: Account
+  ): string {
+    const clientName = `${client.firstName || ""} ${client.lastName || ""}`.trim();
+    const timestamp = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    
+    if (account) {
+      return `${template.name} - ${clientName} - ${account.accountType} - ${timestamp}`;
+    }
+    
+    return `${template.name} - ${clientName} - ${timestamp}`;
+  }
+
+  /**
+   * Create the actual document file (for now, a simple text file)
+   * In production, this would generate a PDF with proper formatting
+   */
+  private static async createDocumentFile(
+    template: DocumentTemplate,
+    data: DocumentData,
+    documentName: string
+  ): Promise<string> {
+    const documentsDir = path.join(process.cwd(), "generated_documents");
+    
+    // Ensure directory exists
+    try {
+      await fs.access(documentsDir);
+    } catch {
+      await fs.mkdir(documentsDir, { recursive: true });
+    }
+
+    const fileName = `${documentName.replace(/[^a-zA-Z0-9\s-]/g, "")}.txt`;
+    const filePath = path.join(documentsDir, fileName);
+
+    // Create document content
+    let content = `${template.name}\n`;
+    content += `Generated on: ${new Date().toLocaleString()}\n\n`;
+    
+    // Add all field values
+    for (const [fieldName, value] of Object.entries(data)) {
+      content += `${fieldName}: ${value}\n`;
+    }
+
+    await fs.writeFile(filePath, content, "utf-8");
+
+    return filePath;
+  }
+
+  /**
+   * Get available templates for a client/account combination
+   */
+  static async getAvailableTemplates(clientId: number, accountId?: number): Promise<DocumentTemplate[]> {
+    const client = await storage.getClient(clientId);
+    if (!client) {
+      throw new Error("Client not found");
+    }
+
+    let account: Account | undefined;
+    if (accountId) {
+      account = await storage.getAccount(accountId);
+    }
+
+    // Get all active templates
+    const allTemplates = await storage.getAllDocumentTemplates();
+
+    // Filter templates based on client type, account type, etc.
+    return allTemplates.filter(template => {
+      // For now, return all templates
+      // In production, you'd filter based on template.templateType and client/account characteristics
+      return template.isActive;
+    });
+  }
+
+  /**
+   * Get pre-configured field mappings for common document types
+   */
+  static getStandardFieldMappings(): { [templateType: string]: DocumentField[] } {
+    return {
+      "client_agreement": [
+        {
+          name: "Household Name",
+          type: "text",
+          dataSource: "firstName,lastName", // Combined field
+          required: true
+        },
+        {
+          name: "Advisor/Team Name",
+          type: "text",
+          dataSource: "repId",
+          defaultValue: "Stratos Wealth Partners"
+        },
+        {
+          name: "Client Name",
+          type: "text",
+          dataSource: "firstName,lastName",
+          required: true
+        },
+        {
+          name: "Client Address",
+          type: "text",
+          dataSource: "legalAddress1,city,state,zipCode",
+          required: true
+        },
+        {
+          name: "Email Address",
+          type: "text",
+          dataSource: "emailAddress",
+          required: true
+        },
+        {
+          name: "Phone Number",
+          type: "text",
+          dataSource: "homePhone,mobilePhone",
+          required: true
+        },
+        {
+          name: "Date of Birth",
+          type: "date",
+          dataSource: "dateOfBirth"
+        },
+        {
+          name: "SSN",
+          type: "text",
+          dataSource: "ssn"
+        },
+        {
+          name: "Account Type",
+          type: "text",
+          dataSource: "account.accountType"
+        },
+        {
+          name: "Program Type",
+          type: "text",
+          dataSource: "account.programType"
+        },
+        {
+          name: "Registration Type",
+          type: "text",
+          dataSource: "account.registrationType"
+        },
+        {
+          name: "Investment Objective",
+          type: "text",
+          dataSource: "account.investmentObjective"
+        }
+      ]
+    };
+  }
+}

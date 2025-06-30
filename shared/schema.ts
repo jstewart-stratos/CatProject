@@ -340,6 +340,34 @@ export const fileUploads = pgTable("file_uploads", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Document templates table
+export const documentTemplates = pgTable("document_templates", {
+  id: serial("id").primaryKey(),
+  name: varchar("name").notNull(),
+  description: text("description"),
+  templateType: varchar("template_type").notNull(), // "client_agreement", "account_opening", etc.
+  filePath: varchar("file_path").notNull(), // Path to template file
+  fields: jsonb("fields").notNull(), // Field mapping configuration
+  isActive: boolean("is_active").notNull().default(true),
+  createdBy: varchar("created_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Generated documents table
+export const generatedDocuments = pgTable("generated_documents", {
+  id: serial("id").primaryKey(),
+  templateId: integer("template_id").notNull().references(() => documentTemplates.id),
+  clientId: integer("client_id").references(() => clients.id),
+  accountId: integer("account_id").references(() => accounts.id),
+  documentName: varchar("document_name").notNull(),
+  filePath: varchar("file_path").notNull(),
+  generatedData: jsonb("generated_data"), // The actual field values used
+  status: varchar("status").notNull().default("generated"), // generated, downloaded, emailed
+  generatedBy: varchar("generated_by").references(() => users.id),
+  generatedAt: timestamp("generated_at").defaultNow(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   userGroups: many(userGroups),
@@ -483,6 +511,17 @@ export const insertFileUploadSchema = createInsertSchema(fileUploads).omit({
   createdAt: true,
 });
 
+export const insertDocumentTemplateSchema = createInsertSchema(documentTemplates).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertGeneratedDocumentSchema = createInsertSchema(generatedDocuments).omit({
+  id: true,
+  generatedAt: true,
+});
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -609,3 +648,8 @@ export const draftAccounts = pgTable("draft_accounts", {
 
 export type InsertDraftAccount = typeof draftAccounts.$inferInsert;
 export type DraftAccount = typeof draftAccounts.$inferSelect;
+
+export type InsertDocumentTemplate = typeof documentTemplates.$inferInsert;
+export type DocumentTemplate = typeof documentTemplates.$inferSelect;
+export type InsertGeneratedDocument = typeof generatedDocuments.$inferInsert;
+export type GeneratedDocument = typeof generatedDocuments.$inferSelect;
