@@ -171,6 +171,12 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **June 30, 2025**: Enhanced CSV templates with comprehensive dropdown options and field validation guidance
+  - ✅ **Updated client CSV template** - Added extensive dropdown options as comments including client_type, entity_type, citizenship (30+ countries), residency_status, employment_status, industry, annual_income, net_worth, and all US states/territories
+  - ✅ **Enhanced account CSV template** - Added complete dropdown options for account_type, program_type, registration_type (filtered by account type), IRA types, investment objectives, approximate account values, investment time horizons, funds needed timeframes, and trading/authority options
+  - ✅ **Improved CSV upload interface** - Updated alert descriptions to highlight that templates include dropdown options for data consistency with application forms
+  - ✅ **Data consistency enforcement** - CSV templates now provide exact same options as application dropdown menus to prevent data entry errors and maintain data quality
+  - ✅ **User guidance enhancement** - Template comments guide users on valid values for each field ensuring proper data formatting and consistency
 - **June 27, 2025**: Successfully completed mobile responsiveness implementation across all major pages
   - ✅ **Updated Sidebar component** - Added hamburger menu functionality for mobile devices with overlay and backdrop
   - ✅ **Enhanced TopBar component** - Made search bar and navigation elements mobile-friendly with responsive layout

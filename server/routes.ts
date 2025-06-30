@@ -1541,9 +1541,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         'trusted_contact_zip_code', 'trusted_contact_email', 'trusted_contact_phone'
       ];
       
-      // Create CSV content with headers and sample row
+      // Create CSV content with headers, dropdown options as comments, and sample row
       const csvContent = [
         headers.join(','),
+        // Dropdown options as comments for reference
+        '# DROPDOWN OPTIONS:',
+        '# client_type: Individual | Entity',
+        '# entity_type: Company | Estate | Trust (only for Entity clients)',
+        '# entity_id_type: SSN | TIN/EIN',
+        '# citizenship: United States | Canada | United Kingdom | Germany | France | Japan | Australia | Netherlands | Switzerland | Sweden | Norway | Denmark | Belgium | Austria | Italy | Spain | Portugal | Ireland | Finland | Luxembourg | New Zealand | Israel | South Korea | Singapore | Hong Kong | Taiwan | India | Brazil | Mexico | Argentina | Chile | Colombia | Peru | South Africa | Other',
+        '# residency_status: U.S. Citizen w/ a U.S. Address | U.S. Entity w/ a U.S. Address | Resident Alien',
+        '# state: AL | AK | AZ | AR | CA | CO | CT | DE | FL | GA | HI | ID | IL | IN | IA | KS | KY | LA | ME | MD | MA | MI | MN | MS | MO | MT | NE | NV | NH | NJ | NM | NY | NC | ND | OH | OK | OR | PA | RI | SC | SD | TN | TX | UT | VT | VA | WA | WV | WI | WY | DC | AS | GU | MP | PR | VI',
+        '# mailing_address_same_as_above: true | false',
+        '# employment_status: Employed | Self-Employed | Unemployed | Retired | Student | Homemaker | Minor',
+        '# industry: Accounting | Aerospace | Agriculture | Architecture | Automotive | Banking | Biotechnology | Chemical | Communications | Computer | Construction | Consulting | Education | Energy | Entertainment | Environmental | Finance | Food | Government | Healthcare | Hospitality | Insurance | Legal | Manufacturing | Marketing | Media | Non-Profit | Pharmaceutical | Real Estate | Retail | Technology | Transportation | Utilities | Other',
+        '# annual_income: A) Under $25,000 | B) $25,000 - $49,999 | C) $50,000 - $74,999 | D) $75,000 - $99,999 | E) $100,000 - $149,999 | F) $150,000 - $199,999 | G) $200,000 - $499,999 | H) $500,000 or more',
+        '# net_worth: A) Under $25,000 | B) $25,000 - $49,999 | C) $50,000 - $99,999 | D) $100,000 - $249,999 | E) $250,000 - $499,999 | F) $500,000 - $999,999 | G) $1,000,000 - $4,999,999 | H) $5,000,000 or more',
+        '# liquid_net_worth: A) Under $25,000 | B) $25,000 - $49,999 | C) $50,000 - $99,999 | D) $100,000 - $249,999 | E) $250,000 - $499,999 | F) $500,000 - $999,999 | G) $1,000,000 - $4,999,999 | H) $5,000,000 or more',
+        '# has_investment_experience: yes | no',
+        '# has_other_investments: yes | no',
+        '# trusted_contact_relationship: Spouse | Family Member | Friend | Attorney | Accountant | Financial Advisor | Other',
+        '',
         // Sample row with example data
         [
           'REP001', 'Individual', '', '', 'SSN', '',
@@ -1605,9 +1623,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
         'trust_formation_state', 'trust_type', 'grantor_decedent_names', 'trust_date'
       ];
       
-      // Create CSV content with headers and sample row
+      // Create CSV content with headers, dropdown options as comments, and sample row
       const csvContent = [
         headers.join(','),
+        // Dropdown options as comments for reference
+        '# DROPDOWN OPTIONS:',
+        '# account_type: Individual | Joint | IRA | Corporate',
+        '# program_type: Brokerage | Direct Business | Separately Managed Account (SMA) | Strategic Wealth Management (SWM) | Advisory',
+        '# registration_type (Individual): Individual | Transfer on Death',
+        '# registration_type (Joint): Joint Tenants | Tenants in Common | Tenants by Entirety | Community Property | Joint Transfer on Death | Transfer on Death',
+        '# registration_type (IRA): Traditional IRA | Roth IRA | SEP-IRA | SIMPLE IRA | Rollover IRA | Beneficiary IRA | Inherited IRA',
+        '# registration_type (Corporate): Corporation | LLC | Partnership | LLP | Sole Proprietorship | Trust | Estate | Custodial | Guardianship | Conservatorship | Minor Custodial | 529 Plan | UTMA/UGMA | Power of Attorney | Guardianship | Conservatorship',
+        '# ira_type: Traditional | Roth | SEP | SIMPLE | Rollover | Beneficiary Traditional | Beneficiary Roth | Inherited Traditional',
+        '# investment_objective: A) Income with Capital Preservation | B) Income with Moderate Growth | C) Growth with Income | D) Growth | E) Aggressive Growth | F) Trading',
+        '# approximate_account_value: A) $1 - $24,999 | B) $25,000 - $49,999 | C) $50,000 - $99,999 | D) $100,000 - $249,999 | E) $250,000 - $499,999 | F) $500,000 - $999,999 | G) $1,000,000 - $4,999,999 | H) $5,000,000+',
+        '# investment_time_horizon: 1-3 years | 3-5 years | 5-10 years | 10+ years',
+        '# funds_needed_in: None | 0-3 years | 3+ years | Less than 1 year | 1-2 years | 2-5 years | 5-10 years | More than 10 years',
+        '# checkwriting: true | false',
+        '# checkwriting_account_type: Premier | Premier+',
+        '# debit_card: true | false',
+        '# cost_basis_reporting: true | false',
+        '# transfer_on_death: true | false',
+        '# full_discretionary_trading: true | false',
+        '# add_margin: true | false',
+        '# structured_product_trading: true | false',
+        '# complex_etp_trading: true | false',
+        '# options_trading: true | false',
+        '# options_level: Level 1 | Level 2 | Level 3 | Level 4',
+        '# grant_trading_authority: true | false',
+        '# trading_authorization_type: Limited | Full',
+        '# grant_power_of_attorney: true | false',
+        '# source_of_funds: Cash/Savings | Rollover 529 | Rollover UGMA/UTMA | Other',
+        '# share_class: Class A | Class B | Class C | Other',
+        '# trust_type: Revocable Living Trust | Irrevocable Trust | Charitable Trust | Testamentary Trust | Special Needs Trust | Other',
+        '',
         // Sample row for Individual Brokerage account
         [
           'john.doe@email.com', '123-45-6789', 'John', 'Doe',

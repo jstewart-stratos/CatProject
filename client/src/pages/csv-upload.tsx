@@ -171,8 +171,8 @@ export default function CSVUpload() {
                 <Alert>
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>
-                    The CSV file must include columns: first_name, last_name, email_address (required). 
-                    Download the template for the complete format.
+                    Client CSV template includes all dropdown options as comments for data consistency. 
+                    Required: rep_id, client_type, names, email. Supports Individual/Entity types with conditional fields.
                   </AlertDescription>
                 </Alert>
               </CardContent>
@@ -223,8 +223,8 @@ export default function CSVUpload() {
                 <Alert>
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>
-                    Account CSV requires client identification (client_email or client_ssn_or_tin) and 
-                    basic account info (account_type, program_type). Download template for complete format.
+                    Account CSV template includes comprehensive dropdown options for all account types, registration types, 
+                    and investment details. Required: client identification + account_type + program_type.
                   </AlertDescription>
                 </Alert>
               </CardContent>
