@@ -37,11 +37,23 @@ export class PDFService {
       const actualFields = form.getFields();
       console.log(`\n=== PDF FORM ANALYSIS ===`);
       console.log(`Template: ${pdfPath}`);
+      console.log(`PDF loaded successfully: ${!!pdfDoc}`);
+      console.log(`Form exists: ${!!form}`);
       console.log(`Total fields found: ${actualFields.length}`);
-      console.log(`Available field names:`);
-      actualFields.forEach((field, index) => {
-        console.log(`  ${index + 1}. "${field.getName()}" (${field.constructor.name})`);
-      });
+      
+      if (actualFields.length === 0) {
+        console.log(`⚠️  WARNING: This PDF has no fillable form fields!`);
+        console.log(`   This appears to be a static PDF document, not an interactive form.`);
+        console.log(`   You may need to:`);
+        console.log(`   1. Use a different PDF that has form fields`);
+        console.log(`   2. Convert this PDF to have fillable fields using Adobe Acrobat`);
+        console.log(`   3. Use a different approach like text overlay instead of form filling`);
+      } else {
+        console.log(`Available field names:`);
+        actualFields.forEach((field, index) => {
+          console.log(`  ${index + 1}. "${field.getName()}" (${field.constructor.name})`);
+        });
+      }
       console.log(`=========================\n`);
 
       // Fill each field with the provided data
