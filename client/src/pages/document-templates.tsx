@@ -65,7 +65,13 @@ export default function DocumentTemplates() {
   // Query for accounts based on selected client
   const { data: accounts } = useQuery({
     queryKey: ['/api/accounts/by-client', selectedClientId],
-    queryFn: () => apiRequest(`/api/accounts/by-client/${selectedClientId}`, { method: 'GET' }),
+    queryFn: async () => {
+      const response = await fetch(`/api/accounts/by-client/${selectedClientId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch accounts');
+      }
+      return response.json();
+    },
     enabled: !!selectedClientId && selectedClientId !== "" && !isNaN(Number(selectedClientId)),
     retry: false,
   });
