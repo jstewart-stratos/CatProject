@@ -687,7 +687,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const accountData = insertAccountSchema.parse({
         ...transformedBody,
-        createdBy: req.user.claims.sub
+        createdBy: req.user.id
       });
       
       console.log("Parsed account data:", JSON.stringify(accountData, null, 2));
