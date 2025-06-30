@@ -171,14 +171,16 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
-- **June 30, 2025**: Successfully completed application-wide layout fix by resolving mobile responsiveness regression that affected desktop positioning
-  - ✅ **Fixed TopBar positioning across all pages** - Removed problematic `pt-16 lg:pt-0` padding from 5 affected pages: dashboard.tsx, csv-upload.tsx, accounts.tsx, clients.tsx, and client-onboarding-full.tsx
+- **June 30, 2025**: Successfully completed comprehensive layout standardization across entire application
+  - ✅ **Fixed TopBar positioning across ALL pages** - Removed problematic `pt-16 lg:pt-0` padding from 5 affected pages: dashboard.tsx, csv-upload.tsx, accounts.tsx, clients.tsx, and client-onboarding-full.tsx
+  - ✅ **Added missing TopBar components** - Completed audit-logs.tsx and client-onboarding-full.tsx with proper TopBar headers including title and subtitle props
   - ✅ **Restored consistent layout structure** - All pages now use proper `lg:ml-64` sidebar margin without conflicting padding adjustments
   - ✅ **Maintained responsive functionality** - Mobile hamburger menu and responsive features preserved while fixing desktop layout issues
   - ✅ **Systematic layout verification** - Identified and corrected all instances of `pt-16 lg:pt-0` that were causing content to be hidden behind TopBar component
   - ✅ **Optimized sidebar positioning** - Maintained fixed positioning with proper z-index stacking (z-50) for consistent navigation behavior
-  - ✅ **User confirmed functionality** - Layout positioning now works correctly with proper sidebar navigation and content alignment
+  - ✅ **User confirmed functionality** - Layout positioning now works correctly with proper sidebar navigation and content alignment across all pages
   - ✅ **Documented layout lesson** - Updated technical notes to prevent future layout regressions when implementing responsive design changes
+  - ✅ **Standardized TopBar implementation** - All pages now follow consistent pattern: Sidebar + TopBar with responsive lg:ml-64 positioning
 - **June 30, 2025**: Enhanced CSV templates with comprehensive dropdown options and field validation guidance
   - ✅ **Updated client CSV template** - Added extensive dropdown options as comments including client_type, entity_type, citizenship (30+ countries), residency_status, employment_status, industry, annual_income, net_worth, and all US states/territories
   - ✅ **Enhanced account CSV template** - Added complete dropdown options for account_type, program_type, registration_type (filtered by account type), IRA types, investment objectives, approximate account values, investment time horizons, funds needed timeframes, and trading/authority options
