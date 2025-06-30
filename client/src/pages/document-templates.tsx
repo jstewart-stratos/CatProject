@@ -75,6 +75,7 @@ export default function DocumentTemplates() {
       name: formData.get('name') as string,
       description: formData.get('description') as string,
       templateType: formData.get('templateType') as string,
+      filePath: `/templates/${(formData.get('templateType') as string).toLowerCase()}.html`, // Auto-generate file path
       fields: [], // Start with empty fields, can be edited later
     };
 
