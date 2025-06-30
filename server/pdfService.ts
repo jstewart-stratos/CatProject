@@ -33,6 +33,17 @@ export class PDFService {
       const pdfDoc = await PDFDocument.load(existingPdfBytes);
       const form = pdfDoc.getForm();
 
+      // First, let's see what fields actually exist in this PDF
+      const actualFields = form.getFields();
+      console.log(`\n=== PDF FORM ANALYSIS ===`);
+      console.log(`Template: ${pdfPath}`);
+      console.log(`Total fields found: ${actualFields.length}`);
+      console.log(`Available field names:`);
+      actualFields.forEach((field, index) => {
+        console.log(`  ${index + 1}. "${field.getName()}" (${field.constructor.name})`);
+      });
+      console.log(`=========================\n`);
+
       // Fill each field with the provided data
       Object.entries(formData).forEach(([fieldName, value]) => {
         try {
