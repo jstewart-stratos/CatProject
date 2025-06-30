@@ -171,6 +171,11 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **June 30, 2025**: Fixed desktop layout positioning issue for TopBar component
+  - ✅ **Updated TopBar positioning** - Changed from relative positioning to fixed with proper sidebar offset (`fixed top-0 right-0 left-64 z-40`)
+  - ✅ **Adjusted main content margins** - Added top padding (`lg:pt-20`) to dashboard and CSV upload pages to account for fixed TopBar
+  - ✅ **Resolved navigation structure** - Fixed CSV upload page syntax errors and closing div structure
+  - ✅ **Enhanced desktop experience** - TopBar now properly aligns next to sidebar on desktop view instead of appearing below navigation
 - **June 30, 2025**: Enhanced CSV templates with comprehensive dropdown options and field validation guidance
   - ✅ **Updated client CSV template** - Added extensive dropdown options as comments including client_type, entity_type, citizenship (30+ countries), residency_status, employment_status, industry, annual_income, net_worth, and all US states/territories
   - ✅ **Enhanced account CSV template** - Added complete dropdown options for account_type, program_type, registration_type (filtered by account type), IRA types, investment objectives, approximate account values, investment time horizons, funds needed timeframes, and trading/authority options
