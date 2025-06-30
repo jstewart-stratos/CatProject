@@ -627,7 +627,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/accounts/by-client/:clientId', isAuthenticated, async (req, res) => {
     try {
       const { clientId } = req.params;
-      const accounts = await storage.getAccountsByClient(parseInt(clientId));
+      const clientIdNum = parseInt(clientId);
+      
+      if (isNaN(clientIdNum)) {
+        return res.status(400).json({ message: "Invalid client ID" });
+      }
+      
+      const accounts = await storage.getAccountsByClient(clientIdNum);
       res.json(accounts);
     } catch (error) {
       console.error("Error fetching accounts by client:", error);

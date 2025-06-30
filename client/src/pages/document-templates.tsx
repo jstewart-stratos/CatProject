@@ -60,7 +60,7 @@ export default function DocumentTemplates() {
   // Query for accounts based on selected client
   const { data: accounts } = useQuery({
     queryKey: ['/api/accounts/by-client', selectedClientId],
-    enabled: !!selectedClientId,
+    enabled: !!selectedClientId && !isNaN(Number(selectedClientId)),
     retry: false,
   });
 
@@ -145,7 +145,7 @@ export default function DocumentTemplates() {
     generateDocumentMutation.mutate({
       templateId: selectedTemplate.id,
       clientId: parseInt(selectedClientId),
-      accountId: selectedAccountId ? parseInt(selectedAccountId) : undefined,
+      accountId: selectedAccountId && selectedAccountId !== "none" ? parseInt(selectedAccountId) : undefined,
     });
   };
 
@@ -388,7 +388,7 @@ export default function DocumentTemplates() {
                         <SelectValue placeholder="Choose an account" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">No specific account</SelectItem>
+                        <SelectItem value="none">No specific account</SelectItem>
                         {accounts && accounts.length > 0 ? (
                           accounts.map((account: any) => (
                             <SelectItem key={account.id} value={account.id.toString()}>
