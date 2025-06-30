@@ -117,6 +117,7 @@ export default function DocumentTemplates() {
       return response.json();
     },
     onSuccess: (response: any) => {
+      console.log('Document generation response:', response);
       setIsGenerateDialogOpen(false);
       setSelectedClientId('');
       setSelectedAccountId('');
