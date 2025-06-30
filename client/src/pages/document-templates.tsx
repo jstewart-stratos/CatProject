@@ -65,7 +65,7 @@ export default function DocumentTemplates() {
   // Query for accounts based on selected client
   const { data: accounts } = useQuery({
     queryKey: ['/api/accounts/by-client', selectedClientId],
-    queryFn: () => apiRequest(`/api/accounts/by-client/${selectedClientId}`),
+    queryFn: () => apiRequest(`/api/accounts/by-client/${selectedClientId}`, { method: 'GET' }),
     enabled: !!selectedClientId && selectedClientId !== "" && !isNaN(Number(selectedClientId)),
     retry: false,
   });
