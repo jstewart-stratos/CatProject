@@ -85,13 +85,35 @@ export class DocumentService {
     for (const field of fields) {
       let value: any = null;
 
-      // Handle nested field paths (e.g., "account.accountType")
-      if (field.dataSource.startsWith("account.") && account) {
-        const accountField = field.dataSource.replace("account.", "");
-        value = (account as any)[accountField];
+      // Handle comma-separated field mappings (e.g., "firstName,lastName")
+      if (field.dataSource.includes(",")) {
+        const fields = field.dataSource.split(",").map(f => f.trim());
+        const values = [];
+        
+        for (const fieldName of fields) {
+          if (fieldName.startsWith("account.") && account) {
+            const accountField = fieldName.replace("account.", "");
+            const val = (account as any)[accountField];
+            if (val) values.push(val);
+          } else {
+            // Map common field name variations
+            const mappedFieldName = this.mapFieldName(fieldName);
+            const val = (client as any)[mappedFieldName];
+            if (val) values.push(val);
+          }
+        }
+        
+        value = values.join(" ");
       } else {
-        // Direct client field
-        value = (client as any)[field.dataSource];
+        // Handle single field mappings
+        if (field.dataSource.startsWith("account.") && account) {
+          const accountField = field.dataSource.replace("account.", "");
+          value = (account as any)[accountField];
+        } else {
+          // Direct client field with field name mapping
+          const mappedFieldName = this.mapFieldName(field.dataSource);
+          value = (client as any)[mappedFieldName];
+        }
       }
 
       // Apply default value if no data found
@@ -264,5 +286,27 @@ export class DocumentService {
         }
       ]
     };
+  }
+
+  /**
+   * Map field names to handle variations between template and database column names
+   */
+  private static mapFieldName(fieldName: string): string {
+    const fieldMappings: { [key: string]: string } = {
+      'firstName': 'firstName',
+      'lastName': 'lastName',
+      'legalAddress1': 'legalAddress1',
+      'city': 'city',
+      'state': 'state', 
+      'zipCode': 'zipCode',
+      'homePhone': 'homePhone',
+      'mobilePhone': 'mobilePhone',
+      'businessPhone': 'businessPhone',
+      'emailAddress': 'emailAddress',
+      'dateOfBirth': 'dateOfBirth',
+      'ssn': 'ssn'
+    };
+
+    return fieldMappings[fieldName] || fieldName;
   }
 }
