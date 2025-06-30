@@ -116,7 +116,7 @@ export default function CSVUpload() {
   return (
     <div className="min-h-screen bg-slate-50">
       <Sidebar currentView="csv-upload" />
-      <div className="lg:ml-64 pt-16 lg:pt-0">
+      <div className="lg:ml-64">
         <TopBar title="CSV Bulk Upload" subtitle="Import clients and accounts from CSV files" />
         <div className="p-4 lg:p-6">
         <div className="max-w-4xl mx-auto space-y-6">

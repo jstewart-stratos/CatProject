@@ -52,7 +52,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-slate-50">
       <Sidebar currentView="dashboard" />
-      <div className="lg:ml-64 pt-16 lg:pt-0">
+      <div className="lg:ml-64">
         <TopBar 
           title="Dashboard" 
           subtitle="Overview of your data management system"
