@@ -117,30 +117,36 @@ export default function DocumentTemplates() {
       return response.json();
     },
     onSuccess: (response: any) => {
-      console.log('Document generation response:', response);
       setIsGenerateDialogOpen(false);
       setSelectedClientId('');
       setSelectedAccountId('');
       
-      // Download the generated document
-      if (response.downloadUrl) {
+      // Create download blob and trigger download
+      if (response.content && response.filename) {
+        // Create a blob with the HTML content
+        const blob = new Blob([response.content], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        
         // Create a download link and trigger it
         const link = document.createElement('a');
-        link.href = response.downloadUrl;
-        link.download = response.filename || `document-${response.documentId}.html`;
+        link.href = url;
+        link.download = response.filename;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        
+        // Clean up the blob URL
+        URL.revokeObjectURL(url);
         
         toast({
           title: "Document Generated",
           description: "Document has been generated and downloaded successfully.",
         });
-      } else if (response.documentContent) {
+      } else if (response.content) {
         // Fallback: open document content in new window
         const newWindow = window.open('', '_blank');
         if (newWindow) {
-          newWindow.document.write(response.documentContent);
+          newWindow.document.write(response.content);
           newWindow.document.close();
         }
         
