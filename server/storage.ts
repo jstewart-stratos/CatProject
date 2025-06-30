@@ -544,6 +544,21 @@ export class DatabaseStorage implements IStorage {
     return client;
   }
 
+  async getClientByEmail(email: string): Promise<Client | undefined> {
+    const [client] = await db.select().from(clients).where(eq(clients.emailAddress, email));
+    return client;
+  }
+
+  async getClientBySSNOrTIN(ssnOrTin: string): Promise<Client | undefined> {
+    // First try SSN
+    const [clientBySSN] = await db.select().from(clients).where(eq(clients.ssn, ssnOrTin));
+    if (clientBySSN) return clientBySSN;
+    
+    // Then try TIN
+    const [clientByTIN] = await db.select().from(clients).where(eq(clients.tin, ssnOrTin));
+    return clientByTIN;
+  }
+
   async deleteClient(id: number, auditContext?: { req?: Request }): Promise<void> {
     // Get client data before deletion for audit
     const clientData = await this.getClient(id);

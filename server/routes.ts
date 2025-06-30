@@ -14,6 +14,8 @@ import multer from "multer";
 import { z } from "zod";
 import path from "path";
 import fs from "fs/promises";
+import csvParser from "csv-parser";
+import { createReadStream, unlinkSync } from "fs";
 
 const upload = multer({
   dest: 'uploads/',
@@ -1499,6 +1501,416 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching audit logs:", error);
       res.status(500).json({ message: "Failed to fetch audit logs" });
+    }
+  });
+
+  // CSV Template Download Endpoints
+  app.get('/api/templates/clients-csv', isAuthenticated, async (req, res) => {
+    try {
+      const headers = [
+        // Basic Information
+        'rep_id', 'client_type', 'entity_type', 'entity_name', 'entity_id_type', 'tin',
+        
+        // Personal Information (for Individual clients)
+        'ssn', 'first_name', 'middle_name', 'last_name', 'date_of_birth', 
+        'citizenship', 'residency_status',
+        
+        // Contact Information
+        'email_address', 'legal_address_1', 'legal_address_2', 'city', 'state', 'zip_code',
+        'mailing_address_same_as_above', 'mailing_address_1', 'mailing_address_2', 
+        'mailing_city', 'mailing_state', 'mailing_zip_code',
+        'home_phone', 'mobile_phone', 'business_phone',
+        
+        // Employment Information
+        'employment_status', 'industry', 'occupation', 'employer_name',
+        
+        // Financial Information
+        'annual_income', 'tax_bracket', 'net_worth', 'liquid_net_worth', 'source_of_wealth',
+        
+        // Investment Experience
+        'has_investment_experience', 'stocks_years', 'bonds_years', 'mutual_funds_years',
+        'options_years', 'futures_years', 'forex_years',
+        
+        // Asset Allocation
+        'has_other_investments', 'stocks_percent', 'bonds_percent', 'cash_percent', 
+        'alternative_percent', 'other_percent',
+        
+        // Trusted Contact
+        'trusted_contact_first_name', 'trusted_contact_last_name', 'trusted_contact_relationship',
+        'trusted_contact_address_1', 'trusted_contact_city', 'trusted_contact_state', 
+        'trusted_contact_zip_code', 'trusted_contact_email', 'trusted_contact_phone'
+      ];
+      
+      // Create CSV content with headers and sample row
+      const csvContent = [
+        headers.join(','),
+        // Sample row with example data
+        [
+          'REP001', 'Individual', '', '', 'SSN', '',
+          '123-45-6789', 'John', 'M', 'Doe', '1990-01-15',
+          'United States', 'U.S. Citizen w/ a U.S. Address',
+          'john.doe@email.com', '123 Main St', '', 'New York', 'NY', '10001',
+          'true', '', '', '', '', '',
+          '555-0123', '555-0124', '555-0125',
+          'Employed', 'Technology', 'Software Engineer', 'Tech Corp',
+          'B) $25,000 - $49,999', '22%', 'C) $50,000 - $99,999', 'B) $25,000 - $49,999', 'Employment',
+          'yes', '5', '2', '3', '0', '0', '0',
+          'yes', '60', '30', '5', '5', '0',
+          'Jane', 'Doe', 'Spouse',
+          '123 Main St', 'New York', 'NY', '10001', 'jane.doe@email.com', '555-0126'
+        ].join(',')
+      ].join('\n');
+      
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', 'attachment; filename="clients_template.csv"');
+      res.send(csvContent);
+    } catch (error) {
+      console.error("Error generating clients CSV template:", error);
+      res.status(500).json({ message: "Failed to generate clients template" });
+    }
+  });
+
+  app.get('/api/templates/accounts-csv', isAuthenticated, async (req, res) => {
+    try {
+      const headers = [
+        // Required - Client Reference
+        'client_email', 'client_ssn_or_tin', 'client_first_name', 'client_last_name',
+        
+        // Account Basic Information
+        'account_type', 'program_type', 'registration_type', 'ira_type',
+        
+        // Investment Details
+        'investment_objective', 'approximate_account_value', 'investment_time_horizon', 
+        'funds_needed_in',
+        
+        // Account Features
+        'checkwriting', 'checkwriting_account_type', 'debit_card', 'cost_basis_reporting',
+        
+        // Transfer Information
+        'delivering_firm', 'contra_account_number', 'transfer_on_death',
+        
+        // Trading Features
+        'full_discretionary_trading', 'add_margin', 'structured_product_trading',
+        'complex_etp_trading', 'options_trading', 'options_level',
+        
+        // Authority and Power
+        'grant_trading_authority', 'trading_authorized_agent_name', 'trading_authorization_type',
+        'grant_power_of_attorney', 'poa_authorized_agent_name',
+        
+        // 529 Plan Details (if applicable)
+        'product_sponsor_and_529_plan', 'investment_portfolio_option_chosen', 
+        'owner_state_of_residence', 'source_of_funds', 'share_class', 'plan_administrator',
+        
+        // Trust Details (if applicable)
+        'trust_formation_state', 'trust_type', 'grantor_decedent_names', 'trust_date'
+      ];
+      
+      // Create CSV content with headers and sample row
+      const csvContent = [
+        headers.join(','),
+        // Sample row for Individual Brokerage account
+        [
+          'john.doe@email.com', '123-45-6789', 'John', 'Doe',
+          'Individual', 'Brokerage', 'Individual', '',
+          'C) Growth with Income', 'C) $50,000 - $99,999', '5-10 years', 'None',
+          'true', 'Premier', 'true', 'true',
+          'Previous Broker Inc', 'ACC123456', 'true',
+          'false', 'false', 'false', 'false', 'false', '',
+          'false', '', '', 'false', '',
+          '', '', '', '', '', '',
+          '', '', '', ''
+        ].join(',')
+      ].join('\n');
+      
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', 'attachment; filename="accounts_template.csv"');
+      res.send(csvContent);
+    } catch (error) {
+      console.error("Error generating accounts CSV template:", error);
+      res.status(500).json({ message: "Failed to generate accounts template" });
+    }
+  });
+
+  // CSV Upload and Processing Endpoints
+  app.post('/api/upload/clients-csv', isAuthenticated, upload.single('file'), async (req: any, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      const userId = req.user?.claims?.sub;
+      const csvPath = req.file.path;
+      
+      // Import and parse CSV
+      const csv = await import('csv-parser');
+      const fs = await import('fs');
+      const results: any[] = [];
+      
+      // Read and parse CSV file
+      await new Promise((resolve, reject) => {
+        fs.createReadStream(csvPath)
+          .pipe(csv.default())
+          .on('data', (data) => results.push(data))
+          .on('end', resolve)
+          .on('error', reject);
+      });
+
+      if (results.length === 0) {
+        return res.status(400).json({ message: "CSV file is empty" });
+      }
+
+      const processedClients: any[] = [];
+      const errors: string[] = [];
+
+      for (let i = 0; i < results.length; i++) {
+        const row = results[i];
+        try {
+          // Transform CSV row to client data structure
+          const clientData = {
+            repId: row.rep_id || '',
+            clientType: row.client_type || 'Individual',
+            entityType: row.entity_type || null,
+            entityName: row.entity_name || null,
+            entityIdType: row.entity_id_type || 'SSN',
+            tin: row.tin || null,
+            
+            // Personal Information
+            ssn: row.ssn || '',
+            firstName: row.first_name || '',
+            middleName: row.middle_name || '',
+            lastName: row.last_name || '',
+            dateOfBirth: row.date_of_birth || null,
+            citizenship: row.citizenship || 'United States',
+            residencyStatus: row.residency_status || 'U.S. Citizen w/ a U.S. Address',
+            
+            // Contact Information
+            emailAddress: row.email_address || '',
+            legalAddress1: row.legal_address_1 || '',
+            legalAddress2: row.legal_address_2 || '',
+            city: row.city || '',
+            state: row.state || '',
+            zipCode: row.zip_code || '',
+            mailingAddressSameAsAbove: row.mailing_address_same_as_above === 'true',
+            mailingAddress1: row.mailing_address_1 || '',
+            mailingAddress2: row.mailing_address_2 || '',
+            mailingCity: row.mailing_city || '',
+            mailingState: row.mailing_state || '',
+            mailingZipCode: row.mailing_zip_code || '',
+            homePhone: row.home_phone || '',
+            mobilePhone: row.mobile_phone || '',
+            businessPhone: row.business_phone || '',
+            
+            // Employment
+            employmentStatus: row.employment_status || '',
+            industry: row.industry || '',
+            occupation: row.occupation || '',
+            employerName: row.employer_name || '',
+            
+            // Financial Information
+            annualIncome: row.annual_income || '',
+            taxBracket: row.tax_bracket || '',
+            netWorth: row.net_worth || '',
+            liquidNetWorth: row.liquid_net_worth || '',
+            sourceOfWealth: row.source_of_wealth || '',
+            
+            // Investment Experience
+            hasInvestmentExperience: row.has_investment_experience === 'yes',
+            stocksYears: row.stocks_years || '',
+            bondsYears: row.bonds_years || '',
+            mutualFundsYears: row.mutual_funds_years || '',
+            optionsYears: row.options_years || '',
+            futuresYears: row.futures_years || '',
+            forexYears: row.forex_years || '',
+            
+            // Asset Allocation
+            hasOtherInvestments: row.has_other_investments === 'yes',
+            stocksPercent: row.stocks_percent || '',
+            bondsPercent: row.bonds_percent || '',
+            cashPercent: row.cash_percent || '',
+            alternativePercent: row.alternative_percent || '',
+            otherPercent: row.other_percent || '',
+            
+            // Trusted Contact
+            trustedContactFirstName: row.trusted_contact_first_name || '',
+            trustedContactLastName: row.trusted_contact_last_name || '',
+            trustedContactRelationship: row.trusted_contact_relationship || '',
+            trustedContactAddress1: row.trusted_contact_address_1 || '',
+            trustedContactCity: row.trusted_contact_city || '',
+            trustedContactState: row.trusted_contact_state || '',
+            trustedContactZipCode: row.trusted_contact_zip_code || '',
+            trustedContactEmail: row.trusted_contact_email || '',
+            trustedContactPhone: row.trusted_contact_phone || '',
+            
+            createdBy: userId
+          };
+
+          // Validate required fields
+          if (!clientData.firstName || !clientData.lastName || !clientData.emailAddress) {
+            errors.push(`Row ${i + 2}: Missing required fields (first_name, last_name, email_address)`);
+            continue;
+          }
+
+          // Create the client
+          const client = await storage.createClient(clientData);
+          processedClients.push(client);
+
+        } catch (error) {
+          console.error(`Error processing row ${i + 2}:`, error);
+          errors.push(`Row ${i + 2}: ${error.message}`);
+        }
+      }
+
+      // Clean up uploaded file
+      await fs.unlink(csvPath);
+
+      res.json({
+        message: `Processed ${processedClients.length} clients successfully`,
+        successCount: processedClients.length,
+        errorCount: errors.length,
+        errors: errors.slice(0, 10), // Limit errors shown
+        clients: processedClients
+      });
+
+    } catch (error) {
+      console.error("Error processing clients CSV:", error);
+      res.status(500).json({ message: "Failed to process clients CSV file" });
+    }
+  });
+
+  app.post('/api/upload/accounts-csv', isAuthenticated, upload.single('file'), async (req: any, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      const userId = req.user?.claims?.sub;
+      const csvPath = req.file.path;
+      
+      // Import and parse CSV
+      const csv = await import('csv-parser');
+      const fs = await import('fs');
+      const results: any[] = [];
+      
+      // Read and parse CSV file
+      await new Promise((resolve, reject) => {
+        fs.createReadStream(csvPath)
+          .pipe(csv.default())
+          .on('data', (data) => results.push(data))
+          .on('end', resolve)
+          .on('error', reject);
+      });
+
+      if (results.length === 0) {
+        return res.status(400).json({ message: "CSV file is empty" });
+      }
+
+      const processedAccounts: any[] = [];
+      const errors: string[] = [];
+
+      for (let i = 0; i < results.length; i++) {
+        const row = results[i];
+        try {
+          // Find the associated client
+          let client = null;
+          
+          if (row.client_email) {
+            client = await storage.getClientByEmail(row.client_email);
+          } else if (row.client_ssn_or_tin) {
+            client = await storage.getClientBySSNOrTIN(row.client_ssn_or_tin);
+          }
+          
+          if (!client) {
+            errors.push(`Row ${i + 2}: Could not find client with email '${row.client_email}' or SSN/TIN '${row.client_ssn_or_tin}'`);
+            continue;
+          }
+
+          // Transform CSV row to account data structure
+          const accountData = {
+            clientId: client.id,
+            accountType: row.account_type || 'Individual',
+            programType: row.program_type || 'Brokerage',
+            registrationType: row.registration_type || 'Individual',
+            iraType: row.ira_type || null,
+            
+            // Investment Details
+            investmentObjective: row.investment_objective || '',
+            approximateAccountValue: row.approximate_account_value || '',
+            investmentTimeHorizon: row.investment_time_horizon || '',
+            fundsNeededIn: row.funds_needed_in || '',
+            
+            // Account Features
+            checkwriting: row.checkwriting === 'true',
+            checkwritingAccountType: row.checkwriting_account_type || null,
+            debitCard: row.debit_card === 'true',
+            costBasisReporting: row.cost_basis_reporting === 'true',
+            
+            // Transfer Information
+            deliveringFirm: row.delivering_firm || '',
+            contraAccountNumber: row.contra_account_number || '',
+            transferOnDeath: row.transfer_on_death === 'true',
+            
+            // Trading Features
+            fullDiscretionaryTrading: row.full_discretionary_trading === 'true',
+            addMargin: row.add_margin === 'true',
+            structuredProductTrading: row.structured_product_trading === 'true',
+            complexEtpTrading: row.complex_etp_trading === 'true',
+            optionsTrading: row.options_trading === 'true',
+            optionsLevel: row.options_level || null,
+            
+            // Authority
+            grantTradingAuthority: row.grant_trading_authority === 'true',
+            tradingAuthorizedAgentName: row.trading_authorized_agent_name || '',
+            newTradingAuthorizationType: row.trading_authorization_type || null,
+            grantPowerOfAttorney: row.grant_power_of_attorney === 'true',
+            authorizedAgentName: row.poa_authorized_agent_name || '',
+            
+            // 529 Plan Details
+            productSponsorAnd529Plan: row.product_sponsor_and_529_plan || '',
+            investmentPortfolioOptionChosen: row.investment_portfolio_option_chosen || '',
+            ownerStateOfResidence: row.owner_state_of_residence || '',
+            sourceOfFunds: row.source_of_funds || '',
+            shareClass: row.share_class || '',
+            planAdministrator: row.plan_administrator || '',
+            
+            // Trust Details
+            trustFormationState: row.trust_formation_state || '',
+            trustType: row.trust_type || '',
+            grantorDecedentNames: row.grantor_decedent_names || '',
+            trustDate: row.trust_date ? new Date(row.trust_date) : null,
+            
+            createdBy: userId
+          };
+
+          // Validate required fields
+          if (!accountData.accountType || !accountData.programType) {
+            errors.push(`Row ${i + 2}: Missing required fields (account_type, program_type)`);
+            continue;
+          }
+
+          // Create the account
+          const account = await storage.createAccount(accountData);
+          processedAccounts.push(account);
+
+        } catch (error) {
+          console.error(`Error processing row ${i + 2}:`, error);
+          errors.push(`Row ${i + 2}: ${error.message}`);
+        }
+      }
+
+      // Clean up uploaded file
+      await fs.unlink(csvPath);
+
+      res.json({
+        message: `Processed ${processedAccounts.length} accounts successfully`,
+        successCount: processedAccounts.length,
+        errorCount: errors.length,
+        errors: errors.slice(0, 10), // Limit errors shown
+        accounts: processedAccounts
+      });
+
+    } catch (error) {
+      console.error("Error processing accounts CSV:", error);
+      res.status(500).json({ message: "Failed to process accounts CSV file" });
     }
   });
 
