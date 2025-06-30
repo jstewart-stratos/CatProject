@@ -9,6 +9,8 @@ import { Progress } from "@/components/ui/progress";
 import { Download, Upload, FileText, AlertCircle, CheckCircle } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import Sidebar from "@/components/sidebar";
+import TopBar from "@/components/top-bar";
 
 interface UploadResult {
   message: string;
@@ -112,8 +114,11 @@ export default function CSVUpload() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 lg:ml-64 pt-16 lg:pt-0">
-      <div className="max-w-4xl mx-auto space-y-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <Sidebar currentView="csv-upload" />
+      <TopBar title="CSV Bulk Upload" subtitle="Import clients and accounts from CSV files" />
+      <div className="p-4 lg:ml-64 pt-16 lg:pt-0">
+        <div className="max-w-4xl mx-auto space-y-6">
         <div className="text-center space-y-2">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">CSV Bulk Upload</h1>
           <p className="text-gray-600 dark:text-gray-400">
@@ -282,6 +287,7 @@ export default function CSVUpload() {
             </CardContent>
           </Card>
         )}
+        </div>
       </div>
     </div>
   );
