@@ -120,14 +120,38 @@ export default function DocumentTemplates() {
       setIsGenerateDialogOpen(false);
       setSelectedClientId('');
       setSelectedAccountId('');
-      toast({
-        title: "Document Generated",
-        description: "Document has been generated successfully.",
-      });
       
       // Download the generated document
       if (response.downloadUrl) {
-        window.open(response.downloadUrl, '_blank');
+        // Create a download link and trigger it
+        const link = document.createElement('a');
+        link.href = response.downloadUrl;
+        link.download = response.filename || `document-${response.documentId}.html`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        toast({
+          title: "Document Generated",
+          description: "Document has been generated and downloaded successfully.",
+        });
+      } else if (response.documentContent) {
+        // Fallback: open document content in new window
+        const newWindow = window.open('', '_blank');
+        if (newWindow) {
+          newWindow.document.write(response.documentContent);
+          newWindow.document.close();
+        }
+        
+        toast({
+          title: "Document Generated",
+          description: "Document has been generated and opened in a new window.",
+        });
+      } else {
+        toast({
+          title: "Document Generated",
+          description: "Document has been generated successfully.",
+        });
       }
     },
     onError: (error: any) => {

@@ -2089,6 +2089,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         message: 'Document generated successfully',
         documentId: generatedDoc.id,
         documentContent: generatedDoc.content,
+        filename: generatedDoc.filename,
         downloadUrl: `/api/download-document/${generatedDoc.id}`,
       });
     } catch (error) {

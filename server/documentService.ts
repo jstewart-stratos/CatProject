@@ -25,7 +25,7 @@ export class DocumentService {
     clientId: number,
     accountId?: number,
     userId?: string
-  ): Promise<GeneratedDocument> {
+  ): Promise<GeneratedDocument & { content: string; filename: string }> {
     // Get template configuration
     const template = await storage.getDocumentTemplate(templateId);
     if (!template) {
@@ -53,9 +53,8 @@ export class DocumentService {
     // Generate the document name
     const documentName = this.generateDocumentName(template, client, account);
 
-    // For now, we'll create a simple text representation
-    // In a real implementation, you'd use a PDF library or template engine
-    const filePath = await this.createDocumentFile(template, documentData, documentName);
+    // Create the document file and get both file path and content
+    const { filePath, content } = await this.createDocumentFile(template, documentData, documentName);
 
     // Save the generated document record
     const generatedDoc = await storage.createGeneratedDocument({
@@ -69,7 +68,21 @@ export class DocumentService {
       generatedBy: userId || null,
     });
 
-    return generatedDoc;
+    // Return the generated document with content included
+    return {
+      id: generatedDoc.id,
+      templateId: generatedDoc.templateId,
+      clientId: generatedDoc.clientId,
+      accountId: generatedDoc.accountId,
+      documentName: generatedDoc.documentName,
+      filePath: generatedDoc.filePath,
+      generatedData: generatedDoc.generatedData,
+      status: generatedDoc.status,
+      generatedBy: generatedDoc.generatedBy,
+      generatedAt: generatedDoc.generatedAt,
+      content,
+      filename: `${documentName.replace(/[^a-zA-Z0-9\s-]/g, "")}.html`
+    };
   }
 
   /**
@@ -160,7 +173,7 @@ export class DocumentService {
     template: DocumentTemplate,
     data: DocumentData,
     documentName: string
-  ): Promise<string> {
+  ): Promise<{ filePath: string; content: string }> {
     const documentsDir = path.join(process.cwd(), "generated_documents");
     
     // Ensure directory exists
@@ -170,21 +183,55 @@ export class DocumentService {
       await fs.mkdir(documentsDir, { recursive: true });
     }
 
-    const fileName = `${documentName.replace(/[^a-zA-Z0-9\s-]/g, "")}.txt`;
+    const fileName = `${documentName.replace(/[^a-zA-Z0-9\s-]/g, "")}.html`;
     const filePath = path.join(documentsDir, fileName);
 
-    // Create document content
-    let content = `${template.name}\n`;
-    content += `Generated on: ${new Date().toLocaleString()}\n\n`;
+    // Create professional HTML document content
+    let content = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${template.name}</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; }
+        .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px; }
+        .field-row { margin: 10px 0; display: flex; }
+        .field-label { font-weight: bold; min-width: 200px; }
+        .field-value { flex: 1; }
+        .generated-info { font-style: italic; color: #666; margin-top: 30px; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>${template.name}</h1>
+    </div>
     
-    // Add all field values
+    <div class="document-content">`;
+    
+    // Add all field values in a professional format
     for (const [fieldName, value] of Object.entries(data)) {
-      content += `${fieldName}: ${value}\n`;
+      // Format field name to be more readable
+      const formattedFieldName = fieldName.charAt(0).toUpperCase() + fieldName.slice(1).replace(/([A-Z])/g, ' $1');
+      content += `
+        <div class="field-row">
+            <div class="field-label">${formattedFieldName}:</div>
+            <div class="field-value">${value || 'N/A'}</div>
+        </div>`;
     }
+
+    content += `
+    </div>
+    
+    <div class="generated-info">
+        <p>Document generated on: ${new Date().toLocaleString()}</p>
+    </div>
+</body>
+</html>`;
 
     await fs.writeFile(filePath, content, "utf-8");
 
-    return filePath;
+    return { filePath, content };
   }
 
   /**
