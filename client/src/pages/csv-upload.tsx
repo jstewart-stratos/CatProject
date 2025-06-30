@@ -114,10 +114,11 @@ export default function CSVUpload() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-slate-50">
       <Sidebar currentView="csv-upload" />
-      <TopBar title="CSV Bulk Upload" subtitle="Import clients and accounts from CSV files" />
-      <div className="p-4 lg:ml-64 pt-16 lg:pt-0">
+      <div className="lg:ml-64 pt-16 lg:pt-0">
+        <TopBar title="CSV Bulk Upload" subtitle="Import clients and accounts from CSV files" />
+        <div className="p-4 lg:p-6">
         <div className="max-w-4xl mx-auto space-y-6">
         <div className="text-center space-y-2">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">CSV Bulk Upload</h1>
@@ -287,6 +288,7 @@ export default function CSVUpload() {
             </CardContent>
           </Card>
         )}
+        </div>
         </div>
       </div>
     </div>
