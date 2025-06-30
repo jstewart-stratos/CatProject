@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -44,6 +44,11 @@ export default function DocumentTemplates() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  // Reset account selection when client changes
+  useEffect(() => {
+    setSelectedAccountId('');
+  }, [selectedClientId]);
+
   // Query for document templates
   const { data: templates, isLoading } = useQuery({
     queryKey: ['/api/document-templates'],
@@ -60,7 +65,7 @@ export default function DocumentTemplates() {
   // Query for accounts based on selected client
   const { data: accounts } = useQuery({
     queryKey: ['/api/accounts/by-client', selectedClientId],
-    enabled: !!selectedClientId && !isNaN(Number(selectedClientId)),
+    enabled: !!selectedClientId && selectedClientId !== "" && !isNaN(Number(selectedClientId)),
     retry: false,
   });
 
@@ -136,6 +141,8 @@ export default function DocumentTemplates() {
 
   const openGenerateDialog = (template: DocumentTemplate) => {
     setSelectedTemplate(template);
+    setSelectedClientId('');
+    setSelectedAccountId('');
     setIsGenerateDialogOpen(true);
   };
 
