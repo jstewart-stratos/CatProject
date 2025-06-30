@@ -101,11 +101,21 @@ export default function DocumentTemplates() {
 
   // Generate document mutation
   const generateDocumentMutation = useMutation({
-    mutationFn: (data: { templateId: number; clientId: number; accountId?: number }) => 
-      apiRequest('/api/generate-document', {
+    mutationFn: async (data: { templateId: number; clientId: number; accountId?: number }) => {
+      const response = await fetch('/api/generate-document', {
         method: 'POST',
-        body: data,
-      }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to generate document');
+      }
+      
+      return response.json();
+    },
     onSuccess: (response: any) => {
       setIsGenerateDialogOpen(false);
       setSelectedClientId('');
