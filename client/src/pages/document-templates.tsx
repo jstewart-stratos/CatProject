@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import Sidebar from '@/components/sidebar';
 import TopBar from '@/components/top-bar';
-import { Plus, FileText, Settings, Eye } from 'lucide-react';
+import { Plus, FileText, Settings, Eye, Download } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 
 interface DocumentTemplate {
@@ -38,12 +38,28 @@ export default function DocumentTemplates() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<DocumentTemplate | null>(null);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [isGenerateDialogOpen, setIsGenerateDialogOpen] = useState(false);
+  const [selectedClientId, setSelectedClientId] = useState<string>('');
+  const [selectedAccountId, setSelectedAccountId] = useState<string>('');
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   // Query for document templates
   const { data: templates, isLoading } = useQuery({
     queryKey: ['/api/document-templates'],
+    retry: false,
+  });
+
+  // Query for clients (for document generation)
+  const { data: clients } = useQuery({
+    queryKey: ['/api/clients'],
+    retry: false,
+  });
+
+  // Query for accounts based on selected client
+  const { data: accounts } = useQuery({
+    queryKey: ['/api/accounts/by-client', selectedClientId],
+    enabled: !!selectedClientId,
     retry: false,
   });
 
@@ -70,6 +86,36 @@ export default function DocumentTemplates() {
     },
   });
 
+  // Generate document mutation
+  const generateDocumentMutation = useMutation({
+    mutationFn: (data: { templateId: number; clientId: number; accountId?: number }) => 
+      apiRequest('/api/generate-document', {
+        method: 'POST',
+        body: data,
+      }),
+    onSuccess: (response: any) => {
+      setIsGenerateDialogOpen(false);
+      setSelectedClientId('');
+      setSelectedAccountId('');
+      toast({
+        title: "Document Generated",
+        description: "Document has been generated successfully.",
+      });
+      
+      // Download the generated document
+      if (response.downloadUrl) {
+        window.open(response.downloadUrl, '_blank');
+      }
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error", 
+        description: error.message || "Failed to generate document",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleCreateTemplate = (formData: FormData) => {
     const templateData = {
       name: formData.get('name') as string,
@@ -85,6 +131,21 @@ export default function DocumentTemplates() {
   const viewTemplateFields = (template: DocumentTemplate) => {
     setSelectedTemplate(template);
     setIsViewDialogOpen(true);
+  };
+
+  const openGenerateDialog = (template: DocumentTemplate) => {
+    setSelectedTemplate(template);
+    setIsGenerateDialogOpen(true);
+  };
+
+  const handleGenerateDocument = () => {
+    if (!selectedTemplate || !selectedClientId) return;
+    
+    generateDocumentMutation.mutate({
+      templateId: selectedTemplate.id,
+      clientId: parseInt(selectedClientId),
+      accountId: selectedAccountId ? parseInt(selectedAccountId) : undefined,
+    });
   };
 
   const getTemplateTypeColor = (type: string) => {
@@ -218,6 +279,13 @@ export default function DocumentTemplates() {
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => openGenerateDialog(template)}
+                        >
+                          <Download className="h-4 w-4" />
+                        </Button>
                         <Button variant="outline" size="sm">
                           <Settings className="h-4 w-4" />
                         </Button>
@@ -276,6 +344,80 @@ export default function DocumentTemplates() {
                   </div>
                 )}
               </div>
+            </DialogContent>
+          </Dialog>
+
+          {/* Generate Document Dialog */}
+          <Dialog open={isGenerateDialogOpen} onOpenChange={setIsGenerateDialogOpen}>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Generate Document</DialogTitle>
+                <DialogDescription>
+                  Generate a document using the "{selectedTemplate?.name}" template with client data.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div>
+                  <Label htmlFor="client-select">Select Client *</Label>
+                  <Select value={selectedClientId} onValueChange={setSelectedClientId}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choose a client" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {clients && clients.length > 0 ? (
+                        clients.map((client: any) => (
+                          <SelectItem key={client.id} value={client.id.toString()}>
+                            {client.firstName} {client.lastName}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="no-clients" disabled>
+                          No clients available
+                        </SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {selectedClientId && (
+                  <div>
+                    <Label htmlFor="account-select">Select Account (Optional)</Label>
+                    <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Choose an account" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">No specific account</SelectItem>
+                        {accounts && accounts.length > 0 ? (
+                          accounts.map((account: any) => (
+                            <SelectItem key={account.id} value={account.id.toString()}>
+                              {account.accountType} - {account.programType}
+                            </SelectItem>
+                          ))
+                        ) : (
+                          <SelectItem value="no-accounts" disabled>
+                            No accounts for this client
+                          </SelectItem>
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+              </div>
+              <DialogFooter>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsGenerateDialogOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={handleGenerateDocument}
+                  disabled={!selectedClientId || generateDocumentMutation.isPending}
+                >
+                  {generateDocumentMutation.isPending ? 'Generating...' : 'Generate Document'}
+                </Button>
+              </DialogFooter>
             </DialogContent>
           </Dialog>
         </div>

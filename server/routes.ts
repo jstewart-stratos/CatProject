@@ -2064,6 +2064,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Generate document endpoint
+  app.post('/api/generate-document', isAuthenticated, async (req: any, res) => {
+    try {
+      const { templateId, clientId, accountId } = req.body;
+      
+      if (!templateId || !clientId) {
+        return res.status(400).json({ message: 'Template ID and Client ID are required' });
+      }
+
+      const generatedDoc = await DocumentService.generateDocument(
+        parseInt(templateId),
+        parseInt(clientId),
+        accountId ? parseInt(accountId) : undefined
+      );
+
+      res.json({
+        message: 'Document generated successfully',
+        documentId: generatedDoc.id,
+        documentContent: generatedDoc.content,
+        downloadUrl: `/api/download-document/${generatedDoc.id}`,
+      });
+    } catch (error) {
+      console.error('Error generating document:', error);
+      res.status(500).json({ message: 'Failed to generate document' });
+    }
+  });
+
+  // Download generated document endpoint
+  app.get('/api/download-document/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const document = await storage.getGeneratedDocument(id);
+      
+      if (!document) {
+        return res.status(404).json({ message: 'Document not found' });
+      }
+
+      res.setHeader('Content-Type', 'text/html');
+      res.setHeader('Content-Disposition', `attachment; filename="${document.filename}"`);
+      res.send(document.content);
+    } catch (error) {
+      console.error('Error downloading document:', error);
+      res.status(500).json({ message: 'Failed to download document' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
