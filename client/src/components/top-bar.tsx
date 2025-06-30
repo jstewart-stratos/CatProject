@@ -29,7 +29,7 @@ export default function TopBar({ title, subtitle }: TopBarProps) {
   }, []);
 
   return (
-    <header className="hidden lg:block bg-white shadow-sm border-b border-slate-200 px-4 lg:px-6 py-4">
+    <header className="hidden lg:block bg-white shadow-sm border-b border-slate-200 px-4 lg:px-6 py-4 lg:ml-64">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl lg:text-2xl font-bold text-slate-800">{title}</h1>
