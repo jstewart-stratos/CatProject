@@ -229,7 +229,7 @@ export default function Accounts() {
   return (
     <div className="min-h-screen bg-slate-50">
       <Sidebar currentView="accounts" />
-      <div className="lg:ml-64 pt-16 lg:pt-0">
+      <div className="lg:ml-64">
         <TopBar 
           title="Account Management" 
           subtitle="Track and manage client accounts"

@@ -237,7 +237,7 @@ export default function Clients() {
   return (
     <div className="min-h-screen bg-slate-50">
       <Sidebar currentView="clients" />
-      <div className="lg:ml-64 pt-16 lg:pt-0">
+      <div className="lg:ml-64">
         <TopBar 
           title="Client Management" 
           subtitle="Manage and organize client information"

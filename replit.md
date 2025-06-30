@@ -171,11 +171,12 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
-- **June 30, 2025**: Fixed desktop layout positioning issue by reverting to pre-mobile-responsiveness layout
-  - ✅ **Reverted TopBar positioning** - Restored original positioning without fixed positioning to match working desktop layout
-  - ✅ **Removed extra padding** - Removed unnecessary top padding from dashboard and CSV upload pages
-  - ✅ **Restored working layout** - Returned to the correct desktop layout that was working before mobile responsiveness changes
-  - ✅ **Maintained mobile functionality** - Kept mobile hamburger menu and responsive features while fixing desktop view
+- **June 30, 2025**: Completed application-wide layout fix by reverting mobile responsiveness changes that caused desktop layout regression
+  - ✅ **Fixed TopBar positioning across all pages** - Removed problematic `pt-16 lg:pt-0` padding from 5 affected pages: dashboard.tsx, csv-upload.tsx, accounts.tsx, clients.tsx, and client-onboarding-full.tsx
+  - ✅ **Restored consistent layout structure** - All pages now use proper `lg:ml-64` sidebar margin without conflicting padding adjustments
+  - ✅ **Maintained responsive functionality** - Mobile hamburger menu and responsive features preserved while fixing desktop layout issues
+  - ✅ **Systematic layout verification** - Identified and corrected all instances of `pt-16 lg:pt-0` that were causing content to be hidden behind TopBar component
+  - ✅ **Documented layout lesson** - Updated technical notes to prevent future layout regressions when implementing responsive design changes
 - **June 30, 2025**: Enhanced CSV templates with comprehensive dropdown options and field validation guidance
   - ✅ **Updated client CSV template** - Added extensive dropdown options as comments including client_type, entity_type, citizenship (30+ countries), residency_status, employment_status, industry, annual_income, net_worth, and all US states/territories
   - ✅ **Enhanced account CSV template** - Added complete dropdown options for account_type, program_type, registration_type (filtered by account type), IRA types, investment objectives, approximate account values, investment time horizons, funds needed timeframes, and trading/authority options

@@ -690,7 +690,7 @@ export default function ClientOnboardingFull() {
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar currentView="client-onboarding-full" />
-      <div className="flex-1 lg:ml-64 pt-16 lg:pt-0 p-4 lg:p-6">
+      <div className="flex-1 lg:ml-64 p-4 lg:p-6">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="mb-6">
