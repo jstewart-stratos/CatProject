@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./auth";
 import { DocumentService } from "./documentService";
+import { PDFService } from "./pdfService";
 import { 
   insertClientSchema, 
   insertAccountSchema, 
@@ -2108,12 +2109,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: 'Document not found' });
       }
 
-      res.setHeader('Content-Type', 'text/html');
-      res.setHeader('Content-Disposition', `attachment; filename="${document.filename}"`);
-      res.send(document.content);
+      // Check if this is a PDF file
+      const isPDF = document.filePath.endsWith('.pdf');
+      
+      if (isPDF) {
+        // Read the PDF file from filesystem
+        const fs = await import('fs');
+        const fileContent = fs.readFileSync(document.filePath);
+        
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename="${document.documentName}.pdf"`);
+        res.send(fileContent);
+      } else {
+        // Legacy HTML handling
+        res.setHeader('Content-Type', 'text/html');
+        res.setHeader('Content-Disposition', `attachment; filename="${document.documentName}.html"`);
+        res.send(document.filePath);
+      }
     } catch (error) {
       console.error('Error downloading document:', error);
       res.status(500).json({ message: 'Failed to download document' });
+    }
+  });
+
+  // Debug endpoint to test PDF form fields
+  app.get('/api/debug/pdf-fields/:templateId', isAuthenticated, async (req: any, res) => {
+    try {
+      const templateId = parseInt(req.params.templateId);
+      const template = await storage.getDocumentTemplate(templateId);
+      
+      if (!template) {
+        return res.status(404).json({ message: 'Template not found' });
+      }
+
+      const pdfPath = PDFService.getTemplatePath(template.filePath);
+      const fields = await PDFService.extractFormFields(pdfPath);
+      
+      res.json({
+        templateId,
+        templateName: template.name,
+        filePath: template.filePath,
+        totalFields: fields.length,
+        fields: fields
+      });
+    } catch (error) {
+      console.error('Error extracting PDF fields:', error);
+      res.status(500).json({ message: 'Failed to extract PDF fields', error: error.message });
     }
   });
 

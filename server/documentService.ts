@@ -1,4 +1,5 @@
 import { storage } from "./storage";
+import { PDFService, PDFFormData } from "./pdfService";
 import type { Client, Account, DocumentTemplate, GeneratedDocument } from "@shared/schema";
 import fs from "fs/promises";
 import path from "path";
@@ -25,7 +26,7 @@ export class DocumentService {
     clientId: number,
     accountId?: number,
     userId?: string
-  ): Promise<GeneratedDocument & { content: string; filename: string }> {
+  ): Promise<GeneratedDocument & { content: Uint8Array; filename: string; mimeType: string }> {
     // Get template configuration
     const template = await storage.getDocumentTemplate(templateId);
     if (!template) {
@@ -47,14 +48,21 @@ export class DocumentService {
       }
     }
 
-    // Extract field values from client and account data
-    const documentData = this.extractFieldValues(template.fields as DocumentField[], client, account);
+    // Generate PDF content using the actual PDF template
+    const templatePath = PDFService.getTemplatePath(template.filePath);
+    const formData = PDFService.createFormDataMapping(client, account, template);
+    const pdfBytes = await PDFService.fillPDFForm(templatePath, formData);
 
     // Generate the document name
     const documentName = this.generateDocumentName(template, client, account);
 
-    // Create the document file and get both file path and content
-    const { filePath, content } = await this.createDocumentFile(template, documentData, documentName);
+    // Create output directory if it doesn't exist
+    const outputDir = path.join(process.cwd(), "generated_documents");
+    await fs.mkdir(outputDir, { recursive: true });
+
+    // Save the generated PDF document
+    const filePath = path.join(outputDir, `${documentName}.pdf`);
+    await fs.writeFile(filePath, pdfBytes);
 
     // Save the generated document record
     const generatedDoc = await storage.createGeneratedDocument({
@@ -63,12 +71,12 @@ export class DocumentService {
       accountId: accountId || null,
       documentName,
       filePath,
-      generatedData: documentData,
+      generatedData: formData,
       status: "generated",
       generatedBy: userId || null,
     });
 
-    // Return the generated document with content included
+    // Return the generated document with PDF content included
     return {
       id: generatedDoc.id,
       templateId: generatedDoc.templateId,
@@ -80,8 +88,9 @@ export class DocumentService {
       status: generatedDoc.status,
       generatedBy: generatedDoc.generatedBy,
       generatedAt: generatedDoc.generatedAt,
-      content,
-      filename: `${documentName.replace(/[^a-zA-Z0-9\s-]/g, "")}.html`
+      content: pdfBytes,
+      filename: `${documentName.replace(/[^a-zA-Z0-9\s-]/g, "")}.pdf`,
+      mimeType: 'application/pdf'
     };
   }
 
