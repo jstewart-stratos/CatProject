@@ -50,8 +50,14 @@ export class DocumentService {
 
     // Generate PDF content using the actual PDF template
     const templatePath = PDFService.getTemplatePath(template.filePath);
+    console.log('Template path:', templatePath);
+    console.log('Client data:', { firstName: client.firstName, lastName: client.lastName, email: client.emailAddress });
+    
     const formData = PDFService.createFormDataMapping(client, account, template);
+    console.log('Form data created with', Object.keys(formData).length, 'fields');
+    
     const pdfBytes = await PDFService.fillPDFForm(templatePath, formData);
+    console.log('PDF generated successfully, size:', pdfBytes.length, 'bytes');
 
     // Generate the document name
     const documentName = this.generateDocumentName(template, client, account);
