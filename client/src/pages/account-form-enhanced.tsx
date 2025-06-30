@@ -1025,11 +1025,12 @@ export default function AccountFormEnhanced() {
     const values = form.getValues();
     // Check for required fields, allowing empty strings to be considered invalid
     const hasClientId = values.clientId && values.clientId > 0;
+    const hasRepId = values.repId && values.repId.trim() !== "";
     const hasAccountType = values.accountType && values.accountType.trim() !== "";
     const hasProgramType = values.programType && values.programType.trim() !== "";
     const hasRegistrationType = values.registrationType && values.registrationType.trim() !== "";
     
-    return hasClientId && hasAccountType && hasProgramType && hasRegistrationType;
+    return hasClientId && hasRepId && hasAccountType && hasProgramType && hasRegistrationType;
   };
 
   const validateACHInfo = () => {
