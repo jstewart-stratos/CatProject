@@ -51,10 +51,11 @@ export default function DocumentTemplates() {
   });
 
   // Query for clients (for document generation)
-  const { data: clients } = useQuery({
+  const { data: clientsResponse } = useQuery({
     queryKey: ['/api/clients'],
     retry: false,
   });
+  const clients = clientsResponse?.clients || [];
 
   // Query for accounts based on selected client
   const { data: accounts } = useQuery({
@@ -358,7 +359,7 @@ export default function DocumentTemplates() {
               </DialogHeader>
               <div className="grid gap-4 py-4">
                 <div>
-                  <Label htmlFor="client-select">Select Client *</Label>
+                  <Label htmlFor="client-select">Select Client * ({clients?.length || 0} available)</Label>
                   <Select value={selectedClientId} onValueChange={setSelectedClientId}>
                     <SelectTrigger>
                       <SelectValue placeholder="Choose a client" />
