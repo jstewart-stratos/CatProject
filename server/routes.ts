@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./auth";
+import { setupAuth, isAuthenticated } from "./replitAuth";
 import { 
   insertClientSchema, 
   insertAccountSchema, 
@@ -694,16 +694,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const account = await storage.createAccount(accountData, { req });
       res.status(201).json(account);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating account:", error);
-      console.error("Error details:", error.message);
-      if (error.issues) {
+      console.error("Error details:", error?.message);
+      if (error?.issues) {
         console.error("Validation issues:", error.issues);
       }
       res.status(500).json({ 
         message: "Failed to create account", 
-        error: error.message,
-        issues: error.issues || []
+        error: error?.message || "Unknown error",
+        issues: error?.issues || []
       });
     }
   });
@@ -712,7 +712,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       const updateData = insertAccountSchema.partial().parse(req.body);
-      const account = await storage.updateAccount(parseInt(id), updateData, { req });
+      const account = await storage.updateAccount(parseInt(id), updateData);
       res.json(account);
     } catch (error) {
       console.error("Error updating account:", error);
