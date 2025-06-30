@@ -99,8 +99,11 @@ export default function AuditLogs() {
   return (
     <div className="min-h-screen bg-slate-50">
       <Sidebar currentView="audit-logs" />
-      <div className="ml-64">
-        <TopBar />
+      <div className="lg:ml-64">
+        <TopBar 
+          title="Audit Logs" 
+          subtitle="Track all system activity and changes"
+        />
         <div className="p-6 space-y-6">
           <div className="flex items-center justify-between">
             <div>

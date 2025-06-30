@@ -17,6 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import Sidebar from "@/components/sidebar";
+import TopBar from "@/components/top-bar";
 
 // Step schemas
 const step1Schema = z.object({
@@ -644,7 +645,12 @@ export default function ClientOnboardingFull() {
     return (
       <div className="flex min-h-screen bg-gray-50">
         <Sidebar currentView="client-onboarding-full" />
-        <div className="flex-1 p-6">
+        <div className="flex-1 lg:ml-64">
+          <TopBar 
+            title="Client Onboarding" 
+            subtitle="Complete 7-step client registration process"
+          />
+          <div className="p-6">
           <div className="max-w-2xl mx-auto">
             {/* Header */}
             <div className="mb-6">
@@ -682,6 +688,7 @@ export default function ClientOnboardingFull() {
               </CardContent>
             </Card>
           </div>
+          </div>
         </div>
       </div>
     );
@@ -690,7 +697,12 @@ export default function ClientOnboardingFull() {
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar currentView="client-onboarding-full" />
-      <div className="flex-1 lg:ml-64 p-4 lg:p-6">
+      <div className="flex-1 lg:ml-64">
+        <TopBar 
+          title="Client Onboarding" 
+          subtitle="Complete 7-step client registration process"
+        />
+        <div className="p-4 lg:p-6">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="mb-6">
@@ -2737,6 +2749,7 @@ export default function ClientOnboardingFull() {
           </Form>
         </CardContent>
       </Card>
+        </div>
         </div>
       </div>
     </div>
