@@ -501,10 +501,11 @@ export default function ClientAgreementsPage() {
                                         <SelectValue placeholder="Select objective" />
                                       </SelectTrigger>
                                       <SelectContent>
+                                        <SelectItem value="income-capital-preservation">Income with Capital Preservation</SelectItem>
+                                        <SelectItem value="income-moderate-growth">Income with Moderate Growth</SelectItem>
+                                        <SelectItem value="growth-with-income">Growth with Income</SelectItem>
                                         <SelectItem value="growth">Growth</SelectItem>
-                                        <SelectItem value="income">Income</SelectItem>
-                                        <SelectItem value="balanced">Balanced</SelectItem>
-                                        <SelectItem value="conservative">Conservative</SelectItem>
+                                        <SelectItem value="aggressive-growth">Aggressive Growth</SelectItem>
                                       </SelectContent>
                                     </Select>
                                   </div>
