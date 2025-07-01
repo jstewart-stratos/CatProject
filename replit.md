@@ -171,6 +171,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **July 1, 2025**: Successfully completed 6-step Client Agreements workflow with enhanced client signature population from household data
+  - ✅ **Restructured workflow to 6 steps** - Moved Client Signatures to Step 3 (right after household selection)
+  - ✅ **Enhanced primary client signature auto-population** - Uses household's primaryContactClientId to lookup actual client name from database
+  - ✅ **Improved secondary client selection** - Dropdown shows other household members excluding primary contact
+  - ✅ **Added household client data fetching** - Fetches household-specific clients for accurate signature population
+  - ✅ **Verified functionality** - Primary client name successfully auto-populates (e.g., "Lori Stewart" for Stewart Family household)
+  - ✅ **Updated workflow order**: Business Line → Household → Client Signatures → Account Selection → Account Configuration → Agreement Details
 - **July 1, 2025**: Successfully completed 5-step Client Agreements workflow with account selection and configuration
   - ✅ **Restructured from 4 to 5-step workflow** - Added dedicated account selection step (Step 3) and account configuration step (Step 4)
   - ✅ **Enhanced Step 3: Account Selection** - Users now select which accounts to include in the agreement with checkbox interface and validation
