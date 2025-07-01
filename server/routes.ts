@@ -10,7 +10,9 @@ import {
   insertHouseholdSchema,
   insertBeneficiarySchema,
   insertAchInformationSchema,
-  insertDirectBusinessSchema
+  insertDirectBusinessSchema,
+  insertClientAgreementSchema,
+  insertClientAgreementAccountSchema
 } from "@shared/schema";
 import multer from "multer";
 import { z } from "zod";
@@ -2125,7 +2127,129 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Client Agreement routes
+  app.get('/api/client-agreements', isAuthenticated, async (req, res) => {
+    try {
+      const agreements = await storage.getAllClientAgreements();
+      res.json(agreements);
+    } catch (error) {
+      console.error("Error fetching client agreements:", error);
+      res.status(500).json({ message: "Failed to fetch client agreements" });
+    }
+  });
 
+  app.get('/api/client-agreements/:id', isAuthenticated, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const agreement = await storage.getClientAgreement(parseInt(id));
+      if (!agreement) {
+        return res.status(404).json({ message: "Client agreement not found" });
+      }
+      res.json(agreement);
+    } catch (error) {
+      console.error("Error fetching client agreement:", error);
+      res.status(500).json({ message: "Failed to fetch client agreement" });
+    }
+  });
+
+  app.get('/api/households/:householdId/client-agreements', isAuthenticated, async (req, res) => {
+    try {
+      const { householdId } = req.params;
+      const agreements = await storage.getHouseholdAgreements(parseInt(householdId));
+      res.json(agreements);
+    } catch (error) {
+      console.error("Error fetching household agreements:", error);
+      res.status(500).json({ message: "Failed to fetch household agreements" });
+    }
+  });
+
+  app.post('/api/client-agreements', isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const agreementData = insertClientAgreementSchema.parse({
+        ...req.body,
+        createdBy: userId
+      });
+      const agreement = await storage.createClientAgreement(agreementData);
+      res.status(201).json(agreement);
+    } catch (error) {
+      console.error("Error creating client agreement:", error);
+      res.status(500).json({ message: "Failed to create client agreement" });
+    }
+  });
+
+  app.put('/api/client-agreements/:id', isAuthenticated, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updateData = insertClientAgreementSchema.partial().parse(req.body);
+      const agreement = await storage.updateClientAgreement(parseInt(id), updateData);
+      res.json(agreement);
+    } catch (error) {
+      console.error("Error updating client agreement:", error);
+      res.status(500).json({ message: "Failed to update client agreement" });
+    }
+  });
+
+  app.delete('/api/client-agreements/:id', isAuthenticated, async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteClientAgreement(parseInt(id));
+      res.json({ message: "Client agreement deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting client agreement:", error);
+      res.status(500).json({ message: "Failed to delete client agreement" });
+    }
+  });
+
+  // Client Agreement Account routes
+  app.get('/api/client-agreements/:agreementId/accounts', isAuthenticated, async (req, res) => {
+    try {
+      const { agreementId } = req.params;
+      const accounts = await storage.getAgreementAccounts(parseInt(agreementId));
+      res.json(accounts);
+    } catch (error) {
+      console.error("Error fetching agreement accounts:", error);
+      res.status(500).json({ message: "Failed to fetch agreement accounts" });
+    }
+  });
+
+  app.post('/api/client-agreements/:agreementId/accounts', isAuthenticated, async (req, res) => {
+    try {
+      const { agreementId } = req.params;
+      const accountData = insertClientAgreementAccountSchema.parse({
+        ...req.body,
+        agreementId: parseInt(agreementId)
+      });
+      const account = await storage.createClientAgreementAccount(accountData);
+      res.status(201).json(account);
+    } catch (error) {
+      console.error("Error creating agreement account:", error);
+      res.status(500).json({ message: "Failed to create agreement account" });
+    }
+  });
+
+  app.put('/api/client-agreement-accounts/:id', isAuthenticated, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updateData = insertClientAgreementAccountSchema.partial().parse(req.body);
+      const account = await storage.updateClientAgreementAccount(parseInt(id), updateData);
+      res.json(account);
+    } catch (error) {
+      console.error("Error updating agreement account:", error);
+      res.status(500).json({ message: "Failed to update agreement account" });
+    }
+  });
+
+  app.delete('/api/client-agreement-accounts/:id', isAuthenticated, async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteClientAgreementAccount(parseInt(id));
+      res.json({ message: "Agreement account deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting agreement account:", error);
+      res.status(500).json({ message: "Failed to delete agreement account" });
+    }
+  });
 
   const httpServer = createServer(app);
   return httpServer;

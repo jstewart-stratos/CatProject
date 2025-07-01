@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Database, BarChart3, Users, Wallet, ArrowLeftRight, UserCog, UsersIcon, LogOut, UserPlus, FileText, Menu, X, Upload, Home } from "lucide-react";
+import { Database, BarChart3, Users, Wallet, ArrowLeftRight, UserCog, UsersIcon, LogOut, UserPlus, FileText, Menu, X, Upload, Home, FileSignature } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useState } from "react";
 import logoImage from "@assets/Sunray Mark Only - Solid (2)_1751050129011.png";
@@ -34,6 +34,7 @@ export default function Sidebar({ currentView }: SidebarProps) {
     { id: "dashboard", path: "/", label: "Dashboard", icon: BarChart3, adminOnly: false },
     { id: "clients", path: "/clients", label: "Clients", icon: Users, adminOnly: false },
     { id: "households", path: "/households", label: "Households", icon: Home, adminOnly: false },
+    { id: "client-agreements", path: "/client-agreements", label: "Client Agreements", icon: FileSignature, adminOnly: false },
     { id: "client-onboarding-full", path: "/client-onboarding-full", label: "Client Onboarding", icon: UserPlus, adminOnly: false },
     { id: "accounts", path: "/accounts", label: "Accounts", icon: Wallet, adminOnly: false },
 

@@ -37,6 +37,12 @@ import {
   draftAccounts,
   type InsertDraftAccount,
   type DraftAccount,
+  clientAgreements,
+  clientAgreementAccounts,
+  type InsertClientAgreement,
+  type ClientAgreement,
+  type InsertClientAgreementAccount,
+  type ClientAgreementAccount,
 
 } from "@shared/schema";
 import { db } from "./db";
@@ -164,10 +170,19 @@ export interface IStorage {
   searchAccounts(searchTerm: string, limit: number): Promise<any[]>;
   searchAccountsByGroups(groupIds: number[], searchTerm: string, limit: number): Promise<any[]>;
 
-
-
-  // Business metrics operations
-  getBusinessMetrics(): Promise<any>;
+  // Client Agreement operations
+  createClientAgreement(agreement: InsertClientAgreement): Promise<ClientAgreement>;
+  getClientAgreement(id: number): Promise<ClientAgreement | undefined>;
+  getHouseholdAgreements(householdId: number): Promise<ClientAgreement[]>;
+  getAllClientAgreements(): Promise<ClientAgreement[]>;
+  updateClientAgreement(id: number, data: Partial<ClientAgreement>): Promise<ClientAgreement>;
+  deleteClientAgreement(id: number): Promise<void>;
+  
+  // Client Agreement Account operations
+  createClientAgreementAccount(agreementAccount: InsertClientAgreementAccount): Promise<ClientAgreementAccount>;
+  getAgreementAccounts(agreementId: number): Promise<ClientAgreementAccount[]>;
+  updateClientAgreementAccount(id: number, data: Partial<ClientAgreementAccount>): Promise<ClientAgreementAccount>;
+  deleteClientAgreementAccount(id: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1576,6 +1591,61 @@ export class DatabaseStorage implements IStorage {
     };
   }
 
+  // Client Agreement operations
+  async createClientAgreement(agreement: InsertClientAgreement): Promise<ClientAgreement> {
+    const [result] = await db.insert(clientAgreements).values(agreement).returning();
+    return result;
+  }
+
+  async getClientAgreement(id: number): Promise<ClientAgreement | undefined> {
+    const [result] = await db.select().from(clientAgreements).where(eq(clientAgreements.id, id));
+    return result;
+  }
+
+  async getHouseholdAgreements(householdId: number): Promise<ClientAgreement[]> {
+    return await db.select().from(clientAgreements)
+      .where(eq(clientAgreements.householdId, householdId))
+      .orderBy(desc(clientAgreements.createdAt));
+  }
+
+  async getAllClientAgreements(): Promise<ClientAgreement[]> {
+    return await db.select().from(clientAgreements).orderBy(desc(clientAgreements.createdAt));
+  }
+
+  async updateClientAgreement(id: number, data: Partial<ClientAgreement>): Promise<ClientAgreement> {
+    const [result] = await db.update(clientAgreements)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(clientAgreements.id, id))
+      .returning();
+    return result;
+  }
+
+  async deleteClientAgreement(id: number): Promise<void> {
+    await db.delete(clientAgreements).where(eq(clientAgreements.id, id));
+  }
+
+  // Client Agreement Account operations
+  async createClientAgreementAccount(agreementAccount: InsertClientAgreementAccount): Promise<ClientAgreementAccount> {
+    const [result] = await db.insert(clientAgreementAccounts).values(agreementAccount).returning();
+    return result;
+  }
+
+  async getAgreementAccounts(agreementId: number): Promise<ClientAgreementAccount[]> {
+    return await db.select().from(clientAgreementAccounts)
+      .where(eq(clientAgreementAccounts.agreementId, agreementId));
+  }
+
+  async updateClientAgreementAccount(id: number, data: Partial<ClientAgreementAccount>): Promise<ClientAgreementAccount> {
+    const [result] = await db.update(clientAgreementAccounts)
+      .set(data)
+      .where(eq(clientAgreementAccounts.id, id))
+      .returning();
+    return result;
+  }
+
+  async deleteClientAgreementAccount(id: number): Promise<void> {
+    await db.delete(clientAgreementAccounts).where(eq(clientAgreementAccounts.id, id));
+  }
 
 }
 

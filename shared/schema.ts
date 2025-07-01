@@ -652,5 +652,77 @@ export const draftAccounts = pgTable("draft_accounts", {
 export type InsertDraftAccount = typeof draftAccounts.$inferInsert;
 export type DraftAccount = typeof draftAccounts.$inferSelect;
 
+// Client Agreements
+export const clientAgreements = pgTable("client_agreements", {
+  id: serial("id").primaryKey(),
+  householdId: integer("household_id").notNull().references(() => households.id, { onDelete: "cascade" }),
+  version: integer("version").notNull().default(1),
+  agreementDate: date("agreement_date").notNull(),
+  status: varchar("status").default("active"), // active, superseded, void
+  pdfFileName: varchar("pdf_file_name"),
+  pdfPath: varchar("pdf_path"),
+  createdBy: varchar("created_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Client Agreement Account Data
+export const clientAgreementAccounts = pgTable("client_agreement_accounts", {
+  id: serial("id").primaryKey(),
+  agreementId: integer("agreement_id").notNull().references(() => clientAgreements.id, { onDelete: "cascade" }),
+  accountId: integer("account_id").notNull().references(() => accounts.id, { onDelete: "cascade" }),
+  
+  // Form data specific to this agreement (not stored in main account record)
+  accountNumber: varchar("account_number"),
+  subAdvisorName: varchar("sub_advisor_name"),
+  annualStratosInvestmentManagementFee: decimal("annual_stratos_investment_management_fee", { precision: 5, scale: 2 }),
+  annualAdvisorFeePercent: decimal("annual_advisor_fee_percent", { precision: 5, scale: 2 }),
+  annualAdvisorFeeDollar: decimal("annual_advisor_fee_dollar", { precision: 10, scale: 2 }),
+  
+  // Transaction Charges (only one can be selected)
+  transactionChargeType: varchar("transaction_charge_type"), // "unwrapped", "wrapped", "sub_advised"
+  transactionChargePercent: decimal("transaction_charge_percent", { precision: 5, scale: 2 }),
+  
+  // Investment preferences
+  hasAnnualLiquidityNeeds: boolean("has_annual_liquidity_needs").default(false),
+  investmentObjective: varchar("investment_objective"),
+  investmentTimeHorizon: varchar("investment_time_horizon"),
+  
+  // Account custodian
+  accountCustodian: varchar("account_custodian"), // "schwab", "fidelity", "other"
+  otherCustodianName: varchar("other_custodian_name"),
+  
+  // Source of Funds (single selection)
+  sourceOfFunds: varchar("source_of_funds"),
+  
+  // Services
+  hasAssetManagementServices: boolean("has_asset_management_services").default(false),
+  hasFinancialPlanningServices: boolean("has_financial_planning_services").default(false),
+  
+  // Optional Solicitor Referred Account
+  isSolicitorReferred: boolean("is_solicitor_referred").default(false),
+  solicitorDisclosureAttached: boolean("solicitor_disclosure_attached").default(false),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Zod schemas for Client Agreements
+export const insertClientAgreementSchema = createInsertSchema(clientAgreements).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertClientAgreementAccountSchema = createInsertSchema(clientAgreementAccounts).omit({
+  id: true,
+  createdAt: true,
+});
+
+// Types for Client Agreements
+export type InsertClientAgreement = z.infer<typeof insertClientAgreementSchema>;
+export type ClientAgreement = typeof clientAgreements.$inferSelect;
+export type InsertClientAgreementAccount = z.infer<typeof insertClientAgreementAccountSchema>;
+export type ClientAgreementAccount = typeof clientAgreementAccounts.$inferSelect;
+
 
 
