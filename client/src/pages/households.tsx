@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Home, Users, Eye, Edit, Trash2, Search } from "lucide-react";
+import { Plus, Home, Users, Eye, Edit, Trash2, Search, UserPlus, UserMinus } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -31,6 +31,7 @@ export default function HouseholdsPage() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
+  const [isAddMemberDialogOpen, setIsAddMemberDialogOpen] = useState(false);
   const [selectedHousehold, setSelectedHousehold] = useState<Household | null>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -122,6 +123,51 @@ export default function HouseholdsPage() {
     },
   });
 
+  // Add member to household mutation
+  const addMemberMutation = useMutation({
+    mutationFn: async ({ householdId, clientId }: { householdId: number; clientId: number }) => {
+      return await apiRequest("POST", `/api/households/${householdId}/clients/${clientId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/households/${selectedHousehold?.id}/clients`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/households/${selectedHousehold?.id}/accounts`] });
+      setIsAddMemberDialogOpen(false);
+      toast({
+        title: "Success",
+        description: "Member added to household successfully",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to add member to household",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Remove member from household mutation
+  const removeMemberMutation = useMutation({
+    mutationFn: async ({ clientId }: { householdId: number; clientId: number }) => {
+      return await apiRequest("DELETE", `/api/households/clients/${clientId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/households/${selectedHousehold?.id}/clients`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/households/${selectedHousehold?.id}/accounts`] });
+      toast({
+        title: "Success",
+        description: "Member removed from household successfully",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to remove member from household",
+        variant: "destructive",
+      });
+    },
+  });
+
   // Form for create/edit
   const form = useForm<HouseholdFormData>({
     resolver: zodResolver(householdSchema),
@@ -164,6 +210,27 @@ export default function HouseholdsPage() {
     if (!household.primaryContactClientId || !clientsData?.clients) return "Not set";
     const client = clientsData.clients.find(c => c.id === household.primaryContactClientId);
     return client ? `${client.firstName} ${client.lastName}` : "Not found";
+  };
+
+  const handleAddMember = (clientId: number) => {
+    if (selectedHousehold) {
+      addMemberMutation.mutate({ householdId: selectedHousehold.id, clientId });
+    }
+  };
+
+  const handleRemoveMember = (clientId: number) => {
+    if (selectedHousehold && confirm("Are you sure you want to remove this member from the household?")) {
+      removeMemberMutation.mutate({ householdId: selectedHousehold.id, clientId });
+    }
+  };
+
+  // Get available clients (not already in any household)
+  const getAvailableClients = () => {
+    if (!clientsData?.clients) return [];
+    const householdMemberIds = householdClients?.map(c => c.id) || [];
+    return clientsData.clients.filter(client => 
+      !client.householdId && !householdMemberIds.includes(client.id)
+    );
   };
 
   const households = householdsData?.households || [];
@@ -455,9 +522,20 @@ export default function HouseholdsPage() {
                 {/* Family Members */}
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Users className="h-5 w-5" />
-                      Family Members ({householdClients?.length || 0})
+                    <CardTitle className="text-lg flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Users className="h-5 w-5" />
+                        Family Members ({householdClients?.length || 0})
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setIsAddMemberDialogOpen(true)}
+                        className="flex items-center gap-2"
+                      >
+                        <UserPlus className="h-4 w-4" />
+                        Add Member
+                      </Button>
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -465,9 +543,21 @@ export default function HouseholdsPage() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {householdClients.map((client) => (
                           <div key={client.id} className="p-3 border rounded-lg">
-                            <div className="font-medium">{client.firstName} {client.lastName}</div>
-                            <div className="text-sm text-gray-600">{client.email}</div>
-                            <div className="text-sm text-gray-500">Client ID: {client.id}</div>
+                            <div className="flex justify-between items-start">
+                              <div className="flex-1">
+                                <div className="font-medium">{client.firstName} {client.lastName}</div>
+                                <div className="text-sm text-gray-600">{client.email}</div>
+                                <div className="text-sm text-gray-500">Client ID: {client.id}</div>
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleRemoveMember(client.id)}
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                              >
+                                <UserMinus className="h-4 w-4" />
+                              </Button>
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -506,6 +596,52 @@ export default function HouseholdsPage() {
                   </CardContent>
                 </Card>
               </div>
+            </DialogContent>
+          </Dialog>
+
+          {/* Add Member Dialog */}
+          <Dialog open={isAddMemberDialogOpen} onOpenChange={setIsAddMemberDialogOpen}>
+            <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Add Member to {selectedHousehold?.name}</DialogTitle>
+                <DialogDescription>
+                  Select existing clients to add to this household.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                {getAvailableClients().length > 0 ? (
+                  <div className="grid gap-3 max-h-96 overflow-y-auto">
+                    {getAvailableClients().map((client) => (
+                      <div key={client.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50">
+                        <div>
+                          <div className="font-medium">{client.firstName} {client.lastName}</div>
+                          <div className="text-sm text-gray-600">{client.email}</div>
+                          <div className="text-sm text-gray-500">Client ID: {client.id}</div>
+                        </div>
+                        <Button
+                          onClick={() => handleAddMember(client.id)}
+                          disabled={addMemberMutation.isPending}
+                          className="ml-4"
+                        >
+                          Add to Household
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-500 text-center py-8">
+                    No available clients to add. All existing clients are already assigned to households.
+                  </p>
+                )}
+              </div>
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsAddMemberDialogOpen(false)}
+                >
+                  Close
+                </Button>
+              </DialogFooter>
             </DialogContent>
           </Dialog>
         </main>
