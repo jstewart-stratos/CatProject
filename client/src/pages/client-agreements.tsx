@@ -65,6 +65,36 @@ export default function ClientAgreementsPage() {
     iarRepCode: "",
     primaryClientName: "",
     secondaryClientName: "",
+    // Step 4 - Client Data
+    primaryClient: {
+      firstName: "",
+      middleName: "",
+      lastName: "",
+      ssn: "",
+      dateOfBirth: "",
+      driverLicense: "",
+      issuingState: "",
+      expirationDate: "",
+      homePhone: "",
+      businessPhone: "",
+      mobilePhone: "",
+      emailAddress: "",
+      legalAddress1: "",
+      city: "",
+      state: "",
+      zipCode: "",
+      country: "",
+      mailingAddress1: "",
+      mailingCity: "",
+      mailingState: "",
+      mailingZipCode: "",
+      mailingCountry: "",
+    },
+    secondaryClient: {
+      firstName: "",
+      middleName: "",
+      lastName: "",
+    },
   });
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -118,19 +148,50 @@ export default function ClientAgreementsPage() {
     { value: "SWA", label: "Stratos Wealth Advisors (SWA)" },
   ];
 
-  // Auto-populate primary client name when household changes
+  // Auto-populate primary client name and data when household changes
   useEffect(() => {
     const primaryName = getPrimaryClientName();
     if (primaryName && selectedHouseholdId && primaryName !== "Not set" && primaryName !== "Not found") {
-      setAdditionalFormData(prev => ({ 
-        ...prev, 
-        primaryClientName: primaryName 
-      }));
+      // Get the primary client full data
+      const household = households.find((h: any) => h.id === Number(selectedHouseholdId));
+      if (household?.primaryContactClientId && clients.length > 0) {
+        const primaryClient = clients.find((c: any) => c.id === household.primaryContactClientId);
+        if (primaryClient) {
+          setAdditionalFormData(prev => ({ 
+            ...prev, 
+            primaryClientName: primaryName,
+            primaryClient: {
+              firstName: primaryClient.firstName || "",
+              middleName: primaryClient.middleName || "",
+              lastName: primaryClient.lastName || "",
+              ssn: primaryClient.ssn || "",
+              dateOfBirth: primaryClient.dateOfBirth || "",
+              driverLicense: "",
+              issuingState: "",
+              expirationDate: "",
+              homePhone: primaryClient.homePhone || "",
+              businessPhone: primaryClient.businessPhone || "",
+              mobilePhone: primaryClient.mobilePhone || "",
+              emailAddress: primaryClient.emailAddress || "",
+              legalAddress1: primaryClient.legalAddress1 || "",
+              city: primaryClient.city || "",
+              state: primaryClient.state || "",
+              zipCode: primaryClient.zipCode || "",
+              country: "",
+              mailingAddress1: primaryClient.mailingAddress1 || "",
+              mailingCity: primaryClient.mailingCity || "",
+              mailingState: primaryClient.mailingState || "",
+              mailingZipCode: primaryClient.mailingZipCode || "",
+              mailingCountry: "",
+            }
+          }));
+        }
+      }
     }
   }, [selectedHouseholdId, households, clients]);
 
   const handleNext = () => {
-    if (currentStep < 6) setCurrentStep(currentStep + 1);
+    if (currentStep < 7) setCurrentStep(currentStep + 1);
   };
 
   const handlePrevious = () => {
@@ -302,7 +363,7 @@ export default function ClientAgreementsPage() {
                 <DialogHeader>
                   <DialogTitle>Create New Client Agreement</DialogTitle>
                   <DialogDescription>
-                    Step {currentStep} of 6: Set up a new client agreement for a household.
+                    Step {currentStep} of 7: Set up a new client agreement for a household.
                   </DialogDescription>
                 </DialogHeader>
 
@@ -417,8 +478,367 @@ export default function ClientAgreementsPage() {
                       </div>
                     )}
 
-                    {/* Step 4: Account Selection */}
+                    {/* Step 4: Household Data and Financial Information */}
                     {currentStep === 4 && (
+                      <div className="space-y-6 max-h-96 overflow-y-auto">
+                        <div className="space-y-2">
+                          <h3 className="text-lg font-semibold text-gray-900">Household Data and Financial Information</h3>
+                          <p className="text-sm text-gray-600">Review and update client information for the agreement.</p>
+                        </div>
+                        
+                        {/* Primary Client Information */}
+                        <div className="border rounded-lg p-4 space-y-4">
+                          <h4 className="font-medium text-gray-900">Primary Client Information</h4>
+                          
+                          {/* Name Row */}
+                          <div className="grid grid-cols-3 gap-3">
+                            <div>
+                              <Label className="text-xs font-medium">First Name</Label>
+                              <Input 
+                                placeholder="First name" 
+                                className="h-8 text-sm"
+                                value={additionalFormData.primaryClient?.firstName || ""}
+                                onChange={(e) => setAdditionalFormData(prev => ({ 
+                                  ...prev, 
+                                  primaryClient: { ...prev.primaryClient, firstName: e.target.value }
+                                }))}
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-xs font-medium">Middle Name</Label>
+                              <Input 
+                                placeholder="Middle name" 
+                                className="h-8 text-sm"
+                                value={additionalFormData.primaryClient?.middleName || ""}
+                                onChange={(e) => setAdditionalFormData(prev => ({ 
+                                  ...prev, 
+                                  primaryClient: { ...prev.primaryClient, middleName: e.target.value }
+                                }))}
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-xs font-medium">Last Name</Label>
+                              <Input 
+                                placeholder="Last name" 
+                                className="h-8 text-sm"
+                                value={additionalFormData.primaryClient?.lastName || ""}
+                                onChange={(e) => setAdditionalFormData(prev => ({ 
+                                  ...prev, 
+                                  primaryClient: { ...prev.primaryClient, lastName: e.target.value }
+                                }))}
+                              />
+                            </div>
+                          </div>
+
+                          {/* SSN/TIN and DOB Row */}
+                          <div className="grid grid-cols-4 gap-3">
+                            <div>
+                              <Label className="text-xs font-medium">Social Security/Taxpayer ID #</Label>
+                              <Input 
+                                placeholder="SSN/TIN" 
+                                className="h-8 text-sm"
+                                value={additionalFormData.primaryClient?.ssn || ""}
+                                onChange={(e) => setAdditionalFormData(prev => ({ 
+                                  ...prev, 
+                                  primaryClient: { ...prev.primaryClient, ssn: e.target.value }
+                                }))}
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-xs font-medium">Type</Label>
+                              <div className="flex gap-2 pt-1">
+                                <label className="flex items-center text-xs">
+                                  <input type="checkbox" className="mr-1" /> SSN
+                                </label>
+                                <label className="flex items-center text-xs">
+                                  <input type="checkbox" className="mr-1" /> TIN
+                                </label>
+                              </div>
+                            </div>
+                            <div>
+                              <Label className="text-xs font-medium">Date of Birth</Label>
+                              <Input 
+                                type="date"
+                                className="h-8 text-sm"
+                                value={additionalFormData.primaryClient?.dateOfBirth || ""}
+                                onChange={(e) => setAdditionalFormData(prev => ({ 
+                                  ...prev, 
+                                  primaryClient: { ...prev.primaryClient, dateOfBirth: e.target.value }
+                                }))}
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-xs font-medium">Citizenship Status</Label>
+                              <div className="space-y-1 pt-1">
+                                <label className="flex items-center text-xs">
+                                  <input type="checkbox" className="mr-1" /> U.S. Citizen
+                                </label>
+                                <label className="flex items-center text-xs">
+                                  <input type="checkbox" className="mr-1" /> Resident Alien
+                                </label>
+                                <label className="flex items-center text-xs">
+                                  <input type="checkbox" className="mr-1" /> Non-Resident Alien
+                                </label>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Driver's License Row */}
+                          <div className="grid grid-cols-3 gap-3">
+                            <div>
+                              <Label className="text-xs font-medium">Driver's License, ID, or Passport #</Label>
+                              <Input 
+                                placeholder="ID number" 
+                                className="h-8 text-sm"
+                                value={additionalFormData.primaryClient?.driverLicense || ""}
+                                onChange={(e) => setAdditionalFormData(prev => ({ 
+                                  ...prev, 
+                                  primaryClient: { ...prev.primaryClient, driverLicense: e.target.value }
+                                }))}
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-xs font-medium">Issuing State or Country</Label>
+                              <Input 
+                                placeholder="State/Country" 
+                                className="h-8 text-sm"
+                                value={additionalFormData.primaryClient?.issuingState || ""}
+                                onChange={(e) => setAdditionalFormData(prev => ({ 
+                                  ...prev, 
+                                  primaryClient: { ...prev.primaryClient, issuingState: e.target.value }
+                                }))}
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-xs font-medium">Expiration Date</Label>
+                              <Input 
+                                type="date"
+                                className="h-8 text-sm"
+                                value={additionalFormData.primaryClient?.expirationDate || ""}
+                                onChange={(e) => setAdditionalFormData(prev => ({ 
+                                  ...prev, 
+                                  primaryClient: { ...prev.primaryClient, expirationDate: e.target.value }
+                                }))}
+                              />
+                            </div>
+                          </div>
+
+                          {/* Phone and Email Row */}
+                          <div className="grid grid-cols-5 gap-3">
+                            <div>
+                              <Label className="text-xs font-medium">Evening Phone</Label>
+                              <Input 
+                                placeholder="Evening phone" 
+                                className="h-8 text-sm"
+                                value={additionalFormData.primaryClient?.homePhone || ""}
+                                onChange={(e) => setAdditionalFormData(prev => ({ 
+                                  ...prev, 
+                                  primaryClient: { ...prev.primaryClient, homePhone: e.target.value }
+                                }))}
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-xs font-medium">Daytime Phone</Label>
+                              <Input 
+                                placeholder="Daytime phone" 
+                                className="h-8 text-sm"
+                                value={additionalFormData.primaryClient?.businessPhone || ""}
+                                onChange={(e) => setAdditionalFormData(prev => ({ 
+                                  ...prev, 
+                                  primaryClient: { ...prev.primaryClient, businessPhone: e.target.value }
+                                }))}
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-xs font-medium">Mobile</Label>
+                              <Input 
+                                placeholder="Mobile" 
+                                className="h-8 text-sm"
+                                value={additionalFormData.primaryClient?.mobilePhone || ""}
+                                onChange={(e) => setAdditionalFormData(prev => ({ 
+                                  ...prev, 
+                                  primaryClient: { ...prev.primaryClient, mobilePhone: e.target.value }
+                                }))}
+                              />
+                            </div>
+                            <div className="col-span-2">
+                              <Label className="text-xs font-medium">Email</Label>
+                              <Input 
+                                placeholder="Email address" 
+                                className="h-8 text-sm"
+                                value={additionalFormData.primaryClient?.emailAddress || ""}
+                                onChange={(e) => setAdditionalFormData(prev => ({ 
+                                  ...prev, 
+                                  primaryClient: { ...prev.primaryClient, emailAddress: e.target.value }
+                                }))}
+                              />
+                            </div>
+                          </div>
+
+                          {/* Address Sections */}
+                          <div className="grid grid-cols-2 gap-4">
+                            {/* Legal Address */}
+                            <div className="space-y-2">
+                              <Label className="text-xs font-medium">Legal or Permanent Address</Label>
+                              <div className="space-y-2">
+                                <Input 
+                                  placeholder="Address" 
+                                  className="h-8 text-sm"
+                                  value={additionalFormData.primaryClient?.legalAddress1 || ""}
+                                  onChange={(e) => setAdditionalFormData(prev => ({ 
+                                    ...prev, 
+                                    primaryClient: { ...prev.primaryClient, legalAddress1: e.target.value }
+                                  }))}
+                                />
+                                <div className="grid grid-cols-3 gap-2">
+                                  <Input 
+                                    placeholder="City" 
+                                    className="h-8 text-sm"
+                                    value={additionalFormData.primaryClient?.city || ""}
+                                    onChange={(e) => setAdditionalFormData(prev => ({ 
+                                      ...prev, 
+                                      primaryClient: { ...prev.primaryClient, city: e.target.value }
+                                    }))}
+                                  />
+                                  <Input 
+                                    placeholder="State" 
+                                    className="h-8 text-sm"
+                                    value={additionalFormData.primaryClient?.state || ""}
+                                    onChange={(e) => setAdditionalFormData(prev => ({ 
+                                      ...prev, 
+                                      primaryClient: { ...prev.primaryClient, state: e.target.value }
+                                    }))}
+                                  />
+                                  <Input 
+                                    placeholder="Zip/Postal" 
+                                    className="h-8 text-sm"
+                                    value={additionalFormData.primaryClient?.zipCode || ""}
+                                    onChange={(e) => setAdditionalFormData(prev => ({ 
+                                      ...prev, 
+                                      primaryClient: { ...prev.primaryClient, zipCode: e.target.value }
+                                    }))}
+                                  />
+                                </div>
+                                <Input 
+                                  placeholder="Country" 
+                                  className="h-8 text-sm"
+                                  value={additionalFormData.primaryClient?.country || ""}
+                                  onChange={(e) => setAdditionalFormData(prev => ({ 
+                                    ...prev, 
+                                    primaryClient: { ...prev.primaryClient, country: e.target.value }
+                                  }))}
+                                />
+                              </div>
+                            </div>
+
+                            {/* Mailing Address */}
+                            <div className="space-y-2">
+                              <Label className="text-xs font-medium">Mailing Address (if different from Legal Address)</Label>
+                              <div className="space-y-2">
+                                <Input 
+                                  placeholder="Address" 
+                                  className="h-8 text-sm"
+                                  value={additionalFormData.primaryClient?.mailingAddress1 || ""}
+                                  onChange={(e) => setAdditionalFormData(prev => ({ 
+                                    ...prev, 
+                                    primaryClient: { ...prev.primaryClient, mailingAddress1: e.target.value }
+                                  }))}
+                                />
+                                <div className="grid grid-cols-3 gap-2">
+                                  <Input 
+                                    placeholder="City" 
+                                    className="h-8 text-sm"
+                                    value={additionalFormData.primaryClient?.mailingCity || ""}
+                                    onChange={(e) => setAdditionalFormData(prev => ({ 
+                                      ...prev, 
+                                      primaryClient: { ...prev.primaryClient, mailingCity: e.target.value }
+                                    }))}
+                                  />
+                                  <Input 
+                                    placeholder="State" 
+                                    className="h-8 text-sm"
+                                    value={additionalFormData.primaryClient?.mailingState || ""}
+                                    onChange={(e) => setAdditionalFormData(prev => ({ 
+                                      ...prev, 
+                                      primaryClient: { ...prev.primaryClient, mailingState: e.target.value }
+                                    }))}
+                                  />
+                                  <Input 
+                                    placeholder="Zip/Postal" 
+                                    className="h-8 text-sm"
+                                    value={additionalFormData.primaryClient?.mailingZipCode || ""}
+                                    onChange={(e) => setAdditionalFormData(prev => ({ 
+                                      ...prev, 
+                                      primaryClient: { ...prev.primaryClient, mailingZipCode: e.target.value }
+                                    }))}
+                                  />
+                                </div>
+                                <Input 
+                                  placeholder="Country" 
+                                  className="h-8 text-sm"
+                                  value={additionalFormData.primaryClient?.mailingCountry || ""}
+                                  onChange={(e) => setAdditionalFormData(prev => ({ 
+                                    ...prev, 
+                                    primaryClient: { ...prev.primaryClient, mailingCountry: e.target.value }
+                                  }))}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Secondary Client Information (if applicable) */}
+                        {additionalFormData.secondaryClientName && (
+                          <div className="border rounded-lg p-4 space-y-4">
+                            <h4 className="font-medium text-gray-900">Secondary Client Information</h4>
+                            
+                            {/* Same structure as primary client */}
+                            <div className="grid grid-cols-3 gap-3">
+                              <div>
+                                <Label className="text-xs font-medium">First Name</Label>
+                                <Input 
+                                  placeholder="First name" 
+                                  className="h-8 text-sm"
+                                  value={additionalFormData.secondaryClient?.firstName || ""}
+                                  onChange={(e) => setAdditionalFormData(prev => ({ 
+                                    ...prev, 
+                                    secondaryClient: { ...prev.secondaryClient, firstName: e.target.value }
+                                  }))}
+                                />
+                              </div>
+                              <div>
+                                <Label className="text-xs font-medium">Middle Name</Label>
+                                <Input 
+                                  placeholder="Middle name" 
+                                  className="h-8 text-sm"
+                                  value={additionalFormData.secondaryClient?.middleName || ""}
+                                  onChange={(e) => setAdditionalFormData(prev => ({ 
+                                    ...prev, 
+                                    secondaryClient: { ...prev.secondaryClient, middleName: e.target.value }
+                                  }))}
+                                />
+                              </div>
+                              <div>
+                                <Label className="text-xs font-medium">Last Name</Label>
+                                <Input 
+                                  placeholder="Last name" 
+                                  className="h-8 text-sm"
+                                  value={additionalFormData.secondaryClient?.lastName || ""}
+                                  onChange={(e) => setAdditionalFormData(prev => ({ 
+                                    ...prev, 
+                                    secondaryClient: { ...prev.secondaryClient, lastName: e.target.value }
+                                  }))}
+                                />
+                              </div>
+                            </div>
+                            {/* Add more secondary client fields as needed */}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Step 5: Account Selection */}
+                    {currentStep === 5 && (
                       <div className="space-y-4">
                         <div className="space-y-2">
                           <h3 className="text-lg font-semibold text-gray-900">Select Accounts</h3>
@@ -475,8 +895,8 @@ export default function ClientAgreementsPage() {
                       </div>
                     )}
 
-                    {/* Step 5: Account Configuration */}
-                    {currentStep === 5 && (
+                    {/* Step 6: Account Configuration */}
+                    {currentStep === 6 && (
                       <div className="space-y-6 max-h-96 overflow-y-auto">
                         <div className="space-y-2">
                           <h3 className="text-lg font-semibold text-gray-900">Account Configuration</h3>
@@ -700,8 +1120,8 @@ export default function ClientAgreementsPage() {
                       </div>
                     )}
 
-                    {/* Step 6: Agreement Details */}
-                    {currentStep === 6 && (
+                    {/* Step 7: Agreement Details */}
+                    {currentStep === 7 && (
                       <div className="space-y-6">
                         <div className="grid grid-cols-2 gap-4">
                           <FormField
@@ -802,14 +1222,14 @@ export default function ClientAgreementsPage() {
                         )}
                       </div>
                       <div className="flex space-x-2">
-                        {currentStep < 6 ? (
+                        {currentStep < 7 ? (
                           <Button 
                             type="button" 
                             onClick={handleNext}
                             disabled={
                               (currentStep === 1 && !form.watch("businessLine")) ||
                               (currentStep === 2 && !form.watch("householdId")) ||
-                              (currentStep === 4 && selectedAccounts.length === 0)
+                              (currentStep === 5 && selectedAccounts.length === 0)
                             }
                           >
                             Next
