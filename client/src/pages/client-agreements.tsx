@@ -208,7 +208,7 @@ export default function ClientAgreementsPage() {
                             <SelectContent>
                               {households.map((household: any) => (
                                 <SelectItem key={household.id} value={household.id.toString()}>
-                                  {household.householdName}
+                                  {household.name}
                                 </SelectItem>
                               ))}
                             </SelectContent>
