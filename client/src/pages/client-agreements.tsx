@@ -107,10 +107,7 @@ export default function ClientAgreementsPage() {
         ...data,
         householdId: parseInt(data.householdId.toString()),
       };
-      return apiRequest("/api/client-agreements", {
-        method: "POST",
-        body: JSON.stringify(payload),
-      });
+      return apiRequest("POST", "/api/client-agreements", payload);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/client-agreements"] });
