@@ -88,7 +88,7 @@ export default function ClientAgreementsPage() {
   ];
 
   const handleNext = () => {
-    if (currentStep < 3) setCurrentStep(currentStep + 1);
+    if (currentStep < 4) setCurrentStep(currentStep + 1);
   };
 
   const handlePrevious = () => {
@@ -216,7 +216,7 @@ export default function ClientAgreementsPage() {
                 <DialogHeader>
                   <DialogTitle>Create New Client Agreement</DialogTitle>
                   <DialogDescription>
-                    Step {currentStep} of 3: Set up a new client agreement for a household.
+                    Step {currentStep} of 4: Set up a new client agreement for a household.
                   </DialogDescription>
                 </DialogHeader>
 
@@ -293,39 +293,250 @@ export default function ClientAgreementsPage() {
 
                     {/* Step 3: Agreement Details */}
                     {currentStep === 3 && (
-                      <div className="space-y-4">
+                      <div className="space-y-6">
+                        <div className="grid grid-cols-2 gap-4">
+                          <FormField
+                            control={form.control}
+                            name="agreementDate"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Agreement Date</FormLabel>
+                                <FormControl>
+                                  <Input type="date" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={form.control}
+                            name="version"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Version</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    type="number" 
+                                    min="1" 
+                                    {...field} 
+                                    onChange={(e) => field.onChange(parseInt(e.target.value))}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                        
+                        <div className="space-y-4">
+                          <h3 className="text-lg font-semibold text-gray-900">Advisor Information</h3>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <Label htmlFor="advisorName" className="text-sm font-medium">Advisor/Team Name</Label>
+                              <Input id="advisorName" placeholder="Enter advisor or team name" className="mt-1" />
+                            </div>
+                            <div>
+                              <Label htmlFor="iarRepCode" className="text-sm font-medium">IAR Rep Code</Label>
+                              <Input id="iarRepCode" placeholder="Representative code" className="mt-1" />
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-4">
+                          <h3 className="text-lg font-semibold text-gray-900">Client Signatures</h3>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <Label htmlFor="primaryClientInitial" className="text-sm font-medium">Primary Client Initial</Label>
+                              <Input 
+                                id="primaryClientInitial" 
+                                placeholder="P" 
+                                maxLength={1} 
+                                className="w-16 mt-1" 
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="secondaryClientInitial" className="text-sm font-medium">Secondary Client Initial (Optional)</Label>
+                              <Input 
+                                id="secondaryClientInitial" 
+                                placeholder="S" 
+                                maxLength={1} 
+                                className="w-16 mt-1" 
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        
                         <FormField
                           control={form.control}
-                          name="agreementDate"
+                          name="status"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Agreement Date</FormLabel>
-                              <FormControl>
-                                <Input type="date" {...field} />
-                              </FormControl>
+                              <FormLabel>Agreement Status</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select status" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="active">Active</SelectItem>
+                                  <SelectItem value="superseded">Superseded</SelectItem>
+                                  <SelectItem value="void">Void</SelectItem>
+                                </SelectContent>
+                              </Select>
                               <FormMessage />
                             </FormItem>
                           )}
                         />
+                      </div>
+                    )}
 
-                        <FormField
-                          control={form.control}
-                          name="version"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Version</FormLabel>
-                              <FormControl>
-                                <Input 
-                                  type="number" 
-                                  min="1" 
-                                  {...field} 
-                                  onChange={(e) => field.onChange(parseInt(e.target.value))}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                    {/* Step 4: Account Configuration */}
+                    {currentStep === 4 && (
+                      <div className="space-y-6 max-h-96 overflow-y-auto">
+                        <div className="space-y-4">
+                          <h3 className="text-lg font-semibold text-gray-900">Account Configuration</h3>
+                          <p className="text-sm text-gray-600">Configure account details for PDF generation</p>
+                          
+                          {/* Account 1 Details */}
+                          <div className="border rounded-lg p-4 space-y-4">
+                            <h4 className="font-medium text-gray-800">Account 1</h4>
+                            
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <Label htmlFor="account1Number" className="text-sm">Account Number</Label>
+                                <Input id="account1Number" placeholder="Account number" />
+                              </div>
+                              <div>
+                                <Label htmlFor="account1Registration" className="text-sm">Registration</Label>
+                                <Select>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select registration" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="individual">Individual</SelectItem>
+                                    <SelectItem value="joint">Joint Tenants</SelectItem>
+                                    <SelectItem value="ira">Traditional IRA</SelectItem>
+                                    <SelectItem value="roth">Roth IRA</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <Label htmlFor="account1SubAdvisor" className="text-sm">Sub Advisor Name</Label>
+                                <Input id="account1SubAdvisor" placeholder="Sub advisor name" />
+                              </div>
+                              <div>
+                                <Label htmlFor="account1SIMFee" className="text-sm">SIM Fee (%)</Label>
+                                <Input id="account1SIMFee" type="number" step="0.01" placeholder="0.50" />
+                              </div>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <Label htmlFor="account1AdvisorFee" className="text-sm">Annual Advisor Fee (%)</Label>
+                                <Input id="account1AdvisorFee" type="number" step="0.01" placeholder="1.00" />
+                              </div>
+                              <div>
+                                <Label htmlFor="account1LiquidityNeeds" className="text-sm">Annual Need %</Label>
+                                <Input id="account1LiquidityNeeds" type="number" step="0.01" placeholder="5.00" />
+                              </div>
+                            </div>
+                            
+                            <div className="space-y-3">
+                              <div>
+                                <Label className="text-sm font-medium">Transaction Charges</Label>
+                                <div className="flex space-x-4 mt-2">
+                                  <label className="flex items-center space-x-2">
+                                    <input type="radio" name="account1TransactionCharges" value="unwrapped" className="w-4 h-4" />
+                                    <span className="text-sm">Unwrapped</span>
+                                  </label>
+                                  <label className="flex items-center space-x-2">
+                                    <input type="radio" name="account1TransactionCharges" value="wrapped" className="w-4 h-4" />
+                                    <span className="text-sm">Wrapped</span>
+                                  </label>
+                                  <label className="flex items-center space-x-2">
+                                    <input type="radio" name="account1TransactionCharges" value="subAdvised" className="w-4 h-4" />
+                                    <span className="text-sm">Sub-Advised</span>
+                                  </label>
+                                </div>
+                              </div>
+                              
+                              <div>
+                                <Label className="text-sm font-medium">Investment Objective</Label>
+                                <div className="flex flex-wrap gap-2 mt-2">
+                                  <label className="flex items-center space-x-2">
+                                    <input type="radio" name="account1InvestmentObjective" value="conservative" className="w-4 h-4" />
+                                    <span className="text-xs">Conservative</span>
+                                  </label>
+                                  <label className="flex items-center space-x-2">
+                                    <input type="radio" name="account1InvestmentObjective" value="moderate" className="w-4 h-4" />
+                                    <span className="text-xs">Moderate</span>
+                                  </label>
+                                  <label className="flex items-center space-x-2">
+                                    <input type="radio" name="account1InvestmentObjective" value="growth" className="w-4 h-4" />
+                                    <span className="text-xs">Growth</span>
+                                  </label>
+                                  <label className="flex items-center space-x-2">
+                                    <input type="radio" name="account1InvestmentObjective" value="aggressive" className="w-4 h-4" />
+                                    <span className="text-xs">Aggressive</span>
+                                  </label>
+                                </div>
+                              </div>
+                              
+                              <div>
+                                <Label className="text-sm font-medium">Time Horizon</Label>
+                                <div className="flex flex-wrap gap-2 mt-2">
+                                  <label className="flex items-center space-x-2">
+                                    <input type="radio" name="account1TimeHorizon" value="shortTerm" className="w-4 h-4" />
+                                    <span className="text-xs">Short Term</span>
+                                  </label>
+                                  <label className="flex items-center space-x-2">
+                                    <input type="radio" name="account1TimeHorizon" value="mediumTerm" className="w-4 h-4" />
+                                    <span className="text-xs">Medium Term</span>
+                                  </label>
+                                  <label className="flex items-center space-x-2">
+                                    <input type="radio" name="account1TimeHorizon" value="longTerm" className="w-4 h-4" />
+                                    <span className="text-xs">Long Term</span>
+                                  </label>
+                                </div>
+                              </div>
+                              
+                              <div>
+                                <Label className="text-sm font-medium">Account Custodian</Label>
+                                <div className="flex space-x-4 mt-2">
+                                  <label className="flex items-center space-x-2">
+                                    <input type="radio" name="account1Custodian" value="schwab" className="w-4 h-4" />
+                                    <span className="text-sm">Schwab</span>
+                                  </label>
+                                  <label className="flex items-center space-x-2">
+                                    <input type="radio" name="account1Custodian" value="fidelity" className="w-4 h-4" />
+                                    <span className="text-sm">Fidelity</span>
+                                  </label>
+                                  <label className="flex items-center space-x-2">
+                                    <input type="radio" name="account1Custodian" value="other" className="w-4 h-4" />
+                                    <span className="text-sm">Other</span>
+                                  </label>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Optional Account 2 */}
+                          <div className="border rounded-lg p-4 space-y-4 bg-gray-50">
+                            <div className="flex items-center justify-between">
+                              <h4 className="font-medium text-gray-800">Account 2 (Optional)</h4>
+                              <Label className="flex items-center space-x-2">
+                                <input type="checkbox" id="enableAccount2" className="w-4 h-4" />
+                                <span className="text-sm">Enable second account</span>
+                              </Label>
+                            </div>
+                            <p className="text-xs text-gray-500">Check the box above to configure a second account for this agreement</p>
+                          </div>
+                        </div>
                       </div>
                     )}
 
@@ -338,7 +549,7 @@ export default function ClientAgreementsPage() {
                         )}
                       </div>
                       <div className="flex space-x-2">
-                        {currentStep < 3 ? (
+                        {currentStep < 4 ? (
                           <Button 
                             type="button" 
                             onClick={handleNext}

@@ -2234,6 +2234,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Analyze PDF fields route (for development)
+  app.get('/api/analyze-pdf/:businessLine', isAuthenticated, async (req, res) => {
+    try {
+      const { businessLine } = req.params;
+      if (businessLine !== 'SWP' && businessLine !== 'SWA') {
+        return res.status(400).json({ message: "Invalid business line. Must be SWP or SWA" });
+      }
+      
+      const fields = await PDFService.analyzePDFFields(businessLine as 'SWP' | 'SWA');
+      res.json({ businessLine, fields });
+    } catch (error) {
+      console.error("Error analyzing PDF fields:", error);
+      res.status(500).json({ message: "Failed to analyze PDF fields" });
+    }
+  });
+
   // Download PDF route
   app.get('/api/client-agreements/:id/download', isAuthenticated, async (req, res) => {
     try {
