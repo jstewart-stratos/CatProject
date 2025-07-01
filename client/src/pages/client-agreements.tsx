@@ -117,7 +117,7 @@ export default function ClientAgreementsPage() {
   }, [selectedHouseholdId, households]);
 
   const handleNext = () => {
-    if (currentStep < 5) setCurrentStep(currentStep + 1);
+    if (currentStep < 6) setCurrentStep(currentStep + 1);
   };
 
   const handlePrevious = () => {
@@ -296,7 +296,7 @@ export default function ClientAgreementsPage() {
                 <DialogHeader>
                   <DialogTitle>Create New Client Agreement</DialogTitle>
                   <DialogDescription>
-                    Step {currentStep} of 5: Set up a new client agreement for a household.
+                    Step {currentStep} of 6: Set up a new client agreement for a household.
                   </DialogDescription>
                 </DialogHeader>
 
@@ -371,8 +371,48 @@ export default function ClientAgreementsPage() {
                       </div>
                     )}
 
-                    {/* Step 3: Account Selection */}
+                    {/* Step 3: Client Signatures */}
                     {currentStep === 3 && (
+                      <div className="space-y-4">
+                        <h3 className="text-lg font-semibold text-gray-900">Client Signatures</h3>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="primaryClientName" className="text-sm font-medium">Primary Client Name</Label>
+                            <Input 
+                              id="primaryClientName" 
+                              placeholder="Primary client name" 
+                              className="mt-1"
+                              value={additionalFormData.primaryClientName || getPrimaryClientName()}
+                              onChange={(e) => setAdditionalFormData(prev => ({ ...prev, primaryClientName: e.target.value }))}
+                              readOnly
+                            />
+                          </div>
+                          <div>
+                            <Label className="text-sm font-medium">Secondary Client (Optional)</Label>
+                            <Select onValueChange={(value) => setAdditionalFormData(prev => ({ ...prev, secondaryClientName: value }))}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select secondary client" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {getOtherHouseholdMembers().map((member) => (
+                                  <SelectItem key={member.id} value={member.name}>
+                                    {member.name}
+                                  </SelectItem>
+                                ))}
+                                {getOtherHouseholdMembers().length === 0 && (
+                                  <SelectItem value="none" disabled>
+                                    No other household members available
+                                  </SelectItem>
+                                )}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Step 4: Account Selection */}
+                    {currentStep === 4 && (
                       <div className="space-y-4">
                         <div className="space-y-2">
                           <h3 className="text-lg font-semibold text-gray-900">Select Accounts</h3>
@@ -429,8 +469,8 @@ export default function ClientAgreementsPage() {
                       </div>
                     )}
 
-                    {/* Step 4: Account Configuration */}
-                    {currentStep === 4 && (
+                    {/* Step 5: Account Configuration */}
+                    {currentStep === 5 && (
                       <div className="space-y-6 max-h-96 overflow-y-auto">
                         <div className="space-y-2">
                           <h3 className="text-lg font-semibold text-gray-900">Account Configuration</h3>
@@ -654,8 +694,8 @@ export default function ClientAgreementsPage() {
                       </div>
                     )}
 
-                    {/* Step 5: Agreement Details */}
-                    {currentStep === 5 && (
+                    {/* Step 6: Agreement Details */}
+                    {currentStep === 6 && (
                       <div className="space-y-6">
                         <div className="grid grid-cols-2 gap-4">
                           <FormField
@@ -718,42 +758,7 @@ export default function ClientAgreementsPage() {
                           </div>
                         </div>
                         
-                        <div className="space-y-4">
-                          <h3 className="text-lg font-semibold text-gray-900">Client Signatures</h3>
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <Label htmlFor="primaryClientName" className="text-sm font-medium">Primary Client Name</Label>
-                              <Input 
-                                id="primaryClientName" 
-                                placeholder="Primary client name" 
-                                className="mt-1"
-                                value={additionalFormData.primaryClientName || getPrimaryClientName()}
-                                onChange={(e) => setAdditionalFormData(prev => ({ ...prev, primaryClientName: e.target.value }))}
-                                readOnly
-                              />
-                            </div>
-                            <div>
-                              <Label className="text-sm font-medium">Secondary Client (Optional)</Label>
-                              <Select onValueChange={(value) => setAdditionalFormData(prev => ({ ...prev, secondaryClientName: value }))}>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select secondary client" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {getOtherHouseholdMembers().map((member) => (
-                                    <SelectItem key={member.id} value={member.name}>
-                                      {member.name}
-                                    </SelectItem>
-                                  ))}
-                                  {getOtherHouseholdMembers().length === 0 && (
-                                    <SelectItem value="none" disabled>
-                                      No other household members available
-                                    </SelectItem>
-                                  )}
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          </div>
-                        </div>
+
                         
                         <FormField
                           control={form.control}
@@ -791,14 +796,14 @@ export default function ClientAgreementsPage() {
                         )}
                       </div>
                       <div className="flex space-x-2">
-                        {currentStep < 5 ? (
+                        {currentStep < 6 ? (
                           <Button 
                             type="button" 
                             onClick={handleNext}
                             disabled={
                               (currentStep === 1 && !form.watch("businessLine")) ||
                               (currentStep === 2 && !form.watch("householdId")) ||
-                              (currentStep === 3 && selectedAccounts.length === 0)
+                              (currentStep === 4 && selectedAccounts.length === 0)
                             }
                           >
                             Next
