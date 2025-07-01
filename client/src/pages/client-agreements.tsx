@@ -1253,6 +1253,9 @@ export default function ClientAgreementsPage() {
                                     <SelectItem value="E">E = $250,000 to $499,999</SelectItem>
                                     <SelectItem value="F">F = $500,000 to $749,999</SelectItem>
                                     <SelectItem value="G">G = $750,000 to 999,999</SelectItem>
+                                    <SelectItem value="H">H = $1,000,000 to $4,999,999</SelectItem>
+                                    <SelectItem value="I">I = $5,000,000 to $9,999,999</SelectItem>
+                                    <SelectItem value="J">J = Over $10 million</SelectItem>
                                   </SelectContent>
                                 </Select>
                               </div>
@@ -1354,6 +1357,9 @@ export default function ClientAgreementsPage() {
                                       <SelectItem value="E">E = $250,000 to $499,999</SelectItem>
                                       <SelectItem value="F">F = $500,000 to $749,999</SelectItem>
                                       <SelectItem value="G">G = $750,000 to 999,999</SelectItem>
+                                      <SelectItem value="H">H = $1,000,000 to $4,999,999</SelectItem>
+                                      <SelectItem value="I">I = $5,000,000 to $9,999,999</SelectItem>
+                                      <SelectItem value="J">J = Over $10 million</SelectItem>
                                     </SelectContent>
                                   </Select>
                                 </div>
