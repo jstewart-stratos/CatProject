@@ -59,9 +59,10 @@ export default function ClientAgreementsPage() {
   const queryClient = useQueryClient();
 
   // Fetch all households for the dropdown
-  const { data: households = [] } = useQuery({
+  const { data: householdsResponse } = useQuery({
     queryKey: ["/api/households"],
   });
+  const households = householdsResponse?.households || [];
 
   // Fetch all client agreements
   const { data: agreements = [], isLoading } = useQuery({
