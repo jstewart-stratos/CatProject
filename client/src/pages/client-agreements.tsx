@@ -57,39 +57,17 @@ type CreateAgreementData = z.infer<typeof createAgreementSchema>;
 export default function ClientAgreementsPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [selectedAccounts, setSelectedAccounts] = useState<number[]>([]);
+  const [accountConfigurations, setAccountConfigurations] = useState<{[accountId: number]: any}>({});
   const [additionalFormData, setAdditionalFormData] = useState({
-    // Step 3 - Advisor Information
+    // Step 4 - Advisor Information
     advisorName: "",
     iarRepCode: "",
     primaryClientInitial: "",
     secondaryClientInitial: "",
-    
-    // Step 4 - Account Configuration
-    account1Number: "",
-    account1Registration: "",
-    account1SubAdvisor: "",
-    account1SIMFee: "",
-    account1AdvisorFee: "",
-    account1LiquidityNeeds: "",
-    account1TransactionCharges: "",
-    account1InvestmentObjective: "",
-    account1TimeHorizon: "",
-    account1Custodian: "",
-    enableAccount2: false,
   });
   const { toast } = useToast();
   const queryClient = useQueryClient();
-
-  // Fetch all households for the dropdown
-  const { data: householdsResponse } = useQuery({
-    queryKey: ["/api/households"],
-  });
-  const households = householdsResponse?.households || [];
-
-  // Fetch all client agreements
-  const { data: agreements = [], isLoading } = useQuery({
-    queryKey: ["/api/client-agreements"],
-  });
 
   const form = useForm<CreateAgreementData>({
     resolver: zodResolver(createAgreementSchema),
@@ -102,13 +80,28 @@ export default function ClientAgreementsPage() {
     },
   });
 
+  // Fetch all households for the dropdown
+  const { data: householdsResponse } = useQuery({
+    queryKey: ["/api/households"],
+  });
+  const households = householdsResponse?.households || [];
+
+  // Fetch accounts for selected household (temporarily disabled until endpoint is created)
+  const selectedHouseholdId = form.watch("householdId");
+  const householdAccounts: any[] = []; // Will be populated once API endpoint is ready
+
+  // Fetch all client agreements
+  const { data: agreements = [], isLoading } = useQuery({
+    queryKey: ["/api/client-agreements"],
+  });
+
   const businessLineOptions = [
     { value: "SWP", label: "Stratos Wealth Partners (SWP)" },
     { value: "SWA", label: "Stratos Wealth Advisors (SWA)" },
   ];
 
   const handleNext = () => {
-    if (currentStep < 4) setCurrentStep(currentStep + 1);
+    if (currentStep < 5) setCurrentStep(currentStep + 1);
   };
 
   const handlePrevious = () => {
@@ -125,18 +118,10 @@ export default function ClientAgreementsPage() {
       iarRepCode: "",
       primaryClientInitial: "",
       secondaryClientInitial: "",
-      account1Number: "",
-      account1Registration: "",
-      account1SubAdvisor: "",
-      account1SIMFee: "",
-      account1AdvisorFee: "",
-      account1LiquidityNeeds: "",
-      account1TransactionCharges: "",
-      account1InvestmentObjective: "",
-      account1TimeHorizon: "",
-      account1Custodian: "",
-      enableAccount2: false,
     });
+    // Reset account selection and configurations
+    setSelectedAccounts([]);
+    setAccountConfigurations({});
   };
 
   const createMutation = useMutation({
@@ -260,7 +245,7 @@ export default function ClientAgreementsPage() {
                 <DialogHeader>
                   <DialogTitle>Create New Client Agreement</DialogTitle>
                   <DialogDescription>
-                    Step {currentStep} of 4: Set up a new client agreement for a household.
+                    Step {currentStep} of 5: Set up a new client agreement for a household.
                   </DialogDescription>
                 </DialogHeader>
 
@@ -335,8 +320,228 @@ export default function ClientAgreementsPage() {
                       </div>
                     )}
 
-                    {/* Step 3: Agreement Details */}
+                    {/* Step 3: Account Selection */}
                     {currentStep === 3 && (
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <h3 className="text-lg font-semibold text-gray-900">Select Accounts</h3>
+                          <p className="text-sm text-gray-600">Choose which accounts to include in this agreement.</p>
+                        </div>
+
+                        {/* Mock accounts for now - will be replaced with real data */}
+                        <div className="space-y-3 max-h-64 overflow-y-auto">
+                          {selectedHouseholdId ? (
+                            <>
+                              {/* Sample accounts for demonstration */}
+                              <div className="space-y-2">
+                                <div className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50">
+                                  <input
+                                    type="checkbox"
+                                    id="account-1"
+                                    checked={selectedAccounts.includes(1)}
+                                    onChange={(e) => {
+                                      if (e.target.checked) {
+                                        setSelectedAccounts(prev => [...prev, 1]);
+                                      } else {
+                                        setSelectedAccounts(prev => prev.filter(id => id !== 1));
+                                      }
+                                    }}
+                                    className="w-4 h-4 text-blue-600"
+                                  />
+                                  <div className="flex-1">
+                                    <div className="font-medium">Individual Brokerage Account</div>
+                                    <div className="text-sm text-gray-500">Account #12345 • $125,000</div>
+                                  </div>
+                                </div>
+                                
+                                <div className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50">
+                                  <input
+                                    type="checkbox"
+                                    id="account-2"
+                                    checked={selectedAccounts.includes(2)}
+                                    onChange={(e) => {
+                                      if (e.target.checked) {
+                                        setSelectedAccounts(prev => [...prev, 2]);
+                                      } else {
+                                        setSelectedAccounts(prev => prev.filter(id => id !== 2));
+                                      }
+                                    }}
+                                    className="w-4 h-4 text-blue-600"
+                                  />
+                                  <div className="flex-1">
+                                    <div className="font-medium">Joint Advisory Account</div>
+                                    <div className="text-sm text-gray-500">Account #67890 • $250,000</div>
+                                  </div>
+                                </div>
+
+                                <div className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50">
+                                  <input
+                                    type="checkbox"
+                                    id="account-3"
+                                    checked={selectedAccounts.includes(3)}
+                                    onChange={(e) => {
+                                      if (e.target.checked) {
+                                        setSelectedAccounts(prev => [...prev, 3]);
+                                      } else {
+                                        setSelectedAccounts(prev => prev.filter(id => id !== 3));
+                                      }
+                                    }}
+                                    className="w-4 h-4 text-blue-600"
+                                  />
+                                  <div className="flex-1">
+                                    <div className="font-medium">Traditional IRA</div>
+                                    <div className="text-sm text-gray-500">Account #11111 • $75,000</div>
+                                  </div>
+                                </div>
+                              </div>
+                            </>
+                          ) : (
+                            <p className="text-sm text-gray-500 italic">Please select a household first to view available accounts.</p>
+                          )}
+                        </div>
+
+                        {selectedAccounts.length > 0 && (
+                          <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                            <p className="text-sm text-blue-800">
+                              <strong>{selectedAccounts.length}</strong> account{selectedAccounts.length !== 1 ? 's' : ''} selected for this agreement.
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Step 4: Account Configuration */}
+                    {currentStep === 4 && (
+                      <div className="space-y-6 max-h-96 overflow-y-auto">
+                        <div className="space-y-2">
+                          <h3 className="text-lg font-semibold text-gray-900">Account Configuration</h3>
+                          <p className="text-sm text-gray-600">Configure each selected account's details for the agreement.</p>
+                        </div>
+
+                        {selectedAccounts.length === 0 ? (
+                          <p className="text-sm text-gray-500 italic">No accounts selected. Please go back and select accounts first.</p>
+                        ) : (
+                          <div className="space-y-6">
+                            {selectedAccounts.map((accountId) => (
+                              <div key={accountId} className="border rounded-lg p-4 space-y-4">
+                                <h4 className="font-medium text-gray-900">
+                                  {accountId === 1 && "Individual Brokerage Account #12345"}
+                                  {accountId === 2 && "Joint Advisory Account #67890"}
+                                  {accountId === 3 && "Traditional IRA #11111"}
+                                </h4>
+                                
+                                {/* Configuration fields based on the image requirements */}
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div>
+                                    <Label className="text-sm font-medium">SIM Fee</Label>
+                                    <Input 
+                                      placeholder="Enter SIM fee" 
+                                      value={accountConfigurations[accountId]?.simFee || ''}
+                                      onChange={(e) => setAccountConfigurations(prev => ({
+                                        ...prev,
+                                        [accountId]: { ...prev[accountId], simFee: e.target.value }
+                                      }))}
+                                    />
+                                  </div>
+                                  <div>
+                                    <Label className="text-sm font-medium">Advisor Fee</Label>
+                                    <Input 
+                                      placeholder="Enter advisor fee" 
+                                      value={accountConfigurations[accountId]?.advisorFee || ''}
+                                      onChange={(e) => setAccountConfigurations(prev => ({
+                                        ...prev,
+                                        [accountId]: { ...prev[accountId], advisorFee: e.target.value }
+                                      }))}
+                                    />
+                                  </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div>
+                                    <Label className="text-sm font-medium">Liquidity Needs</Label>
+                                    <Select onValueChange={(value) => setAccountConfigurations(prev => ({
+                                      ...prev,
+                                      [accountId]: { ...prev[accountId], liquidityNeeds: value }
+                                    }))}>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select liquidity needs" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="low">Low</SelectItem>
+                                        <SelectItem value="moderate">Moderate</SelectItem>
+                                        <SelectItem value="high">High</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                  <div>
+                                    <Label className="text-sm font-medium">Transaction Charges</Label>
+                                    <Input 
+                                      placeholder="Enter transaction charges" 
+                                      value={accountConfigurations[accountId]?.transactionCharges || ''}
+                                      onChange={(e) => setAccountConfigurations(prev => ({
+                                        ...prev,
+                                        [accountId]: { ...prev[accountId], transactionCharges: e.target.value }
+                                      }))}
+                                    />
+                                  </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div>
+                                    <Label className="text-sm font-medium">Investment Objective</Label>
+                                    <Select onValueChange={(value) => setAccountConfigurations(prev => ({
+                                      ...prev,
+                                      [accountId]: { ...prev[accountId], investmentObjective: value }
+                                    }))}>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select objective" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="growth">Growth</SelectItem>
+                                        <SelectItem value="income">Income</SelectItem>
+                                        <SelectItem value="balanced">Balanced</SelectItem>
+                                        <SelectItem value="conservative">Conservative</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                  <div>
+                                    <Label className="text-sm font-medium">Time Horizon</Label>
+                                    <Select onValueChange={(value) => setAccountConfigurations(prev => ({
+                                      ...prev,
+                                      [accountId]: { ...prev[accountId], timeHorizon: value }
+                                    }))}>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select time horizon" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="short">1-3 years</SelectItem>
+                                        <SelectItem value="medium">3-7 years</SelectItem>
+                                        <SelectItem value="long">7+ years</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                </div>
+
+                                <div>
+                                  <Label className="text-sm font-medium">Custodian</Label>
+                                  <Input 
+                                    placeholder="Enter custodian name" 
+                                    value={accountConfigurations[accountId]?.custodian || ''}
+                                    onChange={(e) => setAccountConfigurations(prev => ({
+                                      ...prev,
+                                      [accountId]: { ...prev[accountId], custodian: e.target.value }
+                                    }))}
+                                  />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Step 5: Agreement Details */}
+                    {currentStep === 5 && (
                       <div className="space-y-6">
                         <div className="grid grid-cols-2 gap-4">
                           <FormField
@@ -452,161 +657,7 @@ export default function ClientAgreementsPage() {
                       </div>
                     )}
 
-                    {/* Step 4: Account Configuration */}
-                    {currentStep === 4 && (
-                      <div className="space-y-6 max-h-96 overflow-y-auto">
-                        <div className="space-y-4">
-                          <h3 className="text-lg font-semibold text-gray-900">Account Configuration</h3>
-                          <p className="text-sm text-gray-600">Configure account details for PDF generation</p>
-                          
-                          {/* Account 1 Details */}
-                          <div className="border rounded-lg p-4 space-y-4">
-                            <h4 className="font-medium text-gray-800">Account 1</h4>
-                            
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <Label htmlFor="account1Number" className="text-sm">Account Number</Label>
-                                <Input 
-                                  id="account1Number" 
-                                  placeholder="Account number"
-                                  value={additionalFormData.account1Number}
-                                  onChange={(e) => setAdditionalFormData(prev => ({ ...prev, account1Number: e.target.value }))}
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor="account1Registration" className="text-sm">Registration</Label>
-                                <Select 
-                                  value={additionalFormData.account1Registration}
-                                  onValueChange={(value) => setAdditionalFormData(prev => ({ ...prev, account1Registration: value }))}
-                                >
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select registration" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="individual">Individual</SelectItem>
-                                    <SelectItem value="joint">Joint Tenants</SelectItem>
-                                    <SelectItem value="ira">Traditional IRA</SelectItem>
-                                    <SelectItem value="roth">Roth IRA</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                            </div>
-                            
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <Label htmlFor="account1SubAdvisor" className="text-sm">Sub Advisor Name</Label>
-                                <Input id="account1SubAdvisor" placeholder="Sub advisor name" />
-                              </div>
-                              <div>
-                                <Label htmlFor="account1SIMFee" className="text-sm">SIM Fee (%)</Label>
-                                <Input id="account1SIMFee" type="number" step="0.01" placeholder="0.50" />
-                              </div>
-                            </div>
-                            
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <Label htmlFor="account1AdvisorFee" className="text-sm">Annual Advisor Fee (%)</Label>
-                                <Input id="account1AdvisorFee" type="number" step="0.01" placeholder="1.00" />
-                              </div>
-                              <div>
-                                <Label htmlFor="account1LiquidityNeeds" className="text-sm">Annual Need %</Label>
-                                <Input id="account1LiquidityNeeds" type="number" step="0.01" placeholder="5.00" />
-                              </div>
-                            </div>
-                            
-                            <div className="space-y-3">
-                              <div>
-                                <Label className="text-sm font-medium">Transaction Charges</Label>
-                                <div className="flex space-x-4 mt-2">
-                                  <label className="flex items-center space-x-2">
-                                    <input type="radio" name="account1TransactionCharges" value="unwrapped" className="w-4 h-4" />
-                                    <span className="text-sm">Unwrapped</span>
-                                  </label>
-                                  <label className="flex items-center space-x-2">
-                                    <input type="radio" name="account1TransactionCharges" value="wrapped" className="w-4 h-4" />
-                                    <span className="text-sm">Wrapped</span>
-                                  </label>
-                                  <label className="flex items-center space-x-2">
-                                    <input type="radio" name="account1TransactionCharges" value="subAdvised" className="w-4 h-4" />
-                                    <span className="text-sm">Sub-Advised</span>
-                                  </label>
-                                </div>
-                              </div>
-                              
-                              <div>
-                                <Label className="text-sm font-medium">Investment Objective</Label>
-                                <div className="flex flex-wrap gap-2 mt-2">
-                                  <label className="flex items-center space-x-2">
-                                    <input type="radio" name="account1InvestmentObjective" value="conservative" className="w-4 h-4" />
-                                    <span className="text-xs">Conservative</span>
-                                  </label>
-                                  <label className="flex items-center space-x-2">
-                                    <input type="radio" name="account1InvestmentObjective" value="moderate" className="w-4 h-4" />
-                                    <span className="text-xs">Moderate</span>
-                                  </label>
-                                  <label className="flex items-center space-x-2">
-                                    <input type="radio" name="account1InvestmentObjective" value="growth" className="w-4 h-4" />
-                                    <span className="text-xs">Growth</span>
-                                  </label>
-                                  <label className="flex items-center space-x-2">
-                                    <input type="radio" name="account1InvestmentObjective" value="aggressive" className="w-4 h-4" />
-                                    <span className="text-xs">Aggressive</span>
-                                  </label>
-                                </div>
-                              </div>
-                              
-                              <div>
-                                <Label className="text-sm font-medium">Time Horizon</Label>
-                                <div className="flex flex-wrap gap-2 mt-2">
-                                  <label className="flex items-center space-x-2">
-                                    <input type="radio" name="account1TimeHorizon" value="shortTerm" className="w-4 h-4" />
-                                    <span className="text-xs">Short Term</span>
-                                  </label>
-                                  <label className="flex items-center space-x-2">
-                                    <input type="radio" name="account1TimeHorizon" value="mediumTerm" className="w-4 h-4" />
-                                    <span className="text-xs">Medium Term</span>
-                                  </label>
-                                  <label className="flex items-center space-x-2">
-                                    <input type="radio" name="account1TimeHorizon" value="longTerm" className="w-4 h-4" />
-                                    <span className="text-xs">Long Term</span>
-                                  </label>
-                                </div>
-                              </div>
-                              
-                              <div>
-                                <Label className="text-sm font-medium">Account Custodian</Label>
-                                <div className="flex space-x-4 mt-2">
-                                  <label className="flex items-center space-x-2">
-                                    <input type="radio" name="account1Custodian" value="schwab" className="w-4 h-4" />
-                                    <span className="text-sm">Schwab</span>
-                                  </label>
-                                  <label className="flex items-center space-x-2">
-                                    <input type="radio" name="account1Custodian" value="fidelity" className="w-4 h-4" />
-                                    <span className="text-sm">Fidelity</span>
-                                  </label>
-                                  <label className="flex items-center space-x-2">
-                                    <input type="radio" name="account1Custodian" value="other" className="w-4 h-4" />
-                                    <span className="text-sm">Other</span>
-                                  </label>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          {/* Optional Account 2 */}
-                          <div className="border rounded-lg p-4 space-y-4 bg-gray-50">
-                            <div className="flex items-center justify-between">
-                              <h4 className="font-medium text-gray-800">Account 2 (Optional)</h4>
-                              <Label className="flex items-center space-x-2">
-                                <input type="checkbox" id="enableAccount2" className="w-4 h-4" />
-                                <span className="text-sm">Enable second account</span>
-                              </Label>
-                            </div>
-                            <p className="text-xs text-gray-500">Check the box above to configure a second account for this agreement</p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
+
 
                     <DialogFooter className="flex justify-between">
                       <div className="flex space-x-2">
@@ -617,13 +668,14 @@ export default function ClientAgreementsPage() {
                         )}
                       </div>
                       <div className="flex space-x-2">
-                        {currentStep < 4 ? (
+                        {currentStep < 5 ? (
                           <Button 
                             type="button" 
                             onClick={handleNext}
                             disabled={
                               (currentStep === 1 && !form.watch("businessLine")) ||
-                              (currentStep === 2 && !form.watch("householdId"))
+                              (currentStep === 2 && !form.watch("householdId")) ||
+                              (currentStep === 3 && selectedAccounts.length === 0)
                             }
                           >
                             Next
