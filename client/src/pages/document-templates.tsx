@@ -100,7 +100,7 @@ function FieldMappingRow({ field, index, onUpdate }: FieldMappingRowProps) {
               <SelectValue placeholder="Select data source" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">-- Do not map --</SelectItem>
+              <SelectItem value="none">-- Do not map --</SelectItem>
               {clientDataSources.map((source) => (
                 <SelectItem key={source.value} value={source.value}>
                   {source.label}
