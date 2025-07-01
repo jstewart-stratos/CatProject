@@ -171,12 +171,14 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
-- **July 1, 2025**: Fixed template management API endpoint connectivity and template visibility
+- **July 1, 2025**: Fixed template management API endpoint connectivity and PDF preview blocking issue
   - ✅ **Resolved API endpoint mismatch** - Updated frontend to use correct `/api/templates` endpoint instead of `/api/pdf-templates`
   - ✅ **Fixed template loading and display** - Templates now properly load and display in Template Management interface
   - ✅ **Corrected upload functionality** - Upload endpoint URL updated to `/api/templates/upload` for proper file uploads
   - ✅ **Enhanced navigation integration** - Added required `currentView` prop to Sidebar components for proper menu highlighting
-  - ✅ **Verified existing template access** - Confirmed SWP and SWA templates with field mappings are accessible and functional
+  - ✅ **Resolved PDF preview blocking** - Replaced iframe-based PDF preview with "Open PDF in New Tab" button to bypass Microsoft Edge security restrictions
+  - ✅ **Verified existing template access** - Confirmed SWP and SWA templates with field mappings are accessible and functional (6 mappings per template)
+  - ✅ **Confirmed PDF analysis functionality** - PDF field analysis returns 112+ form fields for template configuration
 - **July 1, 2025**: Enhanced Client Agreements Step 4 with improved data entry controls
   - ✅ **Updated state fields to dropdown selectors** - Both legal and mailing address state fields now use comprehensive US states dropdown (50 states + DC)
   - ✅ **Removed country input fields** - Eliminated unnecessary country fields from address sections for cleaner US-focused form

@@ -228,12 +228,23 @@ export function PDFFieldSelector({ templateId, templateName }: PDFFieldSelectorP
               <CardTitle>PDF Preview</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="w-full h-96 border rounded-lg overflow-hidden">
-                <iframe
-                  src={`/api/templates/${templateId}/pdf`}
-                  className="w-full h-full"
-                  title={`${templateName} Preview`}
-                />
+              <div className="w-full h-96 border rounded-lg overflow-hidden bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+                <div className="text-center space-y-4">
+                  <FileText className="h-16 w-16 text-gray-400 mx-auto" />
+                  <div>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                      Click below to open the PDF template in a new tab
+                    </p>
+                    <Button
+                      onClick={() => window.open(`/api/templates/${templateId}/pdf`, '_blank')}
+                      variant="outline"
+                      className="gap-2"
+                    >
+                      <Eye className="h-4 w-4" />
+                      Open PDF in New Tab
+                    </Button>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
