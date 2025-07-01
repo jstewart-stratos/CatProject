@@ -2474,6 +2474,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const fields = await PDFService.analyzePDFFields(template.businessLine as 'SWP' | 'SWA');
+      const existingMappings = await storage.getTemplateMappings(parseInt(id));
+      const mappedFieldNames = new Set(existingMappings.map(m => m.pdfFieldName));
       
       res.json({
         templateId: id,
@@ -2482,7 +2484,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         fields: fields.map(name => ({
           name,
           type: 'text', // Default type, can be enhanced later
-          mapped: false // Will be determined by existing mappings
+          mapped: mappedFieldNames.has(name)
         }))
       });
     } catch (error) {

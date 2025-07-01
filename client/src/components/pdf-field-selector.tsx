@@ -43,14 +43,14 @@ export function PDFFieldSelector({ templateId, templateName }: PDFFieldSelectorP
   const queryClient = useQueryClient();
 
   // Fetch PDF field analysis
-  const { data: pdfAnalysis, isLoading: isAnalyzing } = useQuery({
-    queryKey: ["/api/templates", templateId, "analyze"],
+  const { data: pdfAnalysis, isLoading: isAnalyzing, error: analysisError } = useQuery({
+    queryKey: [`/api/templates/${templateId}/analyze`],
     enabled: !!templateId,
   });
 
   // Fetch existing field mappings
   const { data: existingMappings = [] } = useQuery<FieldMapping[]>({
-    queryKey: ["/api/templates", templateId, "mappings"],
+    queryKey: [`/api/templates/${templateId}/mappings`],
     enabled: !!templateId,
   });
 
@@ -81,7 +81,7 @@ export function PDFFieldSelector({ templateId, templateName }: PDFFieldSelectorP
       return Promise.all(promises);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/templates", templateId, "mappings"] });
+      queryClient.invalidateQueries({ queryKey: [`/api/templates/${templateId}/mappings`] });
       queryClient.invalidateQueries({ queryKey: ["/api/templates"] });
       toast({
         title: "Field mappings saved",
