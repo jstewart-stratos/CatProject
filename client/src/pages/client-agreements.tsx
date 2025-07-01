@@ -151,18 +151,18 @@ export default function ClientAgreementsPage() {
       lastName: "",
       ssn: "",
       dateOfBirth: "",
-      citizenship: "",
-      emailAddress: "",
+      driverLicense: "",
+      issuingState: "",
+      expirationDate: "",
       homePhone: "",
-      mobilePhone: "",
       businessPhone: "",
+      mobilePhone: "",
+      emailAddress: "",
       legalAddress1: "",
-      legalAddress2: "",
       city: "",
       state: "",
       zipCode: "",
       mailingAddress1: "",
-      mailingAddress2: "",
       mailingCity: "",
       mailingState: "",
       mailingZipCode: "",
@@ -543,18 +543,18 @@ export default function ClientAgreementsPage() {
                                       lastName: secondaryClientData.lastName || "",
                                       ssn: secondaryClientData.ssn || "",
                                       dateOfBirth: secondaryClientData.dateOfBirth || "",
-                                      citizenship: secondaryClientData.citizenship || "",
-                                      emailAddress: secondaryClientData.emailAddress || "",
+                                      driverLicense: "",
+                                      issuingState: "",
+                                      expirationDate: "",
                                       homePhone: secondaryClientData.homePhone || "",
-                                      mobilePhone: secondaryClientData.mobilePhone || "",
                                       businessPhone: secondaryClientData.businessPhone || "",
+                                      mobilePhone: secondaryClientData.mobilePhone || "",
+                                      emailAddress: secondaryClientData.emailAddress || "",
                                       legalAddress1: secondaryClientData.legalAddress1 || "",
-                                      legalAddress2: secondaryClientData.legalAddress2 || "",
                                       city: secondaryClientData.city || "",
                                       state: secondaryClientData.state || "",
                                       zipCode: secondaryClientData.zipCode || "",
                                       mailingAddress1: secondaryClientData.mailingAddress1 || "",
-                                      mailingAddress2: secondaryClientData.mailingAddress2 || "",
                                       mailingCity: secondaryClientData.mailingCity || "",
                                       mailingState: secondaryClientData.mailingState || "",
                                       mailingZipCode: secondaryClientData.mailingZipCode || ""
@@ -894,7 +894,7 @@ export default function ClientAgreementsPage() {
                           <div className="border rounded-lg p-4 space-y-4">
                             <h4 className="font-medium text-gray-900">Secondary Client Information</h4>
                             
-                            {/* Personal Information */}
+                            {/* Name Row */}
                             <div className="grid grid-cols-3 gap-3">
                               <div>
                                 <Label className="text-xs font-medium">First Name</Label>
@@ -934,12 +934,12 @@ export default function ClientAgreementsPage() {
                               </div>
                             </div>
 
-                            {/* ID and Date Information */}
-                            <div className="grid grid-cols-3 gap-3">
+                            {/* SSN/TIN and DOB Row */}
+                            <div className="grid grid-cols-4 gap-3">
                               <div>
-                                <Label className="text-xs font-medium">SSN/TIN</Label>
+                                <Label className="text-xs font-medium">Social Security/Taxpayer ID #</Label>
                                 <Input 
-                                  placeholder="XXX-XX-XXXX" 
+                                  placeholder="SSN/TIN" 
                                   className="h-8 text-sm"
                                   value={additionalFormData.secondaryClient?.ssn || ""}
                                   onChange={(e) => setAdditionalFormData(prev => ({ 
@@ -949,9 +949,20 @@ export default function ClientAgreementsPage() {
                                 />
                               </div>
                               <div>
+                                <Label className="text-xs font-medium">Type</Label>
+                                <div className="flex gap-2 pt-1">
+                                  <label className="flex items-center text-xs">
+                                    <input type="checkbox" className="mr-1" /> SSN
+                                  </label>
+                                  <label className="flex items-center text-xs">
+                                    <input type="checkbox" className="mr-1" /> TIN
+                                  </label>
+                                </div>
+                              </div>
+                              <div>
                                 <Label className="text-xs font-medium">Date of Birth</Label>
                                 <Input 
-                                  type="date" 
+                                  type="date"
                                   className="h-8 text-sm"
                                   value={additionalFormData.secondaryClient?.dateOfBirth || ""}
                                   onChange={(e) => setAdditionalFormData(prev => ({ 
@@ -961,193 +972,214 @@ export default function ClientAgreementsPage() {
                                 />
                               </div>
                               <div>
-                                <Label className="text-xs font-medium">Citizenship</Label>
+                                <Label className="text-xs font-medium">Citizenship Status</Label>
+                                <div className="space-y-1 pt-1">
+                                  <label className="flex items-center text-xs">
+                                    <input type="checkbox" className="mr-1" /> U.S. Citizen
+                                  </label>
+                                  <label className="flex items-center text-xs">
+                                    <input type="checkbox" className="mr-1" /> Resident Alien
+                                  </label>
+                                  <label className="flex items-center text-xs">
+                                    <input type="checkbox" className="mr-1" /> Non-Resident Alien
+                                  </label>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Driver's License Row */}
+                            <div className="grid grid-cols-3 gap-3">
+                              <div>
+                                <Label className="text-xs font-medium">Driver's License, ID, or Passport #</Label>
                                 <Input 
-                                  placeholder="Citizenship" 
+                                  placeholder="ID number" 
                                   className="h-8 text-sm"
-                                  value={additionalFormData.secondaryClient?.citizenship || ""}
+                                  value={additionalFormData.secondaryClient?.driverLicense || ""}
                                   onChange={(e) => setAdditionalFormData(prev => ({ 
                                     ...prev, 
-                                    secondaryClient: { ...(prev.secondaryClient || {}), citizenship: e.target.value }
+                                    secondaryClient: { ...(prev.secondaryClient || {}), driverLicense: e.target.value }
+                                  }))}
+                                />
+                              </div>
+                              <div>
+                                <Label className="text-xs font-medium">Issuing State or Country</Label>
+                                <Input 
+                                  placeholder="State/Country" 
+                                  className="h-8 text-sm"
+                                  value={additionalFormData.secondaryClient?.issuingState || ""}
+                                  onChange={(e) => setAdditionalFormData(prev => ({ 
+                                    ...prev, 
+                                    secondaryClient: { ...(prev.secondaryClient || {}), issuingState: e.target.value }
+                                  }))}
+                                />
+                              </div>
+                              <div>
+                                <Label className="text-xs font-medium">Expiration Date</Label>
+                                <Input 
+                                  type="date"
+                                  className="h-8 text-sm"
+                                  value={additionalFormData.secondaryClient?.expirationDate || ""}
+                                  onChange={(e) => setAdditionalFormData(prev => ({ 
+                                    ...prev, 
+                                    secondaryClient: { ...(prev.secondaryClient || {}), expirationDate: e.target.value }
                                   }))}
                                 />
                               </div>
                             </div>
 
-                            {/* Contact Information */}
-                            <div className="space-y-3">
-                              <h5 className="text-sm font-medium text-gray-700">Contact Information</h5>
-                              <div className="grid grid-cols-2 gap-3">
-                                <div>
-                                  <Label className="text-xs font-medium">Email</Label>
-                                  <Input 
-                                    type="email" 
-                                    placeholder="Email address" 
-                                    className="h-8 text-sm"
-                                    value={additionalFormData.secondaryClient?.emailAddress || ""}
-                                    onChange={(e) => setAdditionalFormData(prev => ({ 
-                                      ...prev, 
-                                      secondaryClient: { ...(prev.secondaryClient || {}), emailAddress: e.target.value }
-                                    }))}
-                                  />
-                                </div>
-                                <div>
-                                  <Label className="text-xs font-medium">Home Phone</Label>
-                                  <Input 
-                                    placeholder="(555) 123-4567" 
-                                    className="h-8 text-sm"
-                                    value={additionalFormData.secondaryClient?.homePhone || ""}
-                                    onChange={(e) => setAdditionalFormData(prev => ({ 
-                                      ...prev, 
-                                      secondaryClient: { ...(prev.secondaryClient || {}), homePhone: e.target.value }
-                                    }))}
-                                  />
-                                </div>
+                            {/* Phone and Email Row */}
+                            <div className="grid grid-cols-5 gap-3">
+                              <div>
+                                <Label className="text-xs font-medium">Evening Phone</Label>
+                                <Input 
+                                  placeholder="Evening phone" 
+                                  className="h-8 text-sm"
+                                  value={additionalFormData.secondaryClient?.homePhone || ""}
+                                  onChange={(e) => setAdditionalFormData(prev => ({ 
+                                    ...prev, 
+                                    secondaryClient: { ...(prev.secondaryClient || {}), homePhone: e.target.value }
+                                  }))}
+                                />
                               </div>
-                              <div className="grid grid-cols-2 gap-3">
-                                <div>
-                                  <Label className="text-xs font-medium">Mobile Phone</Label>
-                                  <Input 
-                                    placeholder="(555) 123-4567" 
-                                    className="h-8 text-sm"
-                                    value={additionalFormData.secondaryClient?.mobilePhone || ""}
-                                    onChange={(e) => setAdditionalFormData(prev => ({ 
-                                      ...prev, 
-                                      secondaryClient: { ...(prev.secondaryClient || {}), mobilePhone: e.target.value }
-                                    }))}
-                                  />
-                                </div>
-                                <div>
-                                  <Label className="text-xs font-medium">Business Phone</Label>
-                                  <Input 
-                                    placeholder="(555) 123-4567" 
-                                    className="h-8 text-sm"
-                                    value={additionalFormData.secondaryClient?.businessPhone || ""}
-                                    onChange={(e) => setAdditionalFormData(prev => ({ 
-                                      ...prev, 
-                                      secondaryClient: { ...(prev.secondaryClient || {}), businessPhone: e.target.value }
-                                    }))}
-                                  />
-                                </div>
+                              <div>
+                                <Label className="text-xs font-medium">Daytime Phone</Label>
+                                <Input 
+                                  placeholder="Daytime phone" 
+                                  className="h-8 text-sm"
+                                  value={additionalFormData.secondaryClient?.businessPhone || ""}
+                                  onChange={(e) => setAdditionalFormData(prev => ({ 
+                                    ...prev, 
+                                    secondaryClient: { ...(prev.secondaryClient || {}), businessPhone: e.target.value }
+                                  }))}
+                                />
+                              </div>
+                              <div>
+                                <Label className="text-xs font-medium">Mobile</Label>
+                                <Input 
+                                  placeholder="Mobile" 
+                                  className="h-8 text-sm"
+                                  value={additionalFormData.secondaryClient?.mobilePhone || ""}
+                                  onChange={(e) => setAdditionalFormData(prev => ({ 
+                                    ...prev, 
+                                    secondaryClient: { ...(prev.secondaryClient || {}), mobilePhone: e.target.value }
+                                  }))}
+                                />
+                              </div>
+                              <div className="col-span-2">
+                                <Label className="text-xs font-medium">Email</Label>
+                                <Input 
+                                  placeholder="Email address" 
+                                  className="h-8 text-sm"
+                                  value={additionalFormData.secondaryClient?.emailAddress || ""}
+                                  onChange={(e) => setAdditionalFormData(prev => ({ 
+                                    ...prev, 
+                                    secondaryClient: { ...(prev.secondaryClient || {}), emailAddress: e.target.value }
+                                  }))}
+                                />
                               </div>
                             </div>
 
-                            {/* Legal Address */}
-                            <div className="space-y-3">
-                              <h5 className="text-sm font-medium text-gray-700">Legal Address</h5>
+                            {/* Address Sections */}
+                            <div className="grid grid-cols-2 gap-4">
+                              {/* Legal Address */}
                               <div className="space-y-2">
-                                <Input 
-                                  placeholder="Address Line 1" 
-                                  className="h-8 text-sm"
-                                  value={additionalFormData.secondaryClient?.legalAddress1 || ""}
-                                  onChange={(e) => setAdditionalFormData(prev => ({ 
-                                    ...prev, 
-                                    secondaryClient: { ...(prev.secondaryClient || {}), legalAddress1: e.target.value }
-                                  }))}
-                                />
-                                <Input 
-                                  placeholder="Address Line 2 (optional)" 
-                                  className="h-8 text-sm"
-                                  value={additionalFormData.secondaryClient?.legalAddress2 || ""}
-                                  onChange={(e) => setAdditionalFormData(prev => ({ 
-                                    ...prev, 
-                                    secondaryClient: { ...(prev.secondaryClient || {}), legalAddress2: e.target.value }
-                                  }))}
-                                />
-                                <div className="grid grid-cols-3 gap-3">
+                                <Label className="text-xs font-medium">Legal or Permanent Address</Label>
+                                <div className="space-y-2">
                                   <Input 
-                                    placeholder="City" 
+                                    placeholder="Address" 
                                     className="h-8 text-sm"
-                                    value={additionalFormData.secondaryClient?.city || ""}
+                                    value={additionalFormData.secondaryClient?.legalAddress1 || ""}
                                     onChange={(e) => setAdditionalFormData(prev => ({ 
                                       ...prev, 
-                                      secondaryClient: { ...(prev.secondaryClient || {}), city: e.target.value }
+                                      secondaryClient: { ...(prev.secondaryClient || {}), legalAddress1: e.target.value }
                                     }))}
                                   />
-                                  <Select value={additionalFormData.secondaryClient?.state || ""} onValueChange={(value) => setAdditionalFormData(prev => ({ 
-                                    ...prev, 
-                                    secondaryClient: { ...(prev.secondaryClient || {}), state: value }
-                                  }))}>
-                                    <SelectTrigger className="h-8 text-sm">
-                                      <SelectValue placeholder="Select state" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      {US_STATES.map((state) => (
-                                        <SelectItem key={state.value} value={state.value}>
-                                          {state.label}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
-                                  <Input 
-                                    placeholder="Zip/Postal" 
-                                    className="h-8 text-sm"
-                                    value={additionalFormData.secondaryClient?.zipCode || ""}
-                                    onChange={(e) => setAdditionalFormData(prev => ({ 
+                                  <div className="grid grid-cols-3 gap-2">
+                                    <Input 
+                                      placeholder="City" 
+                                      className="h-8 text-sm"
+                                      value={additionalFormData.secondaryClient?.city || ""}
+                                      onChange={(e) => setAdditionalFormData(prev => ({ 
+                                        ...prev, 
+                                        secondaryClient: { ...(prev.secondaryClient || {}), city: e.target.value }
+                                      }))}
+                                    />
+                                    <Select value={additionalFormData.secondaryClient?.state || ""} onValueChange={(value) => setAdditionalFormData(prev => ({ 
                                       ...prev, 
-                                      secondaryClient: { ...(prev.secondaryClient || {}), zipCode: e.target.value }
-                                    }))}
-                                  />
+                                      secondaryClient: { ...(prev.secondaryClient || {}), state: value }
+                                    }))}>
+                                      <SelectTrigger className="h-8 text-sm">
+                                        <SelectValue placeholder="Select state" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {US_STATES.map((state) => (
+                                          <SelectItem key={state.value} value={state.value}>
+                                            {state.label}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                    <Input 
+                                      placeholder="Zip/Postal" 
+                                      className="h-8 text-sm"
+                                      value={additionalFormData.secondaryClient?.zipCode || ""}
+                                      onChange={(e) => setAdditionalFormData(prev => ({ 
+                                        ...prev, 
+                                        secondaryClient: { ...(prev.secondaryClient || {}), zipCode: e.target.value }
+                                      }))}
+                                    />
+                                  </div>
                                 </div>
                               </div>
-                            </div>
 
-                            {/* Mailing Address */}
-                            <div className="space-y-3">
-                              <h5 className="text-sm font-medium text-gray-700">Mailing Address</h5>
+                              {/* Mailing Address */}
                               <div className="space-y-2">
-                                <Input 
-                                  placeholder="Mailing Address Line 1" 
-                                  className="h-8 text-sm"
-                                  value={additionalFormData.secondaryClient?.mailingAddress1 || ""}
-                                  onChange={(e) => setAdditionalFormData(prev => ({ 
-                                    ...prev, 
-                                    secondaryClient: { ...(prev.secondaryClient || {}), mailingAddress1: e.target.value }
-                                  }))}
-                                />
-                                <Input 
-                                  placeholder="Mailing Address Line 2 (optional)" 
-                                  className="h-8 text-sm"
-                                  value={additionalFormData.secondaryClient?.mailingAddress2 || ""}
-                                  onChange={(e) => setAdditionalFormData(prev => ({ 
-                                    ...prev, 
-                                    secondaryClient: { ...(prev.secondaryClient || {}), mailingAddress2: e.target.value }
-                                  }))}
-                                />
-                                <div className="grid grid-cols-3 gap-3">
+                                <Label className="text-xs font-medium">Mailing Address (if different from Legal Address)</Label>
+                                <div className="space-y-2">
                                   <Input 
-                                    placeholder="City" 
+                                    placeholder="Address" 
                                     className="h-8 text-sm"
-                                    value={additionalFormData.secondaryClient?.mailingCity || ""}
+                                    value={additionalFormData.secondaryClient?.mailingAddress1 || ""}
                                     onChange={(e) => setAdditionalFormData(prev => ({ 
                                       ...prev, 
-                                      secondaryClient: { ...(prev.secondaryClient || {}), mailingCity: e.target.value }
+                                      secondaryClient: { ...(prev.secondaryClient || {}), mailingAddress1: e.target.value }
                                     }))}
                                   />
-                                  <Select value={additionalFormData.secondaryClient?.mailingState || ""} onValueChange={(value) => setAdditionalFormData(prev => ({ 
-                                    ...prev, 
-                                    secondaryClient: { ...(prev.secondaryClient || {}), mailingState: value }
-                                  }))}>
-                                    <SelectTrigger className="h-8 text-sm">
-                                      <SelectValue placeholder="Select state" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      {US_STATES.map((state) => (
-                                        <SelectItem key={state.value} value={state.value}>
-                                          {state.label}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
-                                  <Input 
-                                    placeholder="Zip/Postal" 
-                                    className="h-8 text-sm"
-                                    value={additionalFormData.secondaryClient?.mailingZipCode || ""}
-                                    onChange={(e) => setAdditionalFormData(prev => ({ 
+                                  <div className="grid grid-cols-3 gap-2">
+                                    <Input 
+                                      placeholder="City" 
+                                      className="h-8 text-sm"
+                                      value={additionalFormData.secondaryClient?.mailingCity || ""}
+                                      onChange={(e) => setAdditionalFormData(prev => ({ 
+                                        ...prev, 
+                                        secondaryClient: { ...(prev.secondaryClient || {}), mailingCity: e.target.value }
+                                      }))}
+                                    />
+                                    <Select value={additionalFormData.secondaryClient?.mailingState || ""} onValueChange={(value) => setAdditionalFormData(prev => ({ 
                                       ...prev, 
-                                      secondaryClient: { ...(prev.secondaryClient || {}), mailingZipCode: e.target.value }
-                                    }))}
-                                  />
+                                      secondaryClient: { ...(prev.secondaryClient || {}), mailingState: value }
+                                    }))}>
+                                      <SelectTrigger className="h-8 text-sm">
+                                        <SelectValue placeholder="Select state" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {US_STATES.map((state) => (
+                                          <SelectItem key={state.value} value={state.value}>
+                                            {state.label}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                    <Input 
+                                      placeholder="Zip/Postal" 
+                                      className="h-8 text-sm"
+                                      value={additionalFormData.secondaryClient?.mailingZipCode || ""}
+                                      onChange={(e) => setAdditionalFormData(prev => ({ 
+                                        ...prev, 
+                                        secondaryClient: { ...(prev.secondaryClient || {}), mailingZipCode: e.target.value }
+                                      }))}
+                                    />
+                                  </div>
                                 </div>
                               </div>
                             </div>
