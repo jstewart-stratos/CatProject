@@ -171,6 +171,11 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **July 1, 2025**: Enhanced Client Agreements Step 4 with improved data entry controls
+  - ✅ **Updated state fields to dropdown selectors** - Both legal and mailing address state fields now use comprehensive US states dropdown (50 states + DC)
+  - ✅ **Removed country input fields** - Eliminated unnecessary country fields from address sections for cleaner US-focused form
+  - ✅ **Added US states reference list** - Comprehensive list with state abbreviations and full names for consistent data entry
+  - ✅ **Maintained auto-population functionality** - Existing client data continues to auto-fill when household is selected
 - **July 1, 2025**: Successfully completed 6-step Client Agreements workflow with enhanced client signature population from household data
   - ✅ **Restructured workflow to 6 steps** - Moved Client Signatures to Step 3 (right after household selection)
   - ✅ **Enhanced primary client signature auto-population** - Uses household's primaryContactClientId to lookup actual client name from database

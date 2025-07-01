@@ -47,6 +47,61 @@ import { Plus, Eye, Trash2, Download } from "lucide-react";
 import { format } from "date-fns";
 import { z } from "zod";
 
+// US States list for dropdown
+const US_STATES = [
+  { value: "AL", label: "Alabama" },
+  { value: "AK", label: "Alaska" },
+  { value: "AZ", label: "Arizona" },
+  { value: "AR", label: "Arkansas" },
+  { value: "CA", label: "California" },
+  { value: "CO", label: "Colorado" },
+  { value: "CT", label: "Connecticut" },
+  { value: "DE", label: "Delaware" },
+  { value: "DC", label: "District of Columbia" },
+  { value: "FL", label: "Florida" },
+  { value: "GA", label: "Georgia" },
+  { value: "HI", label: "Hawaii" },
+  { value: "ID", label: "Idaho" },
+  { value: "IL", label: "Illinois" },
+  { value: "IN", label: "Indiana" },
+  { value: "IA", label: "Iowa" },
+  { value: "KS", label: "Kansas" },
+  { value: "KY", label: "Kentucky" },
+  { value: "LA", label: "Louisiana" },
+  { value: "ME", label: "Maine" },
+  { value: "MD", label: "Maryland" },
+  { value: "MA", label: "Massachusetts" },
+  { value: "MI", label: "Michigan" },
+  { value: "MN", label: "Minnesota" },
+  { value: "MS", label: "Mississippi" },
+  { value: "MO", label: "Missouri" },
+  { value: "MT", label: "Montana" },
+  { value: "NE", label: "Nebraska" },
+  { value: "NV", label: "Nevada" },
+  { value: "NH", label: "New Hampshire" },
+  { value: "NJ", label: "New Jersey" },
+  { value: "NM", label: "New Mexico" },
+  { value: "NY", label: "New York" },
+  { value: "NC", label: "North Carolina" },
+  { value: "ND", label: "North Dakota" },
+  { value: "OH", label: "Ohio" },
+  { value: "OK", label: "Oklahoma" },
+  { value: "OR", label: "Oregon" },
+  { value: "PA", label: "Pennsylvania" },
+  { value: "RI", label: "Rhode Island" },
+  { value: "SC", label: "South Carolina" },
+  { value: "SD", label: "South Dakota" },
+  { value: "TN", label: "Tennessee" },
+  { value: "TX", label: "Texas" },
+  { value: "UT", label: "Utah" },
+  { value: "VT", label: "Vermont" },
+  { value: "VA", label: "Virginia" },
+  { value: "WA", label: "Washington" },
+  { value: "WV", label: "West Virginia" },
+  { value: "WI", label: "Wisconsin" },
+  { value: "WY", label: "Wyoming" },
+];
+
 const createAgreementSchema = insertClientAgreementSchema.extend({
   agreementDate: z.string().min(1, "Agreement date is required"),
   businessLine: z.string().min(1, "Business line is required"),
@@ -700,15 +755,21 @@ export default function ClientAgreementsPage() {
                                       primaryClient: { ...prev.primaryClient, city: e.target.value }
                                     }))}
                                   />
-                                  <Input 
-                                    placeholder="State" 
-                                    className="h-8 text-sm"
-                                    value={additionalFormData.primaryClient?.state || ""}
-                                    onChange={(e) => setAdditionalFormData(prev => ({ 
-                                      ...prev, 
-                                      primaryClient: { ...prev.primaryClient, state: e.target.value }
-                                    }))}
-                                  />
+                                  <Select value={additionalFormData.primaryClient?.state || ""} onValueChange={(value) => setAdditionalFormData(prev => ({ 
+                                    ...prev, 
+                                    primaryClient: { ...prev.primaryClient, state: value }
+                                  }))}>
+                                    <SelectTrigger className="h-8 text-sm">
+                                      <SelectValue placeholder="Select state" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {US_STATES.map((state) => (
+                                        <SelectItem key={state.value} value={state.value}>
+                                          {state.label}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
                                   <Input 
                                     placeholder="Zip/Postal" 
                                     className="h-8 text-sm"
@@ -719,15 +780,6 @@ export default function ClientAgreementsPage() {
                                     }))}
                                   />
                                 </div>
-                                <Input 
-                                  placeholder="Country" 
-                                  className="h-8 text-sm"
-                                  value={additionalFormData.primaryClient?.country || ""}
-                                  onChange={(e) => setAdditionalFormData(prev => ({ 
-                                    ...prev, 
-                                    primaryClient: { ...prev.primaryClient, country: e.target.value }
-                                  }))}
-                                />
                               </div>
                             </div>
 
@@ -754,15 +806,21 @@ export default function ClientAgreementsPage() {
                                       primaryClient: { ...prev.primaryClient, mailingCity: e.target.value }
                                     }))}
                                   />
-                                  <Input 
-                                    placeholder="State" 
-                                    className="h-8 text-sm"
-                                    value={additionalFormData.primaryClient?.mailingState || ""}
-                                    onChange={(e) => setAdditionalFormData(prev => ({ 
-                                      ...prev, 
-                                      primaryClient: { ...prev.primaryClient, mailingState: e.target.value }
-                                    }))}
-                                  />
+                                  <Select value={additionalFormData.primaryClient?.mailingState || ""} onValueChange={(value) => setAdditionalFormData(prev => ({ 
+                                    ...prev, 
+                                    primaryClient: { ...prev.primaryClient, mailingState: value }
+                                  }))}>
+                                    <SelectTrigger className="h-8 text-sm">
+                                      <SelectValue placeholder="Select state" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {US_STATES.map((state) => (
+                                        <SelectItem key={state.value} value={state.value}>
+                                          {state.label}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
                                   <Input 
                                     placeholder="Zip/Postal" 
                                     className="h-8 text-sm"
@@ -773,15 +831,6 @@ export default function ClientAgreementsPage() {
                                     }))}
                                   />
                                 </div>
-                                <Input 
-                                  placeholder="Country" 
-                                  className="h-8 text-sm"
-                                  value={additionalFormData.primaryClient?.mailingCountry || ""}
-                                  onChange={(e) => setAdditionalFormData(prev => ({ 
-                                    ...prev, 
-                                    primaryClient: { ...prev.primaryClient, mailingCountry: e.target.value }
-                                  }))}
-                                />
                               </div>
                             </div>
                           </div>
