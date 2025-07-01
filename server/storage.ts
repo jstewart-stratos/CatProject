@@ -43,6 +43,12 @@ import {
   type ClientAgreement,
   type InsertClientAgreementAccount,
   type ClientAgreementAccount,
+  pdfTemplates,
+  templateFieldMappings,
+  type InsertPdfTemplate,
+  type PdfTemplate,
+  type InsertTemplateFieldMapping,
+  type TemplateFieldMapping,
 
 } from "@shared/schema";
 import { db } from "./db";
@@ -183,6 +189,19 @@ export interface IStorage {
   getAgreementAccounts(agreementId: number): Promise<ClientAgreementAccount[]>;
   updateClientAgreementAccount(id: number, data: Partial<ClientAgreementAccount>): Promise<ClientAgreementAccount>;
   deleteClientAgreementAccount(id: number): Promise<void>;
+  
+  // Template Management operations
+  createTemplate(template: InsertPdfTemplate): Promise<PdfTemplate>;
+  getTemplate(id: number): Promise<PdfTemplate | undefined>;
+  getAllTemplates(): Promise<PdfTemplate[]>;
+  updateTemplate(id: number, data: Partial<PdfTemplate>): Promise<PdfTemplate>;
+  deleteTemplate(id: number): Promise<void>;
+  
+  // Template Field Mapping operations
+  createFieldMapping(mapping: InsertTemplateFieldMapping): Promise<TemplateFieldMapping>;
+  getTemplateMappings(templateId: number): Promise<TemplateFieldMapping[]>;
+  updateFieldMapping(id: number, data: Partial<TemplateFieldMapping>): Promise<TemplateFieldMapping>;
+  deleteFieldMapping(id: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1645,6 +1664,57 @@ export class DatabaseStorage implements IStorage {
 
   async deleteClientAgreementAccount(id: number): Promise<void> {
     await db.delete(clientAgreementAccounts).where(eq(clientAgreementAccounts.id, id));
+  }
+
+  // Template Management operations
+  async createTemplate(template: InsertPdfTemplate): Promise<PdfTemplate> {
+    const [result] = await db.insert(pdfTemplates).values(template).returning();
+    return result;
+  }
+
+  async getTemplate(id: number): Promise<PdfTemplate | undefined> {
+    const [result] = await db.select().from(pdfTemplates).where(eq(pdfTemplates.id, id));
+    return result;
+  }
+
+  async getAllTemplates(): Promise<PdfTemplate[]> {
+    return await db.select().from(pdfTemplates).orderBy(desc(pdfTemplates.createdAt));
+  }
+
+  async updateTemplate(id: number, data: Partial<PdfTemplate>): Promise<PdfTemplate> {
+    const [result] = await db.update(pdfTemplates)
+      .set(data)
+      .where(eq(pdfTemplates.id, id))
+      .returning();
+    return result;
+  }
+
+  async deleteTemplate(id: number): Promise<void> {
+    await db.delete(pdfTemplates).where(eq(pdfTemplates.id, id));
+  }
+
+  // Template Field Mapping operations
+  async createFieldMapping(mapping: InsertTemplateFieldMapping): Promise<TemplateFieldMapping> {
+    const [result] = await db.insert(templateFieldMappings).values(mapping).returning();
+    return result;
+  }
+
+  async getTemplateMappings(templateId: number): Promise<TemplateFieldMapping[]> {
+    return await db.select().from(templateFieldMappings)
+      .where(eq(templateFieldMappings.templateId, templateId))
+      .orderBy(asc(templateFieldMappings.pdfFieldName));
+  }
+
+  async updateFieldMapping(id: number, data: Partial<TemplateFieldMapping>): Promise<TemplateFieldMapping> {
+    const [result] = await db.update(templateFieldMappings)
+      .set(data)
+      .where(eq(templateFieldMappings.id, id))
+      .returning();
+    return result;
+  }
+
+  async deleteFieldMapping(id: number): Promise<void> {
+    await db.delete(templateFieldMappings).where(eq(templateFieldMappings.id, id));
   }
 
 }

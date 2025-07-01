@@ -726,5 +726,52 @@ export type ClientAgreement = typeof clientAgreements.$inferSelect;
 export type InsertClientAgreementAccount = z.infer<typeof insertClientAgreementAccountSchema>;
 export type ClientAgreementAccount = typeof clientAgreementAccounts.$inferSelect;
 
+// PDF Templates for Client Agreements
+export const pdfTemplates = pgTable("pdf_templates", {
+  id: serial("id").primaryKey(),
+  name: varchar("name").notNull(),
+  businessLine: varchar("business_line").notNull(), // SWP, SWA
+  fileName: varchar("file_name").notNull(),
+  filePath: varchar("file_path").notNull(),
+  fieldCount: integer("field_count").default(0),
+  isActive: boolean("is_active").default(true),
+  createdBy: varchar("created_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// PDF Template Field Mappings
+export const templateFieldMappings = pgTable("template_field_mappings", {
+  id: serial("id").primaryKey(),
+  templateId: integer("template_id").notNull().references(() => pdfTemplates.id, { onDelete: "cascade" }),
+  pdfFieldName: varchar("pdf_field_name").notNull(),
+  dataSource: varchar("data_source"), // field path like "firstName", "firstName,lastName", "householdName"
+  fieldType: varchar("field_type").default("text"), // text, date, number, checkbox
+  defaultValue: varchar("default_value"),
+  isRequired: boolean("is_required").default(false),
+  transformationType: varchar("transformation_type"), // uppercase, lowercase, format_date, format_phone
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Zod schemas for templates
+export const insertPdfTemplateSchema = createInsertSchema(pdfTemplates).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertTemplateFieldMappingSchema = createInsertSchema(templateFieldMappings).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+// Types for templates
+export type InsertPdfTemplate = z.infer<typeof insertPdfTemplateSchema>;
+export type PdfTemplate = typeof pdfTemplates.$inferSelect;
+export type InsertTemplateFieldMapping = z.infer<typeof insertTemplateFieldMappingSchema>;
+export type TemplateFieldMapping = typeof templateFieldMappings.$inferSelect;
+
 
 

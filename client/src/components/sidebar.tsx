@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Database, BarChart3, Users, Wallet, ArrowLeftRight, UserCog, UsersIcon, LogOut, UserPlus, FileText, Menu, X, Upload, Home, FileSignature } from "lucide-react";
+import { Database, BarChart3, Users, Wallet, ArrowLeftRight, UserCog, UsersIcon, LogOut, UserPlus, FileText, Menu, X, Upload, Home, FileSignature, Settings } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useState } from "react";
 import logoImage from "@assets/Sunray Mark Only - Solid (2)_1751050129011.png";
@@ -41,6 +41,7 @@ export default function Sidebar({ currentView }: SidebarProps) {
     { id: "csv-upload", path: "/csv-upload", label: "CSV Upload", icon: Upload, adminOnly: false },
     { id: "import-export", path: "/import-export", label: "Import/Export", icon: ArrowLeftRight, adminOnly: false },
     { id: "audit-logs", path: "/audit-logs", label: "Audit Logs", icon: FileText, adminOnly: false },
+    { id: "template-management", path: "/template-management", label: "Template Management", icon: Settings, adminOnly: true },
     { id: "users", path: "/users", label: "User Management", icon: UserCog, adminOnly: true },
     { id: "groups", path: "/groups", label: "Groups", icon: UsersIcon, adminOnly: true },
   ];

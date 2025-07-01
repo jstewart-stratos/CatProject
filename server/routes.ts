@@ -2357,6 +2357,111 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Template Management routes
+  app.get('/api/templates', isAuthenticated, async (req, res) => {
+    try {
+      const templates = await storage.getAllTemplates();
+      res.json(templates);
+    } catch (error) {
+      console.error("Error fetching templates:", error);
+      res.status(500).json({ message: "Failed to fetch templates" });
+    }
+  });
+
+  app.post('/api/templates/upload', isAuthenticated, upload.single('template'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      const userId = req.user?.claims?.sub;
+      const { name, businessLine } = req.body;
+      
+      // Analyze PDF to get field count
+      const fields = await PDFService.analyzePDFFields(businessLine);
+      
+      // Create template record
+      const templateData = {
+        name: name || req.file.originalname.replace(/\.[^/.]+$/, ""),
+        businessLine: businessLine || 'SWP',
+        fileName: req.file.originalname,
+        filePath: req.file.path,
+        fieldCount: fields.length,
+        createdBy: userId
+      };
+
+      const template = await storage.createTemplate(templateData);
+
+      // Create field mappings for each PDF field
+      for (const field of fields) {
+        await storage.createFieldMapping({
+          templateId: template.id,
+          pdfFieldName: field.name,
+          dataSource: '', // Will be mapped by admin
+          fieldType: field.type || 'text',
+          isRequired: false
+        });
+      }
+
+      res.status(201).json({ 
+        template, 
+        fieldCount: fields.length,
+        message: "Template uploaded and analyzed successfully" 
+      });
+    } catch (error) {
+      console.error("Error uploading template:", error);
+      res.status(500).json({ message: "Failed to upload template" });
+    }
+  });
+
+  app.get('/api/templates/:id/mappings', isAuthenticated, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const mappings = await storage.getTemplateMappings(parseInt(id));
+      res.json(mappings);
+    } catch (error) {
+      console.error("Error fetching template mappings:", error);
+      res.status(500).json({ message: "Failed to fetch template mappings" });
+    }
+  });
+
+  app.put('/api/templates/mappings/:id', isAuthenticated, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updateData = req.body;
+      const mapping = await storage.updateFieldMapping(parseInt(id), updateData);
+      res.json(mapping);
+    } catch (error) {
+      console.error("Error updating field mapping:", error);
+      res.status(500).json({ message: "Failed to update field mapping" });
+    }
+  });
+
+  app.delete('/api/templates/:id', isAuthenticated, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const template = await storage.getTemplate(parseInt(id));
+      
+      if (!template) {
+        return res.status(404).json({ message: "Template not found" });
+      }
+
+      // Delete physical file
+      try {
+        await fs.unlink(template.filePath);
+      } catch (fileError) {
+        console.warn("Could not delete template file:", fileError);
+      }
+
+      // Delete template and all mappings (cascaded by foreign key)
+      await storage.deleteTemplate(parseInt(id));
+      res.json({ message: "Template deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting template:", error);
+      res.status(500).json({ message: "Failed to delete template" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
