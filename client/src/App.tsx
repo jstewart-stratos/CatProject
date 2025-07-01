@@ -16,7 +16,7 @@ import AccountFormEnhanced from "@/pages/account-form-enhanced";
 import ClientDetails from "@/pages/client-details";
 import AuditLogs from "@/pages/audit-logs";
 import CSVUpload from "@/pages/csv-upload";
-import DocumentTemplates from "@/pages/document-templates";
+
 
 import ClientOnboardingFull from "@/pages/client-onboarding-full";
 
@@ -44,7 +44,7 @@ function Router() {
           <Route path="/users" component={Users} />
           <Route path="/groups" component={Groups} />
           <Route path="/audit-logs" component={AuditLogs} />
-          <Route path="/document-templates" component={DocumentTemplates} />
+
         </>
       )}
       <Route component={NotFound} />

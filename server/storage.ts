@@ -34,12 +34,7 @@ import {
   draftAccounts,
   type InsertDraftAccount,
   type DraftAccount,
-  documentTemplates,
-  generatedDocuments,
-  type InsertDocumentTemplate,
-  type DocumentTemplate,
-  type InsertGeneratedDocument,
-  type GeneratedDocument,
+
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, like, desc, asc, sql, ilike, or, inArray, not } from "drizzle-orm";
@@ -154,20 +149,7 @@ export interface IStorage {
   searchAccounts(searchTerm: string, limit: number): Promise<any[]>;
   searchAccountsByGroups(groupIds: number[], searchTerm: string, limit: number): Promise<any[]>;
 
-  // Document template operations
-  createDocumentTemplate(template: InsertDocumentTemplate): Promise<DocumentTemplate>;
-  getAllDocumentTemplates(): Promise<DocumentTemplate[]>;
-  getDocumentTemplate(id: number): Promise<DocumentTemplate | undefined>;
-  updateDocumentTemplate(id: number, data: Partial<DocumentTemplate>): Promise<DocumentTemplate>;
-  deleteDocumentTemplate(id: number): Promise<void>;
 
-  // Generated document operations
-  createGeneratedDocument(doc: InsertGeneratedDocument): Promise<GeneratedDocument>;
-  getGeneratedDocument(id: number): Promise<GeneratedDocument | undefined>;
-  getGeneratedDocumentsByClient(clientId: number): Promise<GeneratedDocument[]>;
-  getGeneratedDocumentsByAccount(accountId: number): Promise<GeneratedDocument[]>;
-  getAllGeneratedDocuments(): Promise<GeneratedDocument[]>;
-  updateGeneratedDocumentStatus(id: number, status: string): Promise<void>;
 
   // Business metrics operations
   getBusinessMetrics(): Promise<any>;
@@ -1462,93 +1444,7 @@ export class DatabaseStorage implements IStorage {
     };
   }
 
-  // Document template operations
-  async createDocumentTemplate(template: InsertDocumentTemplate): Promise<DocumentTemplate> {
-    const [newTemplate] = await db
-      .insert(documentTemplates)
-      .values(template)
-      .returning();
-    return newTemplate;
-  }
 
-  async getAllDocumentTemplates(): Promise<DocumentTemplate[]> {
-    return await db
-      .select()
-      .from(documentTemplates)
-      .where(eq(documentTemplates.isActive, true))
-      .orderBy(asc(documentTemplates.name));
-  }
-
-  async getDocumentTemplate(id: number): Promise<DocumentTemplate | undefined> {
-    const [template] = await db
-      .select()
-      .from(documentTemplates)
-      .where(eq(documentTemplates.id, id));
-    return template;
-  }
-
-  async updateDocumentTemplate(id: number, data: Partial<DocumentTemplate>): Promise<DocumentTemplate> {
-    const [updatedTemplate] = await db
-      .update(documentTemplates)
-      .set({ ...data, updatedAt: new Date() })
-      .where(eq(documentTemplates.id, id))
-      .returning();
-    return updatedTemplate;
-  }
-
-  async deleteDocumentTemplate(id: number): Promise<void> {
-    await db
-      .update(documentTemplates)
-      .set({ isActive: false })
-      .where(eq(documentTemplates.id, id));
-  }
-
-  // Generated document operations
-  async createGeneratedDocument(doc: InsertGeneratedDocument): Promise<GeneratedDocument> {
-    const [newDoc] = await db
-      .insert(generatedDocuments)
-      .values(doc)
-      .returning();
-    return newDoc;
-  }
-
-  async getGeneratedDocument(id: number): Promise<GeneratedDocument | undefined> {
-    const [doc] = await db
-      .select()
-      .from(generatedDocuments)
-      .where(eq(generatedDocuments.id, id));
-    return doc;
-  }
-
-  async getGeneratedDocumentsByClient(clientId: number): Promise<GeneratedDocument[]> {
-    return await db
-      .select()
-      .from(generatedDocuments)
-      .where(eq(generatedDocuments.clientId, clientId))
-      .orderBy(desc(generatedDocuments.generatedAt));
-  }
-
-  async getGeneratedDocumentsByAccount(accountId: number): Promise<GeneratedDocument[]> {
-    return await db
-      .select()
-      .from(generatedDocuments)
-      .where(eq(generatedDocuments.accountId, accountId))
-      .orderBy(desc(generatedDocuments.generatedAt));
-  }
-
-  async getAllGeneratedDocuments(): Promise<GeneratedDocument[]> {
-    return await db
-      .select()
-      .from(generatedDocuments)
-      .orderBy(desc(generatedDocuments.generatedAt));
-  }
-
-  async updateGeneratedDocumentStatus(id: number, status: string): Promise<void> {
-    await db
-      .update(generatedDocuments)
-      .set({ status })
-      .where(eq(generatedDocuments.id, id));
-  }
 }
 
 export const storage = new DatabaseStorage();
