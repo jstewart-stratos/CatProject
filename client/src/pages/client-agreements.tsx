@@ -1270,6 +1270,13 @@ export default function ClientAgreementsPage() {
                                     <SelectValue placeholder="Select net worth" />
                                   </SelectTrigger>
                                   <SelectContent>
+                                    <SelectItem value="A">A = $24,999 or less</SelectItem>
+                                    <SelectItem value="B">B = $25,000 to $49,999</SelectItem>
+                                    <SelectItem value="C">C = $50,000 to $99,999</SelectItem>
+                                    <SelectItem value="D">D = $100,000 to $249,999</SelectItem>
+                                    <SelectItem value="E">E = $250,000 to $499,999</SelectItem>
+                                    <SelectItem value="F">F = $500,000 to $749,999</SelectItem>
+                                    <SelectItem value="G">G = $750,000 to 999,999</SelectItem>
                                     <SelectItem value="H">H = $1,000,000 to $4,999,999</SelectItem>
                                     <SelectItem value="I">I = $5,000,000 to $9,999,999</SelectItem>
                                     <SelectItem value="J">J = Over $10 million</SelectItem>
@@ -1281,15 +1288,26 @@ export default function ClientAgreementsPage() {
                             <div className="space-y-4">
                               <div>
                                 <Label className="text-sm font-medium">Liquid Net Worth</Label>
-                                <Input 
-                                  placeholder="Liquid net worth" 
-                                  className="h-8 text-sm"
-                                  value={additionalFormData.primaryClient?.liquidNetWorth || ""}
-                                  onChange={(e) => setAdditionalFormData(prev => ({ 
-                                    ...prev, 
-                                    primaryClient: { ...prev.primaryClient, liquidNetWorth: e.target.value }
-                                  }))}
-                                />
+                                <Select value={additionalFormData.primaryClient?.liquidNetWorth || ""} onValueChange={(value) => setAdditionalFormData(prev => ({ 
+                                  ...prev, 
+                                  primaryClient: { ...prev.primaryClient, liquidNetWorth: value }
+                                }))}>
+                                  <SelectTrigger className="h-8 text-sm">
+                                    <SelectValue placeholder="Select liquid net worth" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="A">A = $24,999 or less</SelectItem>
+                                    <SelectItem value="B">B = $25,000 to $49,999</SelectItem>
+                                    <SelectItem value="C">C = $50,000 to $99,999</SelectItem>
+                                    <SelectItem value="D">D = $100,000 to $249,999</SelectItem>
+                                    <SelectItem value="E">E = $250,000 to $499,999</SelectItem>
+                                    <SelectItem value="F">F = $500,000 to $749,999</SelectItem>
+                                    <SelectItem value="G">G = $750,000 to 999,999</SelectItem>
+                                    <SelectItem value="H">H = $1,000,000 to $4,999,999</SelectItem>
+                                    <SelectItem value="I">I = $5,000,000 to $9,999,999</SelectItem>
+                                    <SelectItem value="J">J = Over $10 million</SelectItem>
+                                  </SelectContent>
+                                </Select>
                               </div>
                               
                               <div>
@@ -1374,6 +1392,13 @@ export default function ClientAgreementsPage() {
                                       <SelectValue placeholder="Select net worth" />
                                     </SelectTrigger>
                                     <SelectContent>
+                                      <SelectItem value="A">A = $24,999 or less</SelectItem>
+                                      <SelectItem value="B">B = $25,000 to $49,999</SelectItem>
+                                      <SelectItem value="C">C = $50,000 to $99,999</SelectItem>
+                                      <SelectItem value="D">D = $100,000 to $249,999</SelectItem>
+                                      <SelectItem value="E">E = $250,000 to $499,999</SelectItem>
+                                      <SelectItem value="F">F = $500,000 to $749,999</SelectItem>
+                                      <SelectItem value="G">G = $750,000 to 999,999</SelectItem>
                                       <SelectItem value="H">H = $1,000,000 to $4,999,999</SelectItem>
                                       <SelectItem value="I">I = $5,000,000 to $9,999,999</SelectItem>
                                       <SelectItem value="J">J = Over $10 million</SelectItem>
@@ -1385,15 +1410,26 @@ export default function ClientAgreementsPage() {
                               <div className="space-y-4">
                                 <div>
                                   <Label className="text-sm font-medium">Liquid Net Worth</Label>
-                                  <Input 
-                                    placeholder="Liquid net worth" 
-                                    className="h-8 text-sm"
-                                    value={additionalFormData.secondaryClient?.liquidNetWorth || ""}
-                                    onChange={(e) => setAdditionalFormData(prev => ({ 
-                                      ...prev, 
-                                      secondaryClient: { ...(prev.secondaryClient || {}), liquidNetWorth: e.target.value }
-                                    }))}
-                                  />
+                                  <Select value={additionalFormData.secondaryClient?.liquidNetWorth || ""} onValueChange={(value) => setAdditionalFormData(prev => ({ 
+                                    ...prev, 
+                                    secondaryClient: { ...(prev.secondaryClient || {}), liquidNetWorth: value }
+                                  }))}>
+                                    <SelectTrigger className="h-8 text-sm">
+                                      <SelectValue placeholder="Select liquid net worth" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="A">A = $24,999 or less</SelectItem>
+                                      <SelectItem value="B">B = $25,000 to $49,999</SelectItem>
+                                      <SelectItem value="C">C = $50,000 to $99,999</SelectItem>
+                                      <SelectItem value="D">D = $100,000 to $249,999</SelectItem>
+                                      <SelectItem value="E">E = $250,000 to $499,999</SelectItem>
+                                      <SelectItem value="F">F = $500,000 to $749,999</SelectItem>
+                                      <SelectItem value="G">G = $750,000 to 999,999</SelectItem>
+                                      <SelectItem value="H">H = $1,000,000 to $4,999,999</SelectItem>
+                                      <SelectItem value="I">I = $5,000,000 to $9,999,999</SelectItem>
+                                      <SelectItem value="J">J = Over $10 million</SelectItem>
+                                    </SelectContent>
+                                  </Select>
                                 </div>
                                 
                                 <div>
