@@ -471,6 +471,25 @@ export default function ClientAgreementsPage() {
                                         <SelectItem value="no">No</SelectItem>
                                       </SelectContent>
                                     </Select>
+                                    
+                                    {/* Conditional RMD/Other dropdown when Liquidity Needs = Yes */}
+                                    {accountConfigurations[accountId]?.liquidityNeeds === "yes" && (
+                                      <div className="mt-2">
+                                        <Label className="text-sm font-medium">Liquidity Type</Label>
+                                        <Select onValueChange={(value) => setAccountConfigurations(prev => ({
+                                          ...prev,
+                                          [accountId]: { ...prev[accountId], liquidityType: value }
+                                        }))}>
+                                          <SelectTrigger>
+                                            <SelectValue placeholder="Select type" />
+                                          </SelectTrigger>
+                                          <SelectContent>
+                                            <SelectItem value="rmd">RMD</SelectItem>
+                                            <SelectItem value="other">Other</SelectItem>
+                                          </SelectContent>
+                                        </Select>
+                                      </div>
+                                    )}
                                   </div>
                                   <div>
                                     <Label className="text-sm font-medium">Transaction Charges</Label>
@@ -528,22 +547,39 @@ export default function ClientAgreementsPage() {
                                   </div>
                                 </div>
 
-                                <div>
-                                  <Label className="text-sm font-medium">Custodian</Label>
-                                  <Select onValueChange={(value) => setAccountConfigurations(prev => ({
-                                    ...prev,
-                                    [accountId]: { ...prev[accountId], custodian: value }
-                                  }))}>
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Select custodian" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="schwab">Schwab</SelectItem>
-                                      <SelectItem value="fidelity">Fidelity</SelectItem>
-                                      <SelectItem value="lpl">LPL</SelectItem>
-                                      <SelectItem value="other">Other</SelectItem>
-                                    </SelectContent>
-                                  </Select>
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div>
+                                    <Label className="text-sm font-medium">Custodian</Label>
+                                    <Select onValueChange={(value) => setAccountConfigurations(prev => ({
+                                      ...prev,
+                                      [accountId]: { ...prev[accountId], custodian: value }
+                                    }))}>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select custodian" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="schwab">Schwab</SelectItem>
+                                        <SelectItem value="fidelity">Fidelity</SelectItem>
+                                        <SelectItem value="lpl">LPL</SelectItem>
+                                        <SelectItem value="other">Other</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                  <div>
+                                    <Label className="text-sm font-medium">Is this a Solicitor Referred Account?</Label>
+                                    <Select onValueChange={(value) => setAccountConfigurations(prev => ({
+                                      ...prev,
+                                      [accountId]: { ...prev[accountId], solicitorReferred: value }
+                                    }))}>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select yes or no" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="yes">Yes</SelectItem>
+                                        <SelectItem value="no">No</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
                                 </div>
                               </div>
                             ))}
