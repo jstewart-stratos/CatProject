@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import {
@@ -104,6 +104,17 @@ export default function ClientAgreementsPage() {
     { value: "SWP", label: "Stratos Wealth Partners (SWP)" },
     { value: "SWA", label: "Stratos Wealth Advisors (SWA)" },
   ];
+
+  // Auto-populate primary client name when household changes
+  useEffect(() => {
+    const primaryName = getPrimaryClientName();
+    if (primaryName && selectedHouseholdId) {
+      setAdditionalFormData(prev => ({ 
+        ...prev, 
+        primaryClientName: primaryName 
+      }));
+    }
+  }, [selectedHouseholdId, households]);
 
   const handleNext = () => {
     if (currentStep < 5) setCurrentStep(currentStep + 1);
@@ -211,9 +222,20 @@ export default function ClientAgreementsPage() {
     const household = households.find((h: any) => h.id === Number(selectedHouseholdId));
     if (!household) return "";
     
-    // Find the primary contact (first member) of the household
-    const primaryClient = household.primaryContactName;
-    return primaryClient || "";
+    // Get the primary contact name from household data
+    // Try multiple possible field names that might contain the primary client name
+    if (household.primaryContactName) {
+      return household.primaryContactName;
+    }
+    
+    // If no primaryContactName, get the first member's name
+    if (household.members && household.members.length > 0) {
+      const primaryMember = household.members[0];
+      return `${primaryMember.firstName || ''} ${primaryMember.lastName || ''}`.trim();
+    }
+    
+    // Fallback: use household name if no members found
+    return household.name || "";
   };
 
   const getOtherHouseholdMembers = () => {
