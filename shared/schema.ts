@@ -655,6 +655,7 @@ export type DraftAccount = typeof draftAccounts.$inferSelect;
 // Client Agreements
 export const clientAgreements = pgTable("client_agreements", {
   id: serial("id").primaryKey(),
+  businessLine: varchar("business_line").notNull(), // SWP or SWA
   householdId: integer("household_id").notNull().references(() => households.id, { onDelete: "cascade" }),
   version: integer("version").notNull().default(1),
   agreementDate: date("agreement_date").notNull(),

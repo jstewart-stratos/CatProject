@@ -49,11 +49,13 @@ import { z } from "zod";
 
 const createAgreementSchema = insertClientAgreementSchema.extend({
   agreementDate: z.string().min(1, "Agreement date is required"),
+  businessLine: z.string().min(1, "Business line is required"),
 });
 
 type CreateAgreementData = z.infer<typeof createAgreementSchema>;
 
 export default function ClientAgreementsPage() {
+  const [currentStep, setCurrentStep] = useState(1);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -72,12 +74,32 @@ export default function ClientAgreementsPage() {
   const form = useForm<CreateAgreementData>({
     resolver: zodResolver(createAgreementSchema),
     defaultValues: {
+      businessLine: "",
       householdId: 0,
       version: 1,
       agreementDate: new Date().toISOString().split('T')[0],
       status: "active",
     },
   });
+
+  const businessLineOptions = [
+    { value: "SWP", label: "Stratos Wealth Partners (SWP)" },
+    { value: "SWA", label: "Stratos Wealth Advisors (SWA)" },
+  ];
+
+  const handleNext = () => {
+    if (currentStep < 3) setCurrentStep(currentStep + 1);
+  };
+
+  const handlePrevious = () => {
+    if (currentStep > 1) setCurrentStep(currentStep - 1);
+  };
+
+  const handleNewAgreement = () => {
+    setCurrentStep(1);
+    setIsCreateDialogOpen(true);
+    form.reset();
+  };
 
   const createMutation = useMutation({
     mutationFn: (data: CreateAgreementData) => {
@@ -178,86 +200,157 @@ export default function ClientAgreementsPage() {
             
             <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
               <DialogTrigger asChild>
-                <Button>
+                <Button onClick={handleNewAgreement}>
                   <Plus className="h-4 w-4 mr-2" />
                   New Agreement
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
+              <DialogContent className="sm:max-w-[600px]">
                 <DialogHeader>
                   <DialogTitle>Create New Client Agreement</DialogTitle>
                   <DialogDescription>
-                    Create a new client agreement for a household. You can add accounts and generate PDFs after creation.
+                    Step {currentStep} of 3: Set up a new client agreement for a household.
                   </DialogDescription>
                 </DialogHeader>
-                
+
                 <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                    <FormField
-                      control={form.control}
-                      name="householdId"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Household</FormLabel>
-                          <Select onValueChange={(value) => field.onChange(parseInt(value))}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select a household" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {households.map((household: any) => (
-                                <SelectItem key={household.id} value={household.id.toString()}>
-                                  {household.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                    
+                    {/* Step 1: Business Line Selection */}
+                    {currentStep === 1 && (
+                      <div className="space-y-4">
+                        <FormField
+                          control={form.control}
+                          name="businessLine"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-lg font-semibold">Business Line</FormLabel>
+                              <FormControl>
+                                <div className="space-y-3">
+                                  {businessLineOptions.map((option) => (
+                                    <div key={option.value} className="flex items-center space-x-3">
+                                      <input
+                                        type="radio"
+                                        id={option.value}
+                                        value={option.value}
+                                        checked={field.value === option.value}
+                                        onChange={(e) => field.onChange(e.target.value)}
+                                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"
+                                      />
+                                      <label 
+                                        htmlFor={option.value} 
+                                        className="text-sm font-medium text-gray-900 cursor-pointer"
+                                      >
+                                        {option.label}
+                                      </label>
+                                    </div>
+                                  ))}
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    )}
 
-                    <FormField
-                      control={form.control}
-                      name="agreementDate"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Agreement Date</FormLabel>
-                          <FormControl>
-                            <Input type="date" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    {/* Step 2: Household Selection */}
+                    {currentStep === 2 && (
+                      <div className="space-y-4">
+                        <FormField
+                          control={form.control}
+                          name="householdId"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-lg font-semibold">Household</FormLabel>
+                              <Select onValueChange={(value) => field.onChange(parseInt(value))}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select a household" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {households.map((household: any) => (
+                                    <SelectItem key={household.id} value={household.id.toString()}>
+                                      {household.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    )}
 
-                    <FormField
-                      control={form.control}
-                      name="version"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Version</FormLabel>
-                          <FormControl>
-                            <Input 
-                              type="number" 
-                              min="1" 
-                              {...field} 
-                              onChange={(e) => field.onChange(parseInt(e.target.value))}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    {/* Step 3: Agreement Details */}
+                    {currentStep === 3 && (
+                      <div className="space-y-4">
+                        <FormField
+                          control={form.control}
+                          name="agreementDate"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Agreement Date</FormLabel>
+                              <FormControl>
+                                <Input type="date" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
 
-                    <DialogFooter>
-                      <Button 
-                        type="submit" 
-                        disabled={createMutation.isPending}
-                      >
-                        {createMutation.isPending ? "Creating..." : "Create Agreement"}
-                      </Button>
+                        <FormField
+                          control={form.control}
+                          name="version"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Version</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  type="number" 
+                                  min="1" 
+                                  {...field} 
+                                  onChange={(e) => field.onChange(parseInt(e.target.value))}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    )}
+
+                    <DialogFooter className="flex justify-between">
+                      <div className="flex space-x-2">
+                        {currentStep > 1 && (
+                          <Button type="button" variant="outline" onClick={handlePrevious}>
+                            Previous
+                          </Button>
+                        )}
+                      </div>
+                      <div className="flex space-x-2">
+                        {currentStep < 3 ? (
+                          <Button 
+                            type="button" 
+                            onClick={handleNext}
+                            disabled={
+                              (currentStep === 1 && !form.watch("businessLine")) ||
+                              (currentStep === 2 && !form.watch("householdId"))
+                            }
+                          >
+                            Next
+                          </Button>
+                        ) : (
+                          <Button 
+                            type="submit" 
+                            disabled={createMutation.isPending}
+                          >
+                            {createMutation.isPending ? "Creating..." : "Create Agreement"}
+                          </Button>
+                        )}
+                      </div>
                     </DialogFooter>
                   </form>
                 </Form>
