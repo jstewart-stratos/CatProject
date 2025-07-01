@@ -612,6 +612,10 @@ export default function ClientAgreementsPage() {
                                           <SelectContent>
                                             <SelectItem value="incoming-transfer">Incoming Transfer (from another firm)</SelectItem>
                                             <SelectItem value="rollover-qualified-plan">Rollover from a Qualified Plan</SelectItem>
+                                            <SelectItem value="roth-conversion">Roth Conversion</SelectItem>
+                                            <SelectItem value="contribution-only">Contribution Only</SelectItem>
+                                            <SelectItem value="death-distribution">Death Distribution/Inherited IRA</SelectItem>
+                                            <SelectItem value="change-management-fees">Change in Acct Management/Fees (i.e. Stratos as Advisor, SWM to MAN, etc)</SelectItem>
                                           </SelectContent>
                                         </Select>
                                       </div>
