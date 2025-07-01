@@ -171,6 +171,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **July 1, 2025**: Successfully completed 5-step Client Agreements workflow with account selection and configuration
+  - ✅ **Restructured from 4 to 5-step workflow** - Added dedicated account selection step (Step 3) and account configuration step (Step 4)
+  - ✅ **Enhanced Step 3: Account Selection** - Users now select which accounts to include in the agreement with checkbox interface and validation
+  - ✅ **Enhanced Step 4: Account Configuration** - Configure each selected account's SIM Fee, Advisor Fee, Liquidity Needs (Yes/No), Transaction Charges, Investment Objective, Time Horizon, and Custodian
+  - ✅ **Updated navigation logic** - Next/Previous buttons work correctly with 5-step validation and account selection requirements
+  - ✅ **Improved state management** - Added selectedAccounts and accountConfigurations state variables, cleaned up old account-specific fields
+  - ✅ **Fixed Liquidity Needs field** - Changed from Low/Moderate/High dropdown to simple Yes/No selection per user feedback
 - **July 1, 2025**: Successfully completed comprehensive household member management system
   - ✅ **Built complete Add Member functionality** - Created dialog interface with client selection for available clients not in households
   - ✅ **Implemented Remove Member functionality** - Added confirmation dialogs and UserMinus icon controls for member removal

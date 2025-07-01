@@ -464,25 +464,29 @@ export default function ClientAgreementsPage() {
                                       [accountId]: { ...prev[accountId], liquidityNeeds: value }
                                     }))}>
                                       <SelectTrigger>
-                                        <SelectValue placeholder="Select liquidity needs" />
+                                        <SelectValue placeholder="Select yes or no" />
                                       </SelectTrigger>
                                       <SelectContent>
-                                        <SelectItem value="low">Low</SelectItem>
-                                        <SelectItem value="moderate">Moderate</SelectItem>
-                                        <SelectItem value="high">High</SelectItem>
+                                        <SelectItem value="yes">Yes</SelectItem>
+                                        <SelectItem value="no">No</SelectItem>
                                       </SelectContent>
                                     </Select>
                                   </div>
                                   <div>
                                     <Label className="text-sm font-medium">Transaction Charges</Label>
-                                    <Input 
-                                      placeholder="Enter transaction charges" 
-                                      value={accountConfigurations[accountId]?.transactionCharges || ''}
-                                      onChange={(e) => setAccountConfigurations(prev => ({
-                                        ...prev,
-                                        [accountId]: { ...prev[accountId], transactionCharges: e.target.value }
-                                      }))}
-                                    />
+                                    <Select onValueChange={(value) => setAccountConfigurations(prev => ({
+                                      ...prev,
+                                      [accountId]: { ...prev[accountId], transactionCharges: value }
+                                    }))}>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select transaction charges" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="unwrapped">Unwrapped</SelectItem>
+                                        <SelectItem value="wrapped">Wrapped</SelectItem>
+                                        <SelectItem value="sub-advised">Sub-Advised</SelectItem>
+                                      </SelectContent>
+                                    </Select>
                                   </div>
                                 </div>
 
@@ -686,9 +690,7 @@ export default function ClientAgreementsPage() {
                             disabled={
                               createMutation.isPending ||
                               !additionalFormData.advisorName ||
-                              !additionalFormData.primaryClientInitial ||
-                              !additionalFormData.account1Number ||
-                              !additionalFormData.account1Registration
+                              !additionalFormData.primaryClientInitial
                             }
                           >
                             {createMutation.isPending ? "Creating..." : "Create Agreement"}
