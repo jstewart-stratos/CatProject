@@ -150,6 +150,112 @@ export default function DocumentTemplates() {
     setSelectedAccountId('');
   }, [selectedClientId]);
 
+  // Handler functions
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && file.type === 'application/pdf') {
+      setUploadedFile(file);
+      setExtractedFields([]);
+      setMappedFields([]);
+    } else {
+      toast({
+        title: "Invalid File",
+        description: "Please select a PDF file.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const extractFieldsFromPDF = async () => {
+    if (!uploadedFile) return;
+    
+    setIsExtractingFields(true);
+    try {
+      const formData = new FormData();
+      formData.append('pdf', uploadedFile);
+      
+      const response = await fetch('/api/extract-pdf-fields', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to extract fields from PDF');
+      }
+      
+      const data = await response.json();
+      setExtractedFields(data.fields || []);
+      
+      toast({
+        title: "Fields Extracted",
+        description: `Found ${data.fields?.length || 0} form fields in the PDF.`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Extraction Failed",
+        description: error.message || "Failed to extract fields from PDF",
+        variant: "destructive",
+      });
+    } finally {
+      setIsExtractingFields(false);
+    }
+  };
+
+  const updateFieldMapping = (index: number, mapping: DocumentField) => {
+    const newMappings = [...mappedFields];
+    newMappings[index] = mapping;
+    setMappedFields(newMappings);
+  };
+
+  const handleCreateTemplate = async (formData: FormData) => {
+    if (!uploadedFile) {
+      toast({
+        title: "Missing File",
+        description: "Please upload a PDF document.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // First upload the PDF file
+      const fileFormData = new FormData();
+      fileFormData.append('pdf', uploadedFile);
+      fileFormData.append('name', formData.get('name') as string);
+      fileFormData.append('description', formData.get('description') as string);
+      fileFormData.append('templateType', formData.get('templateType') as string);
+      fileFormData.append('fields', JSON.stringify(mappedFields));
+
+      const response = await fetch('/api/upload-pdf-template', {
+        method: 'POST',
+        body: fileFormData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to upload template');
+      }
+
+      const result = await response.json();
+      
+      queryClient.invalidateQueries({ queryKey: ['/api/document-templates'] });
+      setIsCreateDialogOpen(false);
+      setUploadedFile(null);
+      setExtractedFields([]);
+      setMappedFields([]);
+      
+      toast({
+        title: "Template Created",
+        description: "PDF template has been uploaded and configured successfully.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Upload Failed",
+        description: error.message || "Failed to create template",
+        variant: "destructive",
+      });
+    }
+  };
+
   // Query for document templates
   const { data: templates, isLoading } = useQuery({
     queryKey: ['/api/document-templates'],
@@ -267,111 +373,6 @@ export default function DocumentTemplates() {
       });
     },
   });
-
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file && file.type === 'application/pdf') {
-      setUploadedFile(file);
-      setExtractedFields([]);
-      setMappedFields([]);
-    } else {
-      toast({
-        title: "Invalid File",
-        description: "Please select a PDF file.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const extractFieldsFromPDF = async () => {
-    if (!uploadedFile) return;
-    
-    setIsExtractingFields(true);
-    try {
-      const formData = new FormData();
-      formData.append('pdf', uploadedFile);
-      
-      const response = await fetch('/api/extract-pdf-fields', {
-        method: 'POST',
-        body: formData,
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to extract fields from PDF');
-      }
-      
-      const data = await response.json();
-      setExtractedFields(data.fields || []);
-      
-      toast({
-        title: "Fields Extracted",
-        description: `Found ${data.fields?.length || 0} form fields in the PDF.`,
-      });
-    } catch (error: any) {
-      toast({
-        title: "Extraction Failed",
-        description: error.message || "Failed to extract fields from PDF",
-        variant: "destructive",
-      });
-    } finally {
-      setIsExtractingFields(false);
-    }
-  };
-
-  const updateFieldMapping = (index: number, mapping: DocumentField) => {
-    const newMappings = [...mappedFields];
-    newMappings[index] = mapping;
-    setMappedFields(newMappings);
-  };
-
-  const handleCreateTemplate = async (formData: FormData) => {
-    if (!uploadedFile) {
-      toast({
-        title: "Missing File",
-        description: "Please upload a PDF document.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      // First upload the PDF file
-      const fileFormData = new FormData();
-      fileFormData.append('pdf', uploadedFile);
-      fileFormData.append('name', formData.get('name') as string);
-      fileFormData.append('description', formData.get('description') as string);
-      fileFormData.append('templateType', formData.get('templateType') as string);
-      fileFormData.append('fields', JSON.stringify(mappedFields));
-
-      const response = await fetch('/api/upload-pdf-template', {
-        method: 'POST',
-        body: fileFormData,
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to upload template');
-      }
-
-      const result = await response.json();
-      
-      queryClient.invalidateQueries({ queryKey: ['/api/document-templates'] });
-      setIsCreateDialogOpen(false);
-      setUploadedFile(null);
-      setExtractedFields([]);
-      setMappedFields([]);
-      
-      toast({
-        title: "Template Created",
-        description: "PDF template has been uploaded and configured successfully.",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Upload Failed",
-        description: error.message || "Failed to create template",
-        variant: "destructive",
-      });
-    }
-  };
 
   const viewTemplateFields = (template: DocumentTemplate) => {
     setSelectedTemplate(template);
