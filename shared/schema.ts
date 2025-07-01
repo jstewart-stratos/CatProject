@@ -60,11 +60,23 @@ export const userGroups = pgTable("user_groups", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Households table
+export const households = pgTable("households", {
+  id: serial("id").primaryKey(),
+  name: varchar("name").notNull(),
+  primaryContactClientId: integer("primary_contact_client_id"),
+  description: text("description"),
+  createdBy: varchar("created_by").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Clients table
 export const clients = pgTable("clients", {
   id: serial("id").primaryKey(),
   clientIndex: varchar("client_index").unique(),
   repId: varchar("rep_id"),
+  householdId: integer("household_id").references(() => households.id, { onDelete: "set null" }),
   clientType: varchar("client_type"), // Individual, Joint, Corporate, Trust
   entityType: varchar("entity_type"),
   entityName: varchar("entity_name"),
@@ -368,8 +380,24 @@ export const userGroupsRelations = relations(userGroups, ({ one }) => ({
   }),
 }));
 
+export const householdsRelations = relations(households, ({ many, one }) => ({
+  clients: many(clients),
+  primaryContact: one(clients, {
+    fields: [households.primaryContactClientId],
+    references: [clients.id],
+  }),
+  createdByUser: one(users, {
+    fields: [households.createdBy],
+    references: [users.id],
+  }),
+}));
+
 export const clientsRelations = relations(clients, ({ many, one }) => ({
   accounts: many(accounts),
+  household: one(households, {
+    fields: [clients.householdId],
+    references: [households.id],
+  }),
   createdByUser: one(users, {
     fields: [clients.createdBy],
     references: [users.id],
@@ -445,6 +473,12 @@ export const insertGroupSchema = createInsertSchema(groups).omit({
   updatedAt: true,
 });
 
+export const insertHouseholdSchema = createInsertSchema(households).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export const insertClientSchema = createInsertSchema(clients).omit({
   id: true,
   createdAt: true,
@@ -501,6 +535,8 @@ export type UserWithGroups = User & {
 };
 export type InsertGroup = z.infer<typeof insertGroupSchema>;
 export type Group = typeof groups.$inferSelect;
+export type InsertHousehold = z.infer<typeof insertHouseholdSchema>;
+export type Household = typeof households.$inferSelect;
 export type InsertClient = z.infer<typeof insertClientSchema>;
 export type Client = typeof clients.$inferSelect;
 export type InsertAccount = z.infer<typeof insertAccountSchema>;

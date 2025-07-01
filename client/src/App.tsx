@@ -8,6 +8,7 @@ import NotFound from "@/pages/not-found";
 import Landing from "@/pages/landing";
 import Dashboard from "@/pages/dashboard";
 import Clients from "@/pages/clients";
+import Households from "@/pages/households";
 import Accounts from "@/pages/accounts";
 import ImportExport from "@/pages/import-export";
 import Users from "@/pages/users";
@@ -35,6 +36,7 @@ function Router() {
           <Route path="/" component={Dashboard} />
           <Route path="/clients" component={Clients} />
           <Route path="/clients/:id" component={ClientDetails} />
+          <Route path="/households" component={Households} />
           <Route path="/client-onboarding-full" component={ClientOnboardingFull} />
           <Route path="/accounts" component={Accounts} />
           <Route path="/account-form" component={AccountFormEnhanced} />

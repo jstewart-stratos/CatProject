@@ -2,6 +2,7 @@ import {
   users,
   groups,
   userGroups,
+  households,
   clients,
   accounts,
   beneficiaries,
@@ -14,6 +15,8 @@ import {
   type UserWithGroups,
   type Group,
   type InsertGroup,
+  type Household,
+  type InsertHousehold,
   type Client,
   type InsertClient,
   type Account,
@@ -61,6 +64,18 @@ export interface IStorage {
   removeUserFromGroup(userId: string, groupId: number): Promise<void>;
   getUserGroups(userId: string): Promise<Group[]>;
   getGroupMembers(groupId: number): Promise<User[]>;
+
+  // Household operations
+  createHousehold(household: InsertHousehold): Promise<Household>;
+  getHousehold(id: number): Promise<Household | undefined>;
+  getAllHouseholds(search?: string, limit?: number, offset?: number): Promise<{ households: Household[]; total: number }>;
+  getHouseholdsByGroups(groupIds: number[], search?: string, limit?: number, offset?: number): Promise<{ households: Household[]; total: number }>;
+  updateHousehold(id: number, data: Partial<Household>): Promise<Household>;
+  deleteHousehold(id: number): Promise<void>;
+  getHouseholdClients(householdId: number): Promise<Client[]>;
+  getHouseholdAccounts(householdId: number): Promise<Account[]>;
+  addClientToHousehold(clientId: number, householdId: number): Promise<void>;
+  removeClientFromHousehold(clientId: number): Promise<void>;
 
   // Client operations
   createClient(client: InsertClient): Promise<Client>;
@@ -344,6 +359,123 @@ export class DatabaseStorage implements IStorage {
       .innerJoin(users, eq(userGroups.userId, users.id))
       .where(eq(userGroups.groupId, groupId));
     return result.map(r => r.user);
+  }
+
+  // Household operations
+  async createHousehold(household: InsertHousehold): Promise<Household> {
+    const [newHousehold] = await db.insert(households).values(household).returning();
+    return newHousehold;
+  }
+
+  async getHousehold(id: number): Promise<Household | undefined> {
+    const [household] = await db.select().from(households).where(eq(households.id, id));
+    return household;
+  }
+
+  async getAllHouseholds(search?: string, limit?: number, offset?: number): Promise<{ households: Household[]; total: number }> {
+    let query = db.select().from(households);
+    let countQuery = db.select({ count: sql<number>`count(*)` }).from(households);
+
+    if (search) {
+      const searchCondition = ilike(households.name, `%${search}%`);
+      query = query.where(searchCondition);
+      countQuery = countQuery.where(searchCondition);
+    }
+
+    query = query.orderBy(asc(households.name));
+
+    if (limit) {
+      query = query.limit(limit);
+    }
+    if (offset) {
+      query = query.offset(offset);
+    }
+
+    const [householdsResult, countResult] = await Promise.all([query, countQuery]);
+    return {
+      households: householdsResult,
+      total: countResult[0].count
+    };
+  }
+
+  async getHouseholdsByGroups(groupIds: number[], search?: string, limit?: number, offset?: number): Promise<{ households: Household[]; total: number }> {
+    // For households, we'll filter by households created by users in the specified groups
+    const groupUserIds = await db
+      .select({ userId: userGroups.userId })
+      .from(userGroups)
+      .where(inArray(userGroups.groupId, groupIds));
+
+    const userIds = groupUserIds.map(gu => gu.userId);
+
+    if (userIds.length === 0) {
+      return { households: [], total: 0 };
+    }
+
+    let query = db.select().from(households).where(inArray(households.createdBy, userIds));
+    let countQuery = db.select({ count: sql<number>`count(*)` }).from(households).where(inArray(households.createdBy, userIds));
+
+    if (search) {
+      const searchCondition = ilike(households.name, `%${search}%`);
+      query = query.where(and(inArray(households.createdBy, userIds), searchCondition));
+      countQuery = countQuery.where(and(inArray(households.createdBy, userIds), searchCondition));
+    }
+
+    query = query.orderBy(asc(households.name));
+
+    if (limit) {
+      query = query.limit(limit);
+    }
+    if (offset) {
+      query = query.offset(offset);
+    }
+
+    const [householdsResult, countResult] = await Promise.all([query, countQuery]);
+    return {
+      households: householdsResult,
+      total: countResult[0].count
+    };
+  }
+
+  async updateHousehold(id: number, data: Partial<Household>): Promise<Household> {
+    const [household] = await db
+      .update(households)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(households.id, id))
+      .returning();
+    return household;
+  }
+
+  async deleteHousehold(id: number): Promise<void> {
+    // Remove household association from clients first
+    await db.update(clients).set({ householdId: null }).where(eq(clients.householdId, id));
+    // Then delete the household
+    await db.delete(households).where(eq(households.id, id));
+  }
+
+  async getHouseholdClients(householdId: number): Promise<Client[]> {
+    return await db.select().from(clients).where(eq(clients.householdId, householdId)).orderBy(asc(clients.firstName));
+  }
+
+  async getHouseholdAccounts(householdId: number): Promise<Account[]> {
+    const result = await db
+      .select({
+        account: accounts,
+        client: clients
+      })
+      .from(accounts)
+      .innerJoin(clients, eq(accounts.clientId, clients.id))
+      .where(eq(clients.householdId, householdId))
+      .orderBy(asc(clients.firstName), asc(accounts.accountType));
+    
+    return result.map(r => r.account);
+  }
+
+  async addClientToHousehold(clientId: number, householdId: number): Promise<void> {
+    await db.update(clients).set({ householdId }).where(eq(clients.id, clientId));
+  }
+
+  async removeClientFromHousehold(clientId: number): Promise<void> {
+    await db.update(clients).set({ householdId: null }).where(eq(clients.id, clientId));
   }
 
   // Client operations

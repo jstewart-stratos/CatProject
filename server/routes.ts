@@ -7,6 +7,7 @@ import {
   insertClientSchema, 
   insertAccountSchema, 
   insertGroupSchema,
+  insertHouseholdSchema,
   insertBeneficiarySchema,
   insertAchInformationSchema,
   insertDirectBusinessSchema
@@ -379,6 +380,157 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error removing user from group:", error);
       res.status(500).json({ message: "Failed to remove user from group" });
+    }
+  });
+
+  // Household management routes
+  app.get('/api/households', isAuthenticated, checkPermission(['view_clients']), async (req: any, res) => {
+    try {
+      const { search, groupId, limit = '50', offset = '0' } = req.query;
+      console.log('Households API - groupId:', groupId, 'userRole:', req.userRole, 'userGroups:', req.userGroups?.map((g: any) => g.id));
+      
+      // If groupId is specified, filter by that specific group (for transitions specialists)
+      if (groupId && groupId !== 'all' && req.userRole === 'transition_specialist') {
+        console.log('Applying specific group filter for groupId:', groupId);
+        // Verify the transitions specialist has access to this group
+        const userGroupIds = req.userGroups.map((g: any) => g.id);
+        const requestedGroupId = parseInt(groupId as string);
+        if (!userGroupIds.includes(requestedGroupId)) {
+          console.log('Access denied - user groups:', userGroupIds, 'requested:', requestedGroupId);
+          return res.status(403).json({ message: "Access denied to this group" });
+        }
+        console.log('Filtering households by specific group:', requestedGroupId);
+        const result = await storage.getHouseholdsByGroups(
+          [requestedGroupId],
+          search as string,
+          parseInt(limit as string),
+          parseInt(offset as string)
+        );
+        console.log('Specific group filter result:', result.households?.length || 0, 'households found');
+        res.json(result);
+        return;
+      }
+
+      // Apply group-based filtering based on user role
+      if (req.userRole === 'admin') {
+        const result = await storage.getAllHouseholds(
+          search as string,
+          parseInt(limit as string),
+          parseInt(offset as string)
+        );
+        res.json(result);
+      } else {
+        // Get group IDs for the current user
+        const userGroupIds = req.userGroups.map((g: any) => g.id);
+        console.log('Filtering households by user groups:', userGroupIds);
+        
+        const result = await storage.getHouseholdsByGroups(
+          userGroupIds,
+          search as string,
+          parseInt(limit as string),
+          parseInt(offset as string)
+        );
+        console.log('Group filter households result:', result.households?.length || 0, 'households found');
+        res.json(result);
+      }
+    } catch (error) {
+      console.error("Error fetching households:", error);
+      res.status(500).json({ message: "Failed to fetch households" });
+    }
+  });
+
+  app.get('/api/households/:id', isAuthenticated, checkPermission(['view_clients']), async (req, res) => {
+    try {
+      const { id } = req.params;
+      const household = await storage.getHousehold(parseInt(id));
+      if (!household) {
+        return res.status(404).json({ message: "Household not found" });
+      }
+      res.json(household);
+    } catch (error) {
+      console.error("Error fetching household:", error);
+      res.status(500).json({ message: "Failed to fetch household" });
+    }
+  });
+
+  app.post('/api/households', isAuthenticated, checkPermission(['manage_clients']), async (req: any, res) => {
+    try {
+      const householdData = insertHouseholdSchema.parse({
+        ...req.body,
+        createdBy: req.user.id
+      });
+      const household = await storage.createHousehold(householdData);
+      res.status(201).json(household);
+    } catch (error) {
+      console.error("Error creating household:", error);
+      res.status(500).json({ message: "Failed to create household" });
+    }
+  });
+
+  app.put('/api/households/:id', isAuthenticated, checkPermission(['manage_clients']), async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updateData = insertHouseholdSchema.partial().parse(req.body);
+      const household = await storage.updateHousehold(parseInt(id), updateData);
+      res.json(household);
+    } catch (error) {
+      console.error("Error updating household:", error);
+      res.status(500).json({ message: "Failed to update household" });
+    }
+  });
+
+  app.delete('/api/households/:id', isAuthenticated, checkPermission(['manage_clients']), async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteHousehold(parseInt(id));
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting household:", error);
+      res.status(500).json({ message: "Failed to delete household" });
+    }
+  });
+
+  app.get('/api/households/:id/clients', isAuthenticated, checkPermission(['view_clients']), async (req, res) => {
+    try {
+      const { id } = req.params;
+      const clients = await storage.getHouseholdClients(parseInt(id));
+      res.json(clients);
+    } catch (error) {
+      console.error("Error fetching household clients:", error);
+      res.status(500).json({ message: "Failed to fetch household clients" });
+    }
+  });
+
+  app.get('/api/households/:id/accounts', isAuthenticated, checkPermission(['view_accounts']), async (req, res) => {
+    try {
+      const { id } = req.params;
+      const accounts = await storage.getHouseholdAccounts(parseInt(id));
+      res.json(accounts);
+    } catch (error) {
+      console.error("Error fetching household accounts:", error);
+      res.status(500).json({ message: "Failed to fetch household accounts" });
+    }
+  });
+
+  app.post('/api/households/:householdId/clients/:clientId', isAuthenticated, checkPermission(['manage_clients']), async (req, res) => {
+    try {
+      const { householdId, clientId } = req.params;
+      await storage.addClientToHousehold(parseInt(clientId), parseInt(householdId));
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error adding client to household:", error);
+      res.status(500).json({ message: "Failed to add client to household" });
+    }
+  });
+
+  app.delete('/api/households/clients/:clientId', isAuthenticated, checkPermission(['manage_clients']), async (req, res) => {
+    try {
+      const { clientId } = req.params;
+      await storage.removeClientFromHousehold(parseInt(clientId));
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error removing client from household:", error);
+      res.status(500).json({ message: "Failed to remove client from household" });
     }
   });
 
