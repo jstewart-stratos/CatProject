@@ -43,8 +43,9 @@ interface FieldMappingRowProps {
 }
 
 function FieldMappingRow({ field, index, onUpdate }: FieldMappingRowProps) {
+  const fieldName = typeof field === 'string' ? field : field.name || '';
   const [mapping, setMapping] = useState<DocumentField>({
-    name: field.name || '',
+    name: fieldName,
     type: 'text',
     dataSource: '',
     required: false,
@@ -86,8 +87,9 @@ function FieldMappingRow({ field, index, onUpdate }: FieldMappingRowProps) {
     <Card className="p-4">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
-          <Label className="text-sm font-medium">{field.name}</Label>
-          <p className="text-xs text-gray-500 mt-1">PDF Field</p>
+          <Label className="text-sm font-medium">PDF Field:</Label>
+          <p className="text-sm font-bold text-blue-600 mt-1">{fieldName}</p>
+          <p className="text-xs text-gray-500">From uploaded document</p>
         </div>
         
         <div className="space-y-2">
