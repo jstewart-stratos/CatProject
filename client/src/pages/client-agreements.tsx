@@ -144,6 +144,11 @@ export default function ClientAgreementsPage() {
       mailingState: "",
       mailingZipCode: "",
       mailingCountry: "",
+      riskScore: "",
+      annualIncome: "",
+      netWorth: "",
+      liquidNetWorth: "",
+      taxBracket: "",
     },
     secondaryClient: {
       firstName: "",
@@ -166,6 +171,11 @@ export default function ClientAgreementsPage() {
       mailingCity: "",
       mailingState: "",
       mailingZipCode: "",
+      riskScore: "",
+      annualIncome: "",
+      netWorth: "",
+      liquidNetWorth: "",
+      taxBracket: "",
     },
   });
   const { toast } = useToast();
@@ -255,6 +265,11 @@ export default function ClientAgreementsPage() {
               mailingState: primaryClient.mailingState || "",
               mailingZipCode: primaryClient.mailingZipCode || "",
               mailingCountry: "",
+              riskScore: primaryClient.riskScore || "",
+              annualIncome: primaryClient.annualIncome || "",
+              netWorth: primaryClient.netWorth || "",
+              liquidNetWorth: primaryClient.liquidNetWorth || "",
+              taxBracket: primaryClient.taxBracket || "",
             }
           }));
         }
@@ -263,7 +278,7 @@ export default function ClientAgreementsPage() {
   }, [selectedHouseholdId, households, clients]);
 
   const handleNext = () => {
-    if (currentStep < 7) setCurrentStep(currentStep + 1);
+    if (currentStep < 8) setCurrentStep(currentStep + 1);
   };
 
   const handlePrevious = () => {
@@ -435,7 +450,7 @@ export default function ClientAgreementsPage() {
                 <DialogHeader>
                   <DialogTitle>Create New Client Agreement</DialogTitle>
                   <DialogDescription>
-                    Step {currentStep} of 7: Set up a new client agreement for a household.
+                    Step {currentStep} of 8: Set up a new client agreement for a household.
                   </DialogDescription>
                 </DialogHeader>
 
@@ -557,7 +572,12 @@ export default function ClientAgreementsPage() {
                                       mailingAddress1: secondaryClientData.mailingAddress1 || "",
                                       mailingCity: secondaryClientData.mailingCity || "",
                                       mailingState: secondaryClientData.mailingState || "",
-                                      mailingZipCode: secondaryClientData.mailingZipCode || ""
+                                      mailingZipCode: secondaryClientData.mailingZipCode || "",
+                                      riskScore: secondaryClientData.riskScore || "",
+                                      annualIncome: secondaryClientData.annualIncome || "",
+                                      netWorth: secondaryClientData.netWorth || "",
+                                      liquidNetWorth: secondaryClientData.liquidNetWorth || "",
+                                      taxBracket: secondaryClientData.taxBracket || ""
                                     }
                                   }));
                                 }
@@ -1188,8 +1208,220 @@ export default function ClientAgreementsPage() {
                       </div>
                     )}
 
-                    {/* Step 5: Account Selection */}
+                    {/* Step 5: Client Background */}
                     {currentStep === 5 && (
+                      <div className="space-y-6 max-h-96 overflow-y-auto">
+                        <div className="space-y-2">
+                          <h3 className="text-lg font-semibold text-gray-900">Client Background</h3>
+                          <p className="text-sm text-gray-600">Financial suitability information for the agreement.</p>
+                        </div>
+                        
+                        {/* Primary Client Background */}
+                        <div className="border rounded-lg p-4 space-y-4">
+                          <h4 className="font-medium text-gray-900">Primary Client Background</h4>
+                          
+                          {/* Financial Information Grid */}
+                          <div className="grid grid-cols-2 gap-6">
+                            <div className="space-y-4">
+                              <div>
+                                <Label className="text-sm font-medium">Risk Score (Optional)</Label>
+                                <Input 
+                                  placeholder="Risk score" 
+                                  className="h-8 text-sm"
+                                  value={additionalFormData.primaryClient?.riskScore || ""}
+                                  onChange={(e) => setAdditionalFormData(prev => ({ 
+                                    ...prev, 
+                                    primaryClient: { ...prev.primaryClient, riskScore: e.target.value }
+                                  }))}
+                                />
+                              </div>
+                              
+                              <div>
+                                <Label className="text-sm font-medium">Annual Income</Label>
+                                <Select value={additionalFormData.primaryClient?.annualIncome || ""} onValueChange={(value) => setAdditionalFormData(prev => ({ 
+                                  ...prev, 
+                                  primaryClient: { ...prev.primaryClient, annualIncome: value }
+                                }))}>
+                                  <SelectTrigger className="h-8 text-sm">
+                                    <SelectValue placeholder="Select annual income" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="A">A = $24,999 or less</SelectItem>
+                                    <SelectItem value="B">B = $25,000 to $49,999</SelectItem>
+                                    <SelectItem value="C">C = $50,000 to $99,999</SelectItem>
+                                    <SelectItem value="D">D = $100,000 to $249,999</SelectItem>
+                                    <SelectItem value="E">E = $250,000 to $499,999</SelectItem>
+                                    <SelectItem value="F">F = $500,000 to $749,999</SelectItem>
+                                    <SelectItem value="G">G = $750,000 to 999,999</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              
+                              <div>
+                                <Label className="text-sm font-medium">Net Worth<sup>1</sup></Label>
+                                <Select value={additionalFormData.primaryClient?.netWorth || ""} onValueChange={(value) => setAdditionalFormData(prev => ({ 
+                                  ...prev, 
+                                  primaryClient: { ...prev.primaryClient, netWorth: value }
+                                }))}>
+                                  <SelectTrigger className="h-8 text-sm">
+                                    <SelectValue placeholder="Select net worth" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="H">H = $1,000,000 to $4,999,999</SelectItem>
+                                    <SelectItem value="I">I = $5,000,000 to $9,999,999</SelectItem>
+                                    <SelectItem value="J">J = Over $10 million</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            </div>
+                            
+                            <div className="space-y-4">
+                              <div>
+                                <Label className="text-sm font-medium">Liquid Net Worth</Label>
+                                <Input 
+                                  placeholder="Liquid net worth" 
+                                  className="h-8 text-sm"
+                                  value={additionalFormData.primaryClient?.liquidNetWorth || ""}
+                                  onChange={(e) => setAdditionalFormData(prev => ({ 
+                                    ...prev, 
+                                    primaryClient: { ...prev.primaryClient, liquidNetWorth: e.target.value }
+                                  }))}
+                                />
+                              </div>
+                              
+                              <div>
+                                <Label className="text-sm font-medium">Tax Bracket</Label>
+                                <div className="space-y-2">
+                                  <div className="flex items-center space-x-4">
+                                    <label className="flex items-center">
+                                      <input type="checkbox" className="mr-2" />
+                                      <span className="text-sm">10-15%</span>
+                                    </label>
+                                    <label className="flex items-center">
+                                      <input type="checkbox" className="mr-2" />
+                                      <span className="text-sm">16-28%</span>
+                                    </label>
+                                  </div>
+                                  <label className="flex items-center">
+                                    <input type="checkbox" className="mr-2" />
+                                    <span className="text-sm">29% or Higher</span>
+                                  </label>
+                                </div>
+                              </div>
+                              
+                              <div className="pt-4">
+                                <p className="text-xs text-gray-500"><sup>1</sup> Excluding Primary Residence</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Secondary Client Background (if applicable) */}
+                        {additionalFormData.secondaryClientName && (
+                          <div className="border rounded-lg p-4 space-y-4">
+                            <h4 className="font-medium text-gray-900">Secondary Client Background</h4>
+                            
+                            {/* Financial Information Grid */}
+                            <div className="grid grid-cols-2 gap-6">
+                              <div className="space-y-4">
+                                <div>
+                                  <Label className="text-sm font-medium">Risk Score (Optional)</Label>
+                                  <Input 
+                                    placeholder="Risk score" 
+                                    className="h-8 text-sm"
+                                    value={additionalFormData.secondaryClient?.riskScore || ""}
+                                    onChange={(e) => setAdditionalFormData(prev => ({ 
+                                      ...prev, 
+                                      secondaryClient: { ...(prev.secondaryClient || {}), riskScore: e.target.value }
+                                    }))}
+                                  />
+                                </div>
+                                
+                                <div>
+                                  <Label className="text-sm font-medium">Annual Income</Label>
+                                  <Select value={additionalFormData.secondaryClient?.annualIncome || ""} onValueChange={(value) => setAdditionalFormData(prev => ({ 
+                                    ...prev, 
+                                    secondaryClient: { ...(prev.secondaryClient || {}), annualIncome: value }
+                                  }))}>
+                                    <SelectTrigger className="h-8 text-sm">
+                                      <SelectValue placeholder="Select annual income" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="A">A = $24,999 or less</SelectItem>
+                                      <SelectItem value="B">B = $25,000 to $49,999</SelectItem>
+                                      <SelectItem value="C">C = $50,000 to $99,999</SelectItem>
+                                      <SelectItem value="D">D = $100,000 to $249,999</SelectItem>
+                                      <SelectItem value="E">E = $250,000 to $499,999</SelectItem>
+                                      <SelectItem value="F">F = $500,000 to $749,999</SelectItem>
+                                      <SelectItem value="G">G = $750,000 to 999,999</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                
+                                <div>
+                                  <Label className="text-sm font-medium">Net Worth<sup>1</sup></Label>
+                                  <Select value={additionalFormData.secondaryClient?.netWorth || ""} onValueChange={(value) => setAdditionalFormData(prev => ({ 
+                                    ...prev, 
+                                    secondaryClient: { ...(prev.secondaryClient || {}), netWorth: value }
+                                  }))}>
+                                    <SelectTrigger className="h-8 text-sm">
+                                      <SelectValue placeholder="Select net worth" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="H">H = $1,000,000 to $4,999,999</SelectItem>
+                                      <SelectItem value="I">I = $5,000,000 to $9,999,999</SelectItem>
+                                      <SelectItem value="J">J = Over $10 million</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              </div>
+                              
+                              <div className="space-y-4">
+                                <div>
+                                  <Label className="text-sm font-medium">Liquid Net Worth</Label>
+                                  <Input 
+                                    placeholder="Liquid net worth" 
+                                    className="h-8 text-sm"
+                                    value={additionalFormData.secondaryClient?.liquidNetWorth || ""}
+                                    onChange={(e) => setAdditionalFormData(prev => ({ 
+                                      ...prev, 
+                                      secondaryClient: { ...(prev.secondaryClient || {}), liquidNetWorth: e.target.value }
+                                    }))}
+                                  />
+                                </div>
+                                
+                                <div>
+                                  <Label className="text-sm font-medium">Tax Bracket</Label>
+                                  <div className="space-y-2">
+                                    <div className="flex items-center space-x-4">
+                                      <label className="flex items-center">
+                                        <input type="checkbox" className="mr-2" />
+                                        <span className="text-sm">10-15%</span>
+                                      </label>
+                                      <label className="flex items-center">
+                                        <input type="checkbox" className="mr-2" />
+                                        <span className="text-sm">16-28%</span>
+                                      </label>
+                                    </div>
+                                    <label className="flex items-center">
+                                      <input type="checkbox" className="mr-2" />
+                                      <span className="text-sm">29% or Higher</span>
+                                    </label>
+                                  </div>
+                                </div>
+                                
+                                <div className="pt-4">
+                                  <p className="text-xs text-gray-500"><sup>1</sup> Excluding Primary Residence</p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Step 6: Account Selection */}
+                    {currentStep === 6 && (
                       <div className="space-y-4">
                         <div className="space-y-2">
                           <h3 className="text-lg font-semibold text-gray-900">Select Accounts</h3>
@@ -1246,8 +1478,8 @@ export default function ClientAgreementsPage() {
                       </div>
                     )}
 
-                    {/* Step 6: Account Configuration */}
-                    {currentStep === 6 && (
+                    {/* Step 7: Account Configuration */}
+                    {currentStep === 7 && (
                       <div className="space-y-6 max-h-96 overflow-y-auto">
                         <div className="space-y-2">
                           <h3 className="text-lg font-semibold text-gray-900">Account Configuration</h3>
@@ -1471,8 +1703,8 @@ export default function ClientAgreementsPage() {
                       </div>
                     )}
 
-                    {/* Step 7: Agreement Details */}
-                    {currentStep === 7 && (
+                    {/* Step 8: Agreement Details */}
+                    {currentStep === 8 && (
                       <div className="space-y-6">
                         <div className="grid grid-cols-2 gap-4">
                           <FormField

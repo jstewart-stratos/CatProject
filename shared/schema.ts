@@ -120,6 +120,7 @@ export const clients = pgTable("clients", {
   affiliationType: varchar("affiliation_type"),
   
   // Suitability Information
+  riskScore: varchar("risk_score"),
   annualIncome: varchar("annual_income"),
   netWorth: varchar("net_worth"),
   liquidNetWorth: varchar("liquid_net_worth"),
