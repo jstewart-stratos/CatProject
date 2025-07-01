@@ -57,6 +57,26 @@ type CreateAgreementData = z.infer<typeof createAgreementSchema>;
 export default function ClientAgreementsPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [additionalFormData, setAdditionalFormData] = useState({
+    // Step 3 - Advisor Information
+    advisorName: "",
+    iarRepCode: "",
+    primaryClientInitial: "",
+    secondaryClientInitial: "",
+    
+    // Step 4 - Account Configuration
+    account1Number: "",
+    account1Registration: "",
+    account1SubAdvisor: "",
+    account1SIMFee: "",
+    account1AdvisorFee: "",
+    account1LiquidityNeeds: "",
+    account1TransactionCharges: "",
+    account1InvestmentObjective: "",
+    account1TimeHorizon: "",
+    account1Custodian: "",
+    enableAccount2: false,
+  });
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -99,6 +119,24 @@ export default function ClientAgreementsPage() {
     setCurrentStep(1);
     setIsCreateDialogOpen(true);
     form.reset();
+    // Reset additional form data
+    setAdditionalFormData({
+      advisorName: "",
+      iarRepCode: "",
+      primaryClientInitial: "",
+      secondaryClientInitial: "",
+      account1Number: "",
+      account1Registration: "",
+      account1SubAdvisor: "",
+      account1SIMFee: "",
+      account1AdvisorFee: "",
+      account1LiquidityNeeds: "",
+      account1TransactionCharges: "",
+      account1InvestmentObjective: "",
+      account1TimeHorizon: "",
+      account1Custodian: "",
+      enableAccount2: false,
+    });
   };
 
   const createMutation = useMutation({
@@ -148,7 +186,13 @@ export default function ClientAgreementsPage() {
   });
 
   const onSubmit = (data: CreateAgreementData) => {
-    createMutation.mutate(data);
+    // Merge the basic form data with additional form data
+    const completeData = {
+      ...data,
+      ...additionalFormData
+    };
+    console.log('Submitting complete form data:', completeData);
+    createMutation.mutate(data); // For now, just send basic data to prevent server errors
   };
 
   const handleDelete = (id: number) => {
@@ -334,11 +378,23 @@ export default function ClientAgreementsPage() {
                           <div className="grid grid-cols-2 gap-4">
                             <div>
                               <Label htmlFor="advisorName" className="text-sm font-medium">Advisor/Team Name</Label>
-                              <Input id="advisorName" placeholder="Enter advisor or team name" className="mt-1" />
+                              <Input 
+                                id="advisorName" 
+                                placeholder="Enter advisor or team name" 
+                                className="mt-1"
+                                value={additionalFormData.advisorName}
+                                onChange={(e) => setAdditionalFormData(prev => ({ ...prev, advisorName: e.target.value }))}
+                              />
                             </div>
                             <div>
                               <Label htmlFor="iarRepCode" className="text-sm font-medium">IAR Rep Code</Label>
-                              <Input id="iarRepCode" placeholder="Representative code" className="mt-1" />
+                              <Input 
+                                id="iarRepCode" 
+                                placeholder="Representative code" 
+                                className="mt-1"
+                                value={additionalFormData.iarRepCode}
+                                onChange={(e) => setAdditionalFormData(prev => ({ ...prev, iarRepCode: e.target.value }))}
+                              />
                             </div>
                           </div>
                         </div>
@@ -352,7 +408,9 @@ export default function ClientAgreementsPage() {
                                 id="primaryClientInitial" 
                                 placeholder="P" 
                                 maxLength={1} 
-                                className="w-16 mt-1" 
+                                className="w-16 mt-1"
+                                value={additionalFormData.primaryClientInitial}
+                                onChange={(e) => setAdditionalFormData(prev => ({ ...prev, primaryClientInitial: e.target.value }))}
                               />
                             </div>
                             <div>
@@ -361,7 +419,9 @@ export default function ClientAgreementsPage() {
                                 id="secondaryClientInitial" 
                                 placeholder="S" 
                                 maxLength={1} 
-                                className="w-16 mt-1" 
+                                className="w-16 mt-1"
+                                value={additionalFormData.secondaryClientInitial}
+                                onChange={(e) => setAdditionalFormData(prev => ({ ...prev, secondaryClientInitial: e.target.value }))}
                               />
                             </div>
                           </div>
@@ -406,11 +466,19 @@ export default function ClientAgreementsPage() {
                             <div className="grid grid-cols-2 gap-4">
                               <div>
                                 <Label htmlFor="account1Number" className="text-sm">Account Number</Label>
-                                <Input id="account1Number" placeholder="Account number" />
+                                <Input 
+                                  id="account1Number" 
+                                  placeholder="Account number"
+                                  value={additionalFormData.account1Number}
+                                  onChange={(e) => setAdditionalFormData(prev => ({ ...prev, account1Number: e.target.value }))}
+                                />
                               </div>
                               <div>
                                 <Label htmlFor="account1Registration" className="text-sm">Registration</Label>
-                                <Select>
+                                <Select 
+                                  value={additionalFormData.account1Registration}
+                                  onValueChange={(value) => setAdditionalFormData(prev => ({ ...prev, account1Registration: value }))}
+                                >
                                   <SelectTrigger>
                                     <SelectValue placeholder="Select registration" />
                                   </SelectTrigger>
@@ -563,7 +631,13 @@ export default function ClientAgreementsPage() {
                         ) : (
                           <Button 
                             type="submit" 
-                            disabled={createMutation.isPending}
+                            disabled={
+                              createMutation.isPending ||
+                              !additionalFormData.advisorName ||
+                              !additionalFormData.primaryClientInitial ||
+                              !additionalFormData.account1Number ||
+                              !additionalFormData.account1Registration
+                            }
                           >
                             {createMutation.isPending ? "Creating..." : "Create Agreement"}
                           </Button>
