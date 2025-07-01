@@ -86,9 +86,13 @@ export default function ClientAgreementsPage() {
   });
   const households = (householdsResponse as any)?.households || [];
 
-  // Fetch accounts for selected household (temporarily disabled until endpoint is created)
+  // Fetch accounts for selected household
   const selectedHouseholdId = form.watch("householdId");
-  const householdAccounts: any[] = []; // Will be populated once API endpoint is ready
+  const { data: householdAccounts = [] } = useQuery({
+    queryKey: ["/api/households", selectedHouseholdId, "accounts"],
+    queryFn: () => selectedHouseholdId ? fetch(`/api/households/${selectedHouseholdId}/accounts`).then(res => res.json()) : [],
+    enabled: !!selectedHouseholdId,
+  });
 
   // Fetch all client agreements
   const { data: agreements = [], isLoading } = useQuery({
@@ -353,73 +357,41 @@ export default function ClientAgreementsPage() {
                           <p className="text-sm text-gray-600">Choose which accounts to include in this agreement.</p>
                         </div>
 
-                        {/* Mock accounts for now - will be replaced with real data */}
+                        {/* Dynamic accounts from selected household */}
                         <div className="space-y-3 max-h-64 overflow-y-auto">
                           {selectedHouseholdId ? (
-                            <>
-                              {/* Sample accounts for demonstration */}
+                            householdAccounts.length > 0 ? (
                               <div className="space-y-2">
-                                <div className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50">
-                                  <input
-                                    type="checkbox"
-                                    id="account-1"
-                                    checked={selectedAccounts.includes(1)}
-                                    onChange={(e) => {
-                                      if (e.target.checked) {
-                                        setSelectedAccounts(prev => [...prev, 1]);
-                                      } else {
-                                        setSelectedAccounts(prev => prev.filter(id => id !== 1));
-                                      }
-                                    }}
-                                    className="w-4 h-4 text-blue-600"
-                                  />
-                                  <div className="flex-1">
-                                    <div className="font-medium">Individual Brokerage Account</div>
-                                    <div className="text-sm text-gray-500">Account #12345 • $125,000</div>
+                                {householdAccounts.map((account: any) => (
+                                  <div key={account.id} className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50">
+                                    <input
+                                      type="checkbox"
+                                      id={`account-${account.id}`}
+                                      checked={selectedAccounts.includes(account.id)}
+                                      onChange={(e) => {
+                                        if (e.target.checked) {
+                                          setSelectedAccounts(prev => [...prev, account.id]);
+                                        } else {
+                                          setSelectedAccounts(prev => prev.filter(id => id !== account.id));
+                                        }
+                                      }}
+                                      className="w-4 h-4 text-blue-600"
+                                    />
+                                    <div className="flex-1">
+                                      <div className="font-medium">
+                                        {account.accountType} {account.programType}
+                                      </div>
+                                      <div className="text-sm text-gray-500">
+                                        Account #{account.id} • {account.registrationType}
+                                        {account.approximateAccountValue && ` • ${account.approximateAccountValue}`}
+                                      </div>
+                                    </div>
                                   </div>
-                                </div>
-                                
-                                <div className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50">
-                                  <input
-                                    type="checkbox"
-                                    id="account-2"
-                                    checked={selectedAccounts.includes(2)}
-                                    onChange={(e) => {
-                                      if (e.target.checked) {
-                                        setSelectedAccounts(prev => [...prev, 2]);
-                                      } else {
-                                        setSelectedAccounts(prev => prev.filter(id => id !== 2));
-                                      }
-                                    }}
-                                    className="w-4 h-4 text-blue-600"
-                                  />
-                                  <div className="flex-1">
-                                    <div className="font-medium">Joint Advisory Account</div>
-                                    <div className="text-sm text-gray-500">Account #67890 • $250,000</div>
-                                  </div>
-                                </div>
-
-                                <div className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50">
-                                  <input
-                                    type="checkbox"
-                                    id="account-3"
-                                    checked={selectedAccounts.includes(3)}
-                                    onChange={(e) => {
-                                      if (e.target.checked) {
-                                        setSelectedAccounts(prev => [...prev, 3]);
-                                      } else {
-                                        setSelectedAccounts(prev => prev.filter(id => id !== 3));
-                                      }
-                                    }}
-                                    className="w-4 h-4 text-blue-600"
-                                  />
-                                  <div className="flex-1">
-                                    <div className="font-medium">Traditional IRA</div>
-                                    <div className="text-sm text-gray-500">Account #11111 • $75,000</div>
-                                  </div>
-                                </div>
+                                ))}
                               </div>
-                            </>
+                            ) : (
+                              <p className="text-sm text-gray-500 italic">No accounts found for this household.</p>
+                            )
                           ) : (
                             <p className="text-sm text-gray-500 italic">Please select a household first to view available accounts.</p>
                           )}
@@ -447,13 +419,15 @@ export default function ClientAgreementsPage() {
                           <p className="text-sm text-gray-500 italic">No accounts selected. Please go back and select accounts first.</p>
                         ) : (
                           <div className="space-y-6">
-                            {selectedAccounts.map((accountId) => (
-                              <div key={accountId} className="border rounded-lg p-4 space-y-4">
-                                <h4 className="font-medium text-gray-900">
-                                  {accountId === 1 && "Individual Brokerage Account #12345"}
-                                  {accountId === 2 && "Joint Advisory Account #67890"}
-                                  {accountId === 3 && "Traditional IRA #11111"}
-                                </h4>
+                            {selectedAccounts.map((accountId) => {
+                              const account = householdAccounts.find((acc: any) => acc.id === accountId);
+                              if (!account) return null;
+                              
+                              return (
+                                <div key={accountId} className="border rounded-lg p-4 space-y-4">
+                                  <h4 className="font-medium text-gray-900">
+                                    {account.accountType} {account.programType} Account #{account.id}
+                                  </h4>
                                 
                                 {/* Configuration fields based on the image requirements */}
                                 <div className="grid grid-cols-2 gap-4">
@@ -650,8 +624,9 @@ export default function ClientAgreementsPage() {
                                     {/* Empty space for symmetry */}
                                   </div>
                                 </div>
-                              </div>
-                            ))}
+                                </div>
+                              );
+                            })}
                           </div>
                         )}
                       </div>
