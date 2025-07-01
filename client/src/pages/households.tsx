@@ -37,11 +37,12 @@ export default function HouseholdsPage() {
 
   // Fetch households
   const { data: householdsData, isLoading: isLoadingHouseholds } = useQuery({
-    queryKey: ["/api/households"],
+    queryKey: ["/api/households", searchTerm],
     queryFn: async () => {
       const params = new URLSearchParams();
       if (searchTerm) params.append("search", searchTerm);
-      const response = await fetch(`/api/households?${params.toString()}`);
+      const url = `/api/households${params.toString() ? `?${params.toString()}` : ''}`;
+      const response = await fetch(url);
       if (!response.ok) throw new Error("Failed to fetch households");
       return response.json() as Promise<{ households: Household[]; total: number }>;
     },
