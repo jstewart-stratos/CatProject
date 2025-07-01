@@ -529,14 +529,20 @@ export default function ClientAgreementsPage() {
 
                                 <div>
                                   <Label className="text-sm font-medium">Custodian</Label>
-                                  <Input 
-                                    placeholder="Enter custodian name" 
-                                    value={accountConfigurations[accountId]?.custodian || ''}
-                                    onChange={(e) => setAccountConfigurations(prev => ({
-                                      ...prev,
-                                      [accountId]: { ...prev[accountId], custodian: e.target.value }
-                                    }))}
-                                  />
+                                  <Select onValueChange={(value) => setAccountConfigurations(prev => ({
+                                    ...prev,
+                                    [accountId]: { ...prev[accountId], custodian: value }
+                                  }))}>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select custodian" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="schwab">Schwab</SelectItem>
+                                      <SelectItem value="fidelity">Fidelity</SelectItem>
+                                      <SelectItem value="lpl">LPL</SelectItem>
+                                      <SelectItem value="other">Other</SelectItem>
+                                    </SelectContent>
+                                  </Select>
                                 </div>
                               </div>
                             ))}
