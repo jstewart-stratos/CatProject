@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./auth";
+import { PDFService } from "./pdfService";
 
 import { 
   insertClientSchema, 
@@ -2170,11 +2171,100 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...req.body,
         createdBy: userId
       });
+      
+      // Create the agreement record first
       const agreement = await storage.createClientAgreement(agreementData);
-      res.status(201).json(agreement);
+      
+      // Generate PDF document
+      try {
+        // Get household data
+        const household = await storage.getHousehold(agreement.householdId);
+        if (!household) {
+          throw new Error('Household not found');
+        }
+        
+        // Get household clients
+        const clients = await storage.getHouseholdClients(agreement.householdId);
+        
+        // Prepare PDF data
+        const pdfData = {
+          businessLine: agreement.businessLine as 'SWP' | 'SWA',
+          householdName: household.name,
+          advisorName: '', // Can be added later if needed
+          agreementDate: agreement.agreementDate,
+          version: agreement.version,
+          clients: clients.map(client => ({
+            firstName: client.firstName || '',
+            lastName: client.lastName || '',
+            email: client.email || '',
+            phone: client.homePhone || client.mobilePhone || '',
+            address: client.legalAddress1 || '',
+            city: client.city || '',
+            state: client.state || '',
+            zipCode: client.zipCode || ''
+          }))
+        };
+        
+        // Generate the PDF
+        const pdfBuffer = await PDFService.fillClientAgreement(pdfData);
+        const fileName = PDFService.generateFileName(pdfData);
+        
+        // Save PDF to uploads directory
+        const pdfPath = path.join('uploads', fileName);
+        await fs.writeFile(pdfPath, pdfBuffer);
+        
+        // Update agreement with PDF info
+        await storage.updateClientAgreement(agreement.id, {
+          pdfFileName: fileName,
+          pdfPath: pdfPath
+        });
+        
+        console.log(`Generated PDF: ${fileName} for agreement ${agreement.id}`);
+      } catch (pdfError) {
+        console.error("Error generating PDF:", pdfError);
+        // Continue without PDF - don't fail the entire request
+      }
+      
+      // Return the created agreement
+      const updatedAgreement = await storage.getClientAgreement(agreement.id);
+      res.status(201).json(updatedAgreement);
     } catch (error) {
       console.error("Error creating client agreement:", error);
       res.status(500).json({ message: "Failed to create client agreement" });
+    }
+  });
+
+  // Download PDF route
+  app.get('/api/client-agreements/:id/download', isAuthenticated, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const agreement = await storage.getClientAgreement(parseInt(id));
+      
+      if (!agreement) {
+        return res.status(404).json({ message: "Client agreement not found" });
+      }
+      
+      if (!agreement.pdfPath || !agreement.pdfFileName) {
+        return res.status(404).json({ message: "PDF not available for this agreement" });
+      }
+      
+      // Check if file exists
+      try {
+        await fs.access(agreement.pdfPath);
+      } catch {
+        return res.status(404).json({ message: "PDF file not found on disk" });
+      }
+      
+      // Set headers for PDF download
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="${agreement.pdfFileName}"`);
+      
+      // Stream the file
+      const fileBuffer = await fs.readFile(agreement.pdfPath);
+      res.send(fileBuffer);
+    } catch (error) {
+      console.error("Error downloading client agreement PDF:", error);
+      res.status(500).json({ message: "Failed to download PDF" });
     }
   });
 

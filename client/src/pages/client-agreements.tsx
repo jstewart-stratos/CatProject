@@ -157,6 +157,16 @@ export default function ClientAgreementsPage() {
     }
   };
 
+  const handleDownloadPDF = (agreementId: number, fileName: string) => {
+    // Create a link to download the PDF
+    const link = document.createElement('a');
+    link.href = `/api/client-agreements/${agreementId}/download`;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const getHouseholdName = (householdId: number) => {
     const household = households.find((h: any) => h.id === householdId);
     return household?.householdName || `Household ${householdId}`;
@@ -402,7 +412,11 @@ export default function ClientAgreementsPage() {
                         </TableCell>
                         <TableCell>
                           {agreement.pdfFileName ? (
-                            <Button variant="outline" size="sm">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => handleDownloadPDF(agreement.id, agreement.pdfFileName)}
+                            >
                               <Download className="h-3 w-3 mr-1" />
                               PDF
                             </Button>
