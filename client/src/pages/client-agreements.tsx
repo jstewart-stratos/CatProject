@@ -1726,14 +1726,14 @@ export default function ClientAgreementsPage() {
                         )}
                       </div>
                       <div className="flex space-x-2">
-                        {currentStep < 7 ? (
+                        {currentStep < 8 ? (
                           <Button 
                             type="button" 
                             onClick={handleNext}
                             disabled={
                               (currentStep === 1 && !form.watch("businessLine")) ||
                               (currentStep === 2 && !form.watch("householdId")) ||
-                              (currentStep === 5 && selectedAccounts.length === 0)
+                              (currentStep === 6 && selectedAccounts.length === 0)
                             }
                           >
                             Next
