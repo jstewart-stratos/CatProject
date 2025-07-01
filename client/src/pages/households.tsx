@@ -37,57 +37,29 @@ export default function HouseholdsPage() {
 
   // Fetch households
   const { data: householdsData, isLoading: isLoadingHouseholds } = useQuery({
-    queryKey: ["/api/households", searchTerm],
-    queryFn: async () => {
-      const params = new URLSearchParams();
-      if (searchTerm) params.append("search", searchTerm);
-      const url = `/api/households${params.toString() ? `?${params.toString()}` : ''}`;
-      const response = await fetch(url);
-      if (!response.ok) throw new Error("Failed to fetch households");
-      return response.json() as Promise<{ households: Household[]; total: number }>;
-    },
+    queryKey: ["/api/households"],
   });
 
   // Fetch clients for primary contact selection
   const { data: clientsData } = useQuery({
     queryKey: ["/api/clients"],
-    queryFn: async () => {
-      const response = await fetch("/api/clients");
-      if (!response.ok) throw new Error("Failed to fetch clients");
-      return response.json() as Promise<{ clients: Client[]; total: number }>;
-    },
   });
 
   // Fetch household details (clients and accounts)
   const { data: householdClients } = useQuery({
-    queryKey: ["/api/households", selectedHousehold?.id, "clients"],
-    queryFn: async () => {
-      if (!selectedHousehold) return [];
-      const response = await fetch(`/api/households/${selectedHousehold.id}/clients`);
-      if (!response.ok) throw new Error("Failed to fetch household clients");
-      return response.json() as Promise<Client[]>;
-    },
+    queryKey: [`/api/households/${selectedHousehold?.id}/clients`],
     enabled: !!selectedHousehold && isDetailsDialogOpen,
   });
 
   const { data: householdAccounts } = useQuery({
-    queryKey: ["/api/households", selectedHousehold?.id, "accounts"],
-    queryFn: async () => {
-      if (!selectedHousehold) return [];
-      const response = await fetch(`/api/households/${selectedHousehold.id}/accounts`);
-      if (!response.ok) throw new Error("Failed to fetch household accounts");
-      return response.json() as Promise<Account[]>;
-    },
+    queryKey: [`/api/households/${selectedHousehold?.id}/accounts`],
     enabled: !!selectedHousehold && isDetailsDialogOpen,
   });
 
   // Create household mutation
   const createHouseholdMutation = useMutation({
     mutationFn: async (data: HouseholdFormData) => {
-      return await apiRequest("/api/households", {
-        method: "POST",
-        body: data,
-      });
+      return await apiRequest("POST", "/api/households", data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/households"] });
@@ -109,10 +81,7 @@ export default function HouseholdsPage() {
   // Update household mutation
   const updateHouseholdMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: Partial<HouseholdFormData> }) => {
-      return await apiRequest(`/api/households/${id}`, {
-        method: "PUT",
-        body: data,
-      });
+      return await apiRequest("PUT", `/api/households/${id}`, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/households"] });
@@ -135,9 +104,7 @@ export default function HouseholdsPage() {
   // Delete household mutation
   const deleteHouseholdMutation = useMutation({
     mutationFn: async (id: number) => {
-      return await apiRequest(`/api/households/${id}`, {
-        method: "DELETE",
-      });
+      return await apiRequest("DELETE", `/api/households/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/households"] });
