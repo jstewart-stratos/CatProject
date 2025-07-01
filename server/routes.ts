@@ -28,12 +28,27 @@ const upload = multer({
     const allowedTypes = [
       'text/csv',
       'application/vnd.ms-excel',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/pdf'
     ];
     if (allowedTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error('Invalid file type. Only CSV and Excel files are allowed.'));
+      cb(new Error('Invalid file type. Only CSV, Excel, and PDF files are allowed.'));
+    }
+  }
+});
+
+const pdfUpload = multer({
+  dest: 'uploads/templates/',
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === 'application/pdf') {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only PDF files are allowed.'));
     }
   }
 });
@@ -2003,6 +2018,111 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error fetching document template:', error);
       res.status(500).json({ message: 'Failed to fetch document template' });
+    }
+  });
+
+  // PDF field extraction endpoint
+  app.post('/api/extract-pdf-fields', isAuthenticated, pdfUpload.single('pdf'), async (req: any, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: 'No PDF file uploaded' });
+      }
+
+      // Check user permissions (admin or transition_specialist only)
+      const userRole = req.user?.role;
+      if (userRole !== 'admin' && userRole !== 'transition_specialist') {
+        return res.status(403).json({ message: 'Insufficient permissions to upload PDF templates' });
+      }
+
+      const pdfPath = req.file.path;
+      const fields = await PDFService.extractFormFields(pdfPath);
+
+      // Clean up uploaded file after extraction
+      try {
+        unlinkSync(pdfPath);
+      } catch (err) {
+        console.warn('Failed to clean up temporary PDF file:', err);
+      }
+
+      res.json({
+        success: true,
+        fields: fields,
+        totalFields: fields.length
+      });
+    } catch (error) {
+      console.error('Error extracting PDF fields:', error);
+      res.status(500).json({ message: 'Failed to extract fields from PDF' });
+    }
+  });
+
+  // PDF template upload endpoint
+  app.post('/api/upload-pdf-template', isAuthenticated, pdfUpload.single('pdf'), async (req: any, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: 'No PDF file uploaded' });
+      }
+
+      // Check user permissions (admin or transition_specialist only)
+      const userRole = req.user?.role;
+      if (userRole !== 'admin' && userRole !== 'transition_specialist') {
+        return res.status(403).json({ message: 'Insufficient permissions to upload PDF templates' });
+      }
+
+      const { name, description, templateType, fields } = req.body;
+      
+      if (!name || !templateType) {
+        return res.status(400).json({ message: 'Name and template type are required' });
+      }
+
+      // Generate unique filename for the PDF
+      const timestamp = Date.now();
+      const filename = `${templateType}_${timestamp}.pdf`;
+      const templatePath = path.join('uploads/templates', filename);
+
+      // Move the uploaded file to permanent location
+      await fs.rename(req.file.path, templatePath);
+
+      // Parse fields if provided
+      let parsedFields = [];
+      if (fields) {
+        try {
+          parsedFields = JSON.parse(fields);
+        } catch (err) {
+          console.warn('Failed to parse fields JSON:', err);
+        }
+      }
+
+      // Create document template record
+      const templateData = {
+        name: name.trim(),
+        description: description?.trim() || null,
+        templateType: templateType,
+        filePath: templatePath,
+        fields: parsedFields,
+        isActive: true,
+        createdBy: req.user.id,
+      };
+
+      const template = await storage.createDocumentTemplate(templateData);
+
+      res.json({
+        success: true,
+        template: template,
+        message: 'PDF template uploaded successfully'
+      });
+    } catch (error) {
+      console.error('Error uploading PDF template:', error);
+      
+      // Clean up uploaded file on error
+      if (req.file) {
+        try {
+          unlinkSync(req.file.path);
+        } catch (err) {
+          console.warn('Failed to clean up uploaded PDF file:', err);
+        }
+      }
+      
+      res.status(500).json({ message: 'Failed to upload PDF template' });
     }
   });
 

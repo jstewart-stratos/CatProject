@@ -11,8 +11,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import Sidebar from '@/components/sidebar';
 import TopBar from '@/components/top-bar';
-import { Plus, FileText, Settings, Eye, Download } from 'lucide-react';
+import { Plus, FileText, Settings, Eye, Download, Upload, FileUp, MapPin } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface DocumentTemplate {
   id: number;
@@ -34,13 +36,112 @@ interface DocumentField {
   description?: string;
 }
 
+interface FieldMappingRowProps {
+  field: any;
+  index: number;
+  onUpdate: (index: number, mapping: DocumentField) => void;
+}
+
+function FieldMappingRow({ field, index, onUpdate }: FieldMappingRowProps) {
+  const [mapping, setMapping] = useState<DocumentField>({
+    name: field.name || '',
+    type: 'text',
+    dataSource: '',
+    required: false,
+  });
+
+  const clientDataSources = [
+    { value: 'firstName', label: 'First Name' },
+    { value: 'lastName', label: 'Last Name' },
+    { value: 'middleName', label: 'Middle Name' },
+    { value: 'email', label: 'Email Address' },
+    { value: 'ssn', label: 'SSN' },
+    { value: 'dateOfBirth', label: 'Date of Birth' },
+    { value: 'homePhone', label: 'Home Phone' },
+    { value: 'mobilePhone', label: 'Mobile Phone' },
+    { value: 'businessPhone', label: 'Business Phone' },
+    { value: 'legalAddress1', label: 'Legal Address Line 1' },
+    { value: 'legalAddress2', label: 'Legal Address Line 2' },
+    { value: 'city', label: 'City' },
+    { value: 'state', label: 'State' },
+    { value: 'zipCode', label: 'ZIP Code' },
+    { value: 'employmentStatus', label: 'Employment Status' },
+    { value: 'industry', label: 'Industry' },
+    { value: 'occupation', label: 'Occupation' },
+    { value: 'employer', label: 'Employer' },
+    { value: 'annualIncome', label: 'Annual Income' },
+    { value: 'netWorth', label: 'Net Worth' },
+    { value: 'citizenship', label: 'Citizenship' },
+    // Account fields
+    { value: 'accountType', label: 'Account Type' },
+    { value: 'programType', label: 'Program Type' },
+    { value: 'registrationType', label: 'Registration Type' },
+  ];
+
+  useEffect(() => {
+    onUpdate(index, mapping);
+  }, [mapping, index, onUpdate]);
+
+  return (
+    <Card className="p-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <Label className="text-sm font-medium">{field.name}</Label>
+          <p className="text-xs text-gray-500 mt-1">PDF Field</p>
+        </div>
+        
+        <div className="space-y-2">
+          <Label htmlFor={`dataSource-${index}`}>Map to Client Data</Label>
+          <Select
+            value={mapping.dataSource}
+            onValueChange={(value) => setMapping({ ...mapping, dataSource: value })}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select data source" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">-- Do not map --</SelectItem>
+              {clientDataSources.map((source) => (
+                <SelectItem key={source.value} value={source.value}>
+                  {source.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        
+        <div className="space-y-2">
+          <Label>Options</Label>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id={`required-${index}`}
+              checked={mapping.required}
+              onCheckedChange={(checked) => 
+                setMapping({ ...mapping, required: !!checked })
+              }
+            />
+            <Label htmlFor={`required-${index}`} className="text-sm">
+              Required
+            </Label>
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
 export default function DocumentTemplates() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<DocumentTemplate | null>(null);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isGenerateDialogOpen, setIsGenerateDialogOpen] = useState(false);
+  const [isFieldMappingDialogOpen, setIsFieldMappingDialogOpen] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState<string>('');
   const [selectedAccountId, setSelectedAccountId] = useState<string>('');
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [extractedFields, setExtractedFields] = useState<any[]>([]);
+  const [mappedFields, setMappedFields] = useState<DocumentField[]>([]);
+  const [isExtractingFields, setIsExtractingFields] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -60,7 +161,7 @@ export default function DocumentTemplates() {
     queryKey: ['/api/clients'],
     retry: false,
   });
-  const clients = clientsResponse?.clients || [];
+  const clients = (clientsResponse as any)?.clients || [];
 
   // Query for accounts based on selected client
   const { data: accounts } = useQuery({
@@ -78,10 +179,7 @@ export default function DocumentTemplates() {
 
   // Create template mutation
   const createTemplateMutation = useMutation({
-    mutationFn: (templateData: any) => apiRequest('/api/document-templates', {
-      method: 'POST',
-      body: templateData,
-    }),
+    mutationFn: (templateData: any) => apiRequest('/api/document-templates', 'POST', templateData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/document-templates'] });
       setIsCreateDialogOpen(false);
@@ -170,16 +268,109 @@ export default function DocumentTemplates() {
     },
   });
 
-  const handleCreateTemplate = (formData: FormData) => {
-    const templateData = {
-      name: formData.get('name') as string,
-      description: formData.get('description') as string,
-      templateType: formData.get('templateType') as string,
-      filePath: `/templates/${(formData.get('templateType') as string).toLowerCase()}.html`, // Auto-generate file path
-      fields: [], // Start with empty fields, can be edited later
-    };
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && file.type === 'application/pdf') {
+      setUploadedFile(file);
+      setExtractedFields([]);
+      setMappedFields([]);
+    } else {
+      toast({
+        title: "Invalid File",
+        description: "Please select a PDF file.",
+        variant: "destructive",
+      });
+    }
+  };
 
-    createTemplateMutation.mutate(templateData);
+  const extractFieldsFromPDF = async () => {
+    if (!uploadedFile) return;
+    
+    setIsExtractingFields(true);
+    try {
+      const formData = new FormData();
+      formData.append('pdf', uploadedFile);
+      
+      const response = await fetch('/api/extract-pdf-fields', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to extract fields from PDF');
+      }
+      
+      const data = await response.json();
+      setExtractedFields(data.fields || []);
+      
+      toast({
+        title: "Fields Extracted",
+        description: `Found ${data.fields?.length || 0} form fields in the PDF.`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Extraction Failed",
+        description: error.message || "Failed to extract fields from PDF",
+        variant: "destructive",
+      });
+    } finally {
+      setIsExtractingFields(false);
+    }
+  };
+
+  const updateFieldMapping = (index: number, mapping: DocumentField) => {
+    const newMappings = [...mappedFields];
+    newMappings[index] = mapping;
+    setMappedFields(newMappings);
+  };
+
+  const handleCreateTemplate = async (formData: FormData) => {
+    if (!uploadedFile) {
+      toast({
+        title: "Missing File",
+        description: "Please upload a PDF document.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // First upload the PDF file
+      const fileFormData = new FormData();
+      fileFormData.append('pdf', uploadedFile);
+      fileFormData.append('name', formData.get('name') as string);
+      fileFormData.append('description', formData.get('description') as string);
+      fileFormData.append('templateType', formData.get('templateType') as string);
+      fileFormData.append('fields', JSON.stringify(mappedFields));
+
+      const response = await fetch('/api/upload-pdf-template', {
+        method: 'POST',
+        body: fileFormData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to upload template');
+      }
+
+      const result = await response.json();
+      
+      queryClient.invalidateQueries({ queryKey: ['/api/document-templates'] });
+      setIsCreateDialogOpen(false);
+      setUploadedFile(null);
+      setExtractedFields([]);
+      setMappedFields([]);
+      
+      toast({
+        title: "Template Created",
+        description: "PDF template has been uploaded and configured successfully.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Upload Failed",
+        description: error.message || "Failed to create template",
+        variant: "destructive",
+      });
+    }
   };
 
   const viewTemplateFields = (template: DocumentTemplate) => {
@@ -215,7 +406,7 @@ export default function DocumentTemplates() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Sidebar />
+      <Sidebar currentView="document-templates" />
       <div className="lg:ml-64">
         <TopBar title="Document Templates" subtitle="Manage document templates and field mappings" />
         
@@ -234,58 +425,131 @@ export default function DocumentTemplates() {
                   Create Template
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
+              <DialogContent className="sm:max-w-[600px]">
                 <DialogHeader>
                   <DialogTitle>Create Document Template</DialogTitle>
                   <DialogDescription>
-                    Create a new document template with field mappings for client data.
+                    Upload a PDF document and map fields to client data for automatic filling.
                   </DialogDescription>
                 </DialogHeader>
-                <form onSubmit={(e) => {
-                  e.preventDefault();
-                  const formData = new FormData(e.currentTarget);
-                  handleCreateTemplate(formData);
-                }}>
-                  <div className="grid gap-4 py-4">
-                    <div className="grid gap-2">
-                      <Label htmlFor="name">Template Name</Label>
-                      <Input
-                        id="name"
-                        name="name"
-                        placeholder="e.g., Client Agreement"
-                        required
-                      />
+                <Tabs defaultValue="upload" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="upload">Upload PDF</TabsTrigger>
+                    <TabsTrigger value="mapping" disabled={!uploadedFile}>Field Mapping</TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="upload" className="space-y-4">
+                    <form onSubmit={(e) => {
+                      e.preventDefault();
+                      const formData = new FormData(e.currentTarget);
+                      handleCreateTemplate(formData);
+                    }}>
+                      <div className="grid gap-4 py-4">
+                        <div className="grid gap-2">
+                          <Label htmlFor="name">Template Name</Label>
+                          <Input
+                            id="name"
+                            name="name"
+                            placeholder="e.g., Client Agreement"
+                            required
+                          />
+                        </div>
+                        <div className="grid gap-2">
+                          <Label htmlFor="description">Description</Label>
+                          <Textarea
+                            id="description"
+                            name="description"
+                            placeholder="Brief description of the template"
+                            rows={3}
+                          />
+                        </div>
+                        <div className="grid gap-2">
+                          <Label htmlFor="templateType">Template Type</Label>
+                          <Select name="templateType" required>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select template type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="client_agreement">Client Agreement</SelectItem>
+                              <SelectItem value="account_opening">Account Opening</SelectItem>
+                              <SelectItem value="advisory_agreement">Advisory Agreement</SelectItem>
+                              <SelectItem value="other">Other</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="grid gap-2">
+                          <Label htmlFor="pdfFile">PDF Document</Label>
+                          <div className="flex items-center justify-center w-full">
+                            <label htmlFor="pdfFile" className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+                              <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                <FileUp className="w-8 h-8 mb-4 text-gray-500" />
+                                <p className="mb-2 text-sm text-gray-500">
+                                  <span className="font-semibold">Click to upload</span> your PDF document
+                                </p>
+                                <p className="text-xs text-gray-500">PDF files only (MAX. 10MB)</p>
+                              </div>
+                              <Input
+                                id="pdfFile"
+                                name="pdfFile"
+                                type="file"
+                                accept=".pdf"
+                                className="hidden"
+                                onChange={handleFileUpload}
+                                required
+                              />
+                            </label>
+                          </div>
+                          {uploadedFile && (
+                            <div className="flex items-center gap-2 mt-2 p-2 bg-green-50 rounded-lg">
+                              <FileText className="h-4 w-4 text-green-600" />
+                              <span className="text-sm text-green-700">{uploadedFile.name}</span>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setUploadedFile(null)}
+                                className="ml-auto h-6 w-6 p-0"
+                              >
+                                ×
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <DialogFooter>
+                        <Button 
+                          type="button" 
+                          variant="outline"
+                          onClick={() => uploadedFile && extractFieldsFromPDF()}
+                          disabled={!uploadedFile || isExtractingFields}
+                        >
+                          {isExtractingFields ? 'Extracting...' : 'Extract Fields'}
+                        </Button>
+                        <Button type="submit" disabled={createTemplateMutation.isPending || !uploadedFile}>
+                          {createTemplateMutation.isPending ? 'Creating...' : 'Create Template'}
+                        </Button>
+                      </DialogFooter>
+                    </form>
+                  </TabsContent>
+                  
+                  <TabsContent value="mapping" className="space-y-4">
+                    <div className="space-y-4 max-h-96 overflow-y-auto">
+                      <div className="text-sm text-gray-600 mb-4">
+                        Map PDF form fields to client data sources. Fields will be automatically filled when generating documents.
+                      </div>
+                      {extractedFields.length > 0 ? (
+                        extractedFields.map((field, index) => (
+                          <FieldMappingRow key={index} field={field} index={index} onUpdate={updateFieldMapping} />
+                        ))
+                      ) : (
+                        <div className="text-center py-8 text-gray-500">
+                          <MapPin className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                          <p>No fields extracted yet. Click "Extract Fields" to analyze the PDF.</p>
+                        </div>
+                      )}
                     </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="description">Description</Label>
-                      <Textarea
-                        id="description"
-                        name="description"
-                        placeholder="Brief description of the template"
-                        rows={3}
-                      />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="templateType">Template Type</Label>
-                      <Select name="templateType" required>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select template type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="client_agreement">Client Agreement</SelectItem>
-                          <SelectItem value="account_opening">Account Opening</SelectItem>
-                          <SelectItem value="advisory_agreement">Advisory Agreement</SelectItem>
-                          <SelectItem value="other">Other</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <Button type="submit" disabled={createTemplateMutation.isPending}>
-                      {createTemplateMutation.isPending ? 'Creating...' : 'Create Template'}
-                    </Button>
-                  </DialogFooter>
-                </form>
+                  </TabsContent>
+                </Tabs>
               </DialogContent>
             </Dialog>
           </div>
@@ -305,9 +569,9 @@ export default function DocumentTemplates() {
                 </Card>
               ))}
             </div>
-          ) : templates && templates.length > 0 ? (
+          ) : templates && (templates as any).length > 0 ? (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {templates.map((template: DocumentTemplate) => (
+              {(templates as any).map((template: DocumentTemplate) => (
                 <Card key={template.id} className="hover:shadow-md transition-shadow">
                   <CardHeader>
                     <div className="flex items-start justify-between">
