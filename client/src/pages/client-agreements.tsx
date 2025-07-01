@@ -581,6 +581,46 @@ export default function ClientAgreementsPage() {
                                     </Select>
                                   </div>
                                 </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div>
+                                    <Label className="text-sm font-medium">Is this a qualified account?</Label>
+                                    <Select onValueChange={(value) => setAccountConfigurations(prev => ({
+                                      ...prev,
+                                      [accountId]: { ...prev[accountId], qualifiedAccount: value }
+                                    }))}>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select yes or no" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="yes">Yes</SelectItem>
+                                        <SelectItem value="no">No</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                    
+                                    {/* Conditional Source of Funds dropdown when Qualified Account = Yes */}
+                                    {accountConfigurations[accountId]?.qualifiedAccount === "yes" && (
+                                      <div className="mt-2">
+                                        <Label className="text-sm font-medium">Source of Funds</Label>
+                                        <Select onValueChange={(value) => setAccountConfigurations(prev => ({
+                                          ...prev,
+                                          [accountId]: { ...prev[accountId], sourceOfFunds: value }
+                                        }))}>
+                                          <SelectTrigger>
+                                            <SelectValue placeholder="Select source" />
+                                          </SelectTrigger>
+                                          <SelectContent>
+                                            <SelectItem value="incoming-transfer">Incoming Transfer (from another firm)</SelectItem>
+                                            <SelectItem value="rollover-qualified-plan">Rollover from a Qualified Plan</SelectItem>
+                                          </SelectContent>
+                                        </Select>
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div>
+                                    {/* Empty space for symmetry */}
+                                  </div>
+                                </div>
                               </div>
                             ))}
                           </div>
