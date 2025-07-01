@@ -723,7 +723,7 @@ export default function ClientAgreementsPage() {
                                     </SelectItem>
                                   ))}
                                   {getOtherHouseholdMembers().length === 0 && (
-                                    <SelectItem value="" disabled>
+                                    <SelectItem value="none" disabled>
                                       No other household members available
                                     </SelectItem>
                                   )}
