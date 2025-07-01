@@ -519,9 +519,10 @@ export default function ClientAgreementsPage() {
                                         <SelectValue placeholder="Select time horizon" />
                                       </SelectTrigger>
                                       <SelectContent>
-                                        <SelectItem value="short">1-3 years</SelectItem>
-                                        <SelectItem value="medium">3-7 years</SelectItem>
-                                        <SelectItem value="long">7+ years</SelectItem>
+                                        <SelectItem value="0-3">0-3 years</SelectItem>
+                                        <SelectItem value="3-5">3-5 years</SelectItem>
+                                        <SelectItem value="5-10">5-10 years</SelectItem>
+                                        <SelectItem value="10+">10+ years</SelectItem>
                                       </SelectContent>
                                     </Select>
                                   </div>
