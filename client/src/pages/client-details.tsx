@@ -8,9 +8,32 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import Sidebar from "@/components/sidebar";
 import { format } from "date-fns";
+import AccountDetailsModal from "@/components/modals/account-details-modal";
+import { useState } from "react";
 
 export default function ClientDetails() {
   const { id } = useParams();
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [selectedAccountForDetails, setSelectedAccountForDetails] = useState<any>(null);
+  
+  // Handler to open account details modal
+  const handleViewAccountDetails = (account: any) => {
+    setSelectedAccountForDetails(account);
+    setIsDetailsModalOpen(true);
+  };
+  
+  // Handler to close account details modal
+  const closeDetailsModal = () => {
+    setIsDetailsModalOpen(false);
+    setSelectedAccountForDetails(null);
+  };
+  
+  // Handler for editing account from details modal
+  const handleEditFromDetails = (account: any) => {
+    closeDetailsModal();
+    // Navigate to edit account form
+    window.location.href = `/account-form-enhanced?accountId=${account.id}`;
+  };
   
   const { data: client, isLoading: clientLoading, error: clientError } = useQuery({
     queryKey: [`/api/clients/${id}`],
@@ -330,7 +353,11 @@ export default function ClientDetails() {
                             </TableCell>
                             <TableCell>
                               <div className="flex items-center space-x-2">
-                                <Button variant="outline" size="sm">
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  onClick={() => handleViewAccountDetails(account)}
+                                >
                                   <Eye className="h-4 w-4" />
                                 </Button>
                               </div>
@@ -429,6 +456,13 @@ export default function ClientDetails() {
           </div>
         </main>
       </div>
+      
+      <AccountDetailsModal
+        isOpen={isDetailsModalOpen}
+        onClose={closeDetailsModal}
+        account={selectedAccountForDetails}
+        onEdit={handleEditFromDetails}
+      />
     </div>
   );
 }
