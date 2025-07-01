@@ -2393,12 +2393,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const template = await storage.createTemplate(templateData);
 
       // Create field mappings for each PDF field
-      for (const field of fields) {
+      for (const fieldName of fields) {
         await storage.createFieldMapping({
           templateId: template.id,
-          pdfFieldName: field.name,
+          pdfFieldName: fieldName,
           dataSource: '', // Will be mapped by admin
-          fieldType: field.type || 'text',
+          fieldType: 'text',
           isRequired: false
         });
       }
