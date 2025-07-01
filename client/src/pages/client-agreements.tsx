@@ -86,11 +86,24 @@ export default function ClientAgreementsPage() {
   });
   const households = (householdsResponse as any)?.households || [];
 
+  // Fetch all clients for primary contact name lookup
+  const { data: clientsData } = useQuery({
+    queryKey: ["/api/clients"],
+  });
+  const clients = (clientsData as any)?.clients || [];
+
   // Fetch accounts for selected household
   const selectedHouseholdId = form.watch("householdId");
   const { data: householdAccounts = [] } = useQuery({
     queryKey: ["/api/households", selectedHouseholdId, "accounts"],
     queryFn: () => selectedHouseholdId ? fetch(`/api/households/${selectedHouseholdId}/accounts`).then(res => res.json()) : [],
+    enabled: !!selectedHouseholdId,
+  });
+
+  // Fetch clients for selected household for secondary client dropdown
+  const { data: householdClients = [] } = useQuery({
+    queryKey: ["/api/households", selectedHouseholdId, "clients"],
+    queryFn: () => selectedHouseholdId ? fetch(`/api/households/${selectedHouseholdId}/clients`).then(res => res.json()) : [],
     enabled: !!selectedHouseholdId,
   });
 
@@ -108,13 +121,13 @@ export default function ClientAgreementsPage() {
   // Auto-populate primary client name when household changes
   useEffect(() => {
     const primaryName = getPrimaryClientName();
-    if (primaryName && selectedHouseholdId) {
+    if (primaryName && selectedHouseholdId && primaryName !== "Not set" && primaryName !== "Not found") {
       setAdditionalFormData(prev => ({ 
         ...prev, 
         primaryClientName: primaryName 
       }));
     }
-  }, [selectedHouseholdId, households]);
+  }, [selectedHouseholdId, households, clients]);
 
   const handleNext = () => {
     if (currentStep < 6) setCurrentStep(currentStep + 1);
@@ -217,39 +230,32 @@ export default function ClientAgreementsPage() {
 
   const getPrimaryClientName = () => {
     const selectedHouseholdId = form.watch("householdId");
-    if (!selectedHouseholdId || !households) return "";
+    if (!selectedHouseholdId || !households || !clients) return "";
     
     const household = households.find((h: any) => h.id === Number(selectedHouseholdId));
     if (!household) return "";
     
-    // Get the primary contact name from household data
-    // Try multiple possible field names that might contain the primary client name
-    if (household.primaryContactName) {
-      return household.primaryContactName;
-    }
+    // Use the same logic as households page to get primary contact name
+    if (!household.primaryContactClientId) return "Not set";
     
-    // If no primaryContactName, get the first member's name
-    if (household.members && household.members.length > 0) {
-      const primaryMember = household.members[0];
-      return `${primaryMember.firstName || ''} ${primaryMember.lastName || ''}`.trim();
-    }
-    
-    // Fallback: use household name if no members found
-    return household.name || "";
+    const client = clients.find((c: any) => c.id === household.primaryContactClientId);
+    return client ? `${client.firstName} ${client.lastName}` : "Not found";
   };
 
   const getOtherHouseholdMembers = () => {
     const selectedHouseholdId = form.watch("householdId");
-    if (!selectedHouseholdId || !households) return [];
+    if (!selectedHouseholdId || !households || !householdClients) return [];
     
     const household = households.find((h: any) => h.id === Number(selectedHouseholdId));
-    if (!household || !household.members) return [];
+    if (!household) return [];
     
-    // Return all members except the primary (first) member
-    return household.members.slice(1).map((member: any) => ({
-      id: member.id,
-      name: `${member.firstName || ''} ${member.lastName || ''}`.trim()
-    }));
+    // Return all household clients except the primary contact
+    return householdClients
+      .filter((client: any) => client.id !== household.primaryContactClientId)
+      .map((client: any) => ({
+        id: client.id,
+        name: `${client.firstName} ${client.lastName}`
+      }));
   };
 
   const getStatusColor = (status: string) => {
@@ -394,7 +400,7 @@ export default function ClientAgreementsPage() {
                                 <SelectValue placeholder="Select secondary client" />
                               </SelectTrigger>
                               <SelectContent>
-                                {getOtherHouseholdMembers().map((member) => (
+                                {getOtherHouseholdMembers().map((member: any) => (
                                   <SelectItem key={member.id} value={member.name}>
                                     {member.name}
                                   </SelectItem>
@@ -766,7 +772,7 @@ export default function ClientAgreementsPage() {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Agreement Status</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <Select onValueChange={field.onChange} defaultValue={field.value ?? undefined}>
                                 <FormControl>
                                   <SelectTrigger>
                                     <SelectValue placeholder="Select status" />
