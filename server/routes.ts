@@ -18,9 +18,8 @@ import {
 import multer from "multer";
 import { z } from "zod";
 import path from "path";
-import fs from "fs/promises";
+import fs from "fs";
 import csvParser from "csv-parser";
-import { createReadStream, unlinkSync } from "fs";
 
 const upload = multer({
   dest: 'uploads/',
@@ -2434,6 +2433,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error updating field mapping:", error);
       res.status(500).json({ message: "Failed to update field mapping" });
+    }
+  });
+
+  // Serve PDF files for viewing
+  app.get('/api/templates/:id/pdf', isAuthenticated, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const template = await storage.getTemplate(parseInt(id));
+      
+      if (!template) {
+        return res.status(404).json({ message: "Template not found" });
+      }
+
+      const filePath = path.resolve(template.filePath);
+      
+      if (!fs.existsSync(filePath)) {
+        return res.status(404).json({ message: "PDF file not found" });
+      }
+
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `inline; filename="${template.fileName}"`);
+      
+      const fileStream = fs.createReadStream(filePath);
+      fileStream.pipe(res);
+    } catch (error) {
+      console.error("Error serving PDF:", error);
+      res.status(500).json({ message: "Failed to serve PDF" });
+    }
+  });
+
+  // Analyze PDF and return field information
+  app.get('/api/templates/:id/analyze', isAuthenticated, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const template = await storage.getTemplate(parseInt(id));
+      
+      if (!template) {
+        return res.status(404).json({ message: "Template not found" });
+      }
+
+      const fields = await PDFService.analyzePDFFields(template.businessLine as 'SWP' | 'SWA');
+      
+      res.json({
+        templateId: id,
+        businessLine: template.businessLine,
+        fieldCount: fields.length,
+        fields: fields.map(name => ({
+          name,
+          type: 'text', // Default type, can be enhanced later
+          mapped: false // Will be determined by existing mappings
+        }))
+      });
+    } catch (error) {
+      console.error("Error analyzing PDF:", error);
+      res.status(500).json({ message: "Failed to analyze PDF" });
     }
   });
 
