@@ -46,13 +46,13 @@ export default function TemplateManagement() {
 
   // Fetch templates
   const { data: templates = [], isLoading } = useQuery<Template[]>({
-    queryKey: ["/api/pdf-templates"],
+    queryKey: ["/api/templates"],
   });
 
   // Upload mutation
   const uploadMutation = useMutation({
     mutationFn: async (formData: FormData) => {
-      const response = await fetch("/api/pdf-templates/upload", {
+      const response = await fetch("/api/templates/upload", {
         method: "POST",
         body: formData,
       });
@@ -65,7 +65,7 @@ export default function TemplateManagement() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/pdf-templates"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/templates"] });
       setIsUploadDialogOpen(false);
       setUploadFile(null);
       toast({
@@ -85,12 +85,12 @@ export default function TemplateManagement() {
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      return apiRequest(`/api/pdf-templates/${id}`, {
+      return apiRequest(`/api/templates/${id}`, {
         method: "DELETE",
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/pdf-templates"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/templates"] });
       toast({
         title: "Success",
         description: "Template deleted successfully",
@@ -117,7 +117,7 @@ export default function TemplateManagement() {
   if (selectedTemplate) {
     return (
       <>
-        <Sidebar />
+        <Sidebar currentView="template-management" />
         <div className="lg:ml-64">
           <TopBar title="Template Management" subtitle="Configure PDF template field mappings" />
           <main className="p-6">
@@ -143,7 +143,7 @@ export default function TemplateManagement() {
 
   return (
     <>
-      <Sidebar />
+      <Sidebar currentView="template-management" />
       <div className="lg:ml-64">
         <TopBar title="Template Management" subtitle="Upload and manage PDF templates for client agreements" />
         <main className="p-6">
