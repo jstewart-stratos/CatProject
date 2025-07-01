@@ -63,8 +63,8 @@ export default function ClientAgreementsPage() {
     // Step 4 - Advisor Information
     advisorName: "",
     iarRepCode: "",
-    primaryClientInitial: "",
-    secondaryClientInitial: "",
+    primaryClientName: "",
+    secondaryClientName: "",
   });
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -84,7 +84,7 @@ export default function ClientAgreementsPage() {
   const { data: householdsResponse } = useQuery({
     queryKey: ["/api/households"],
   });
-  const households = householdsResponse?.households || [];
+  const households = (householdsResponse as any)?.households || [];
 
   // Fetch accounts for selected household (temporarily disabled until endpoint is created)
   const selectedHouseholdId = form.watch("householdId");
@@ -94,6 +94,7 @@ export default function ClientAgreementsPage() {
   const { data: agreements = [], isLoading } = useQuery({
     queryKey: ["/api/client-agreements"],
   });
+  const agreementsArray = Array.isArray(agreements) ? agreements : [];
 
   const businessLineOptions = [
     { value: "SWP", label: "Stratos Wealth Partners (SWP)" },
@@ -116,8 +117,8 @@ export default function ClientAgreementsPage() {
     setAdditionalFormData({
       advisorName: "",
       iarRepCode: "",
-      primaryClientInitial: "",
-      secondaryClientInitial: "",
+      primaryClientName: "",
+      secondaryClientName: "",
     });
     // Reset account selection and configurations
     setSelectedAccounts([]);
@@ -151,9 +152,7 @@ export default function ClientAgreementsPage() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: number) => apiRequest(`/api/client-agreements/${id}`, {
-      method: "DELETE",
-    }),
+    mutationFn: (id: number) => apiRequest("DELETE", `/api/client-agreements/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/client-agreements"] });
       toast({
@@ -199,6 +198,32 @@ export default function ClientAgreementsPage() {
   const getHouseholdName = (householdId: number) => {
     const household = households.find((h: any) => h.id === householdId);
     return household?.householdName || `Household ${householdId}`;
+  };
+
+  const getPrimaryClientName = () => {
+    const selectedHouseholdId = form.watch("householdId");
+    if (!selectedHouseholdId || !households) return "";
+    
+    const household = households.find((h: any) => h.id === Number(selectedHouseholdId));
+    if (!household) return "";
+    
+    // Find the primary contact (first member) of the household
+    const primaryClient = household.primaryContactName;
+    return primaryClient || "";
+  };
+
+  const getOtherHouseholdMembers = () => {
+    const selectedHouseholdId = form.watch("householdId");
+    if (!selectedHouseholdId || !households) return [];
+    
+    const household = households.find((h: any) => h.id === Number(selectedHouseholdId));
+    if (!household || !household.members) return [];
+    
+    // Return all members except the primary (first) member
+    return household.members.slice(1).map((member: any) => ({
+      id: member.id,
+      name: `${member.firstName || ''} ${member.lastName || ''}`.trim()
+    }));
   };
 
   const getStatusColor = (status: string) => {
@@ -700,26 +725,35 @@ export default function ClientAgreementsPage() {
                           <h3 className="text-lg font-semibold text-gray-900">Client Signatures</h3>
                           <div className="grid grid-cols-2 gap-4">
                             <div>
-                              <Label htmlFor="primaryClientInitial" className="text-sm font-medium">Primary Client Initial</Label>
+                              <Label htmlFor="primaryClientName" className="text-sm font-medium">Primary Client Name</Label>
                               <Input 
-                                id="primaryClientInitial" 
-                                placeholder="P" 
-                                maxLength={1} 
-                                className="w-16 mt-1"
-                                value={additionalFormData.primaryClientInitial}
-                                onChange={(e) => setAdditionalFormData(prev => ({ ...prev, primaryClientInitial: e.target.value }))}
+                                id="primaryClientName" 
+                                placeholder="Primary client name" 
+                                className="mt-1"
+                                value={additionalFormData.primaryClientName || getPrimaryClientName()}
+                                onChange={(e) => setAdditionalFormData(prev => ({ ...prev, primaryClientName: e.target.value }))}
+                                readOnly
                               />
                             </div>
                             <div>
-                              <Label htmlFor="secondaryClientInitial" className="text-sm font-medium">Secondary Client Initial (Optional)</Label>
-                              <Input 
-                                id="secondaryClientInitial" 
-                                placeholder="S" 
-                                maxLength={1} 
-                                className="w-16 mt-1"
-                                value={additionalFormData.secondaryClientInitial}
-                                onChange={(e) => setAdditionalFormData(prev => ({ ...prev, secondaryClientInitial: e.target.value }))}
-                              />
+                              <Label className="text-sm font-medium">Secondary Client (Optional)</Label>
+                              <Select onValueChange={(value) => setAdditionalFormData(prev => ({ ...prev, secondaryClientName: value }))}>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select secondary client" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {getOtherHouseholdMembers().map((member) => (
+                                    <SelectItem key={member.id} value={member.name}>
+                                      {member.name}
+                                    </SelectItem>
+                                  ))}
+                                  {getOtherHouseholdMembers().length === 0 && (
+                                    <SelectItem value="" disabled>
+                                      No other household members available
+                                    </SelectItem>
+                                  )}
+                                </SelectContent>
+                              </Select>
                             </div>
                           </div>
                         </div>
@@ -778,7 +812,7 @@ export default function ClientAgreementsPage() {
                             disabled={
                               createMutation.isPending ||
                               !additionalFormData.advisorName ||
-                              !additionalFormData.primaryClientInitial
+                              !additionalFormData.primaryClientName
                             }
                           >
                             {createMutation.isPending ? "Creating..." : "Create Agreement"}
@@ -802,7 +836,7 @@ export default function ClientAgreementsPage() {
             <CardContent>
               {isLoading ? (
                 <div className="text-center py-8">Loading agreements...</div>
-              ) : agreements.length === 0 ? (
+              ) : agreementsArray.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
                   No client agreements found. Create your first agreement to get started.
                 </div>
@@ -820,7 +854,7 @@ export default function ClientAgreementsPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {agreements.map((agreement: any) => (
+                    {agreementsArray.map((agreement: any) => (
                       <TableRow key={agreement.id}>
                         <TableCell className="font-medium">
                           {getHouseholdName(agreement.householdId)}
