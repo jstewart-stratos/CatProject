@@ -194,6 +194,7 @@ export interface IStorage {
   createTemplate(template: InsertPdfTemplate): Promise<PdfTemplate>;
   getTemplate(id: number): Promise<PdfTemplate | undefined>;
   getAllTemplates(): Promise<PdfTemplate[]>;
+  getActiveTemplates(): Promise<PdfTemplate[]>;
   updateTemplate(id: number, data: Partial<PdfTemplate>): Promise<PdfTemplate>;
   deleteTemplate(id: number): Promise<void>;
   
@@ -1680,6 +1681,12 @@ export class DatabaseStorage implements IStorage {
 
   async getAllTemplates(): Promise<PdfTemplate[]> {
     return await db.select().from(pdfTemplates).orderBy(desc(pdfTemplates.createdAt));
+  }
+
+  async getActiveTemplates(): Promise<PdfTemplate[]> {
+    return await db.select().from(pdfTemplates)
+      .where(eq(pdfTemplates.isActive, true))
+      .orderBy(desc(pdfTemplates.createdAt));
   }
 
   async updateTemplate(id: number, data: Partial<PdfTemplate>): Promise<PdfTemplate> {

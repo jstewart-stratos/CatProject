@@ -105,6 +105,7 @@ const US_STATES = [
 const createAgreementSchema = insertClientAgreementSchema.extend({
   agreementDate: z.string().min(1, "Agreement date is required"),
   businessLine: z.string().min(1, "Business line is required"),
+  templateId: z.number().min(1, "Template is required"),
 });
 
 type CreateAgreementData = z.infer<typeof createAgreementSchema>;
@@ -186,6 +187,7 @@ export default function ClientAgreementsPage() {
     defaultValues: {
       businessLine: "",
       householdId: 0,
+      templateId: 0,
       version: 1,
       agreementDate: new Date().toISOString().split('T')[0],
       status: "active",
@@ -224,6 +226,11 @@ export default function ClientAgreementsPage() {
     queryKey: ["/api/client-agreements"],
   });
   const agreementsArray = Array.isArray(agreements) ? agreements : [];
+
+  // Fetch active templates for template selection
+  const { data: activeTemplates = [] } = useQuery({
+    queryKey: ["/api/templates/active"],
+  });
 
   const businessLineOptions = [
     { value: "SWP", label: "Stratos Wealth Partners (SWP)" },
@@ -278,7 +285,7 @@ export default function ClientAgreementsPage() {
   }, [selectedHouseholdId, households, clients]);
 
   const handleNext = () => {
-    if (currentStep < 8) setCurrentStep(currentStep + 1);
+    if (currentStep < 9) setCurrentStep(currentStep + 1);
   };
 
   const handlePrevious = () => {
@@ -450,7 +457,7 @@ export default function ClientAgreementsPage() {
                 <DialogHeader>
                   <DialogTitle>Create New Client Agreement</DialogTitle>
                   <DialogDescription>
-                    Step {currentStep} of 8: Set up a new client agreement for a household.
+                    Step {currentStep} of 9: Set up a new client agreement for a household.
                   </DialogDescription>
                 </DialogHeader>
 
@@ -495,8 +502,45 @@ export default function ClientAgreementsPage() {
                       </div>
                     )}
 
-                    {/* Step 2: Household Selection */}
+                    {/* Step 2: Template Selection */}
                     {currentStep === 2 && (
+                      <div className="space-y-4">
+                        <FormField
+                          control={form.control}
+                          name="templateId"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-lg font-semibold">Template Selection</FormLabel>
+                              <FormControl>
+                                <div className="space-y-3">
+                                  {activeTemplates.map((template: any) => (
+                                    <div key={template.id} className="flex items-center space-x-3">
+                                      <input
+                                        type="radio"
+                                        id={`template-${template.id}`}
+                                        value={template.id}
+                                        checked={field.value === template.id}
+                                        onChange={(e) => field.onChange(parseInt(e.target.value))}
+                                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"
+                                      />
+                                      <label 
+                                        htmlFor={`template-${template.id}`}
+                                        className="text-base font-medium cursor-pointer hover:text-blue-600"
+                                      >
+                                        {template.name}
+                                      </label>
+                                    </div>
+                                  ))}
+                                </div>
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    )}
+
+                    {/* Step 3: Household Selection */}
+                    {currentStep === 3 && (
                       <div className="space-y-4">
                         <FormField
                           control={form.control}
@@ -1624,8 +1668,41 @@ export default function ClientAgreementsPage() {
                       </div>
                     )}
 
-                    {/* Step 8: Agreement Details */}
+                    {/* Step 8: Additional Options */}
                     {currentStep === 8 && (
+                      <div className="space-y-6">
+                        <div className="space-y-2">
+                          <h3 className="text-lg font-semibold text-gray-900">Additional Options</h3>
+                          <p className="text-sm text-gray-600">Configure additional agreement options and settings.</p>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="advisorName" className="text-sm font-medium">Advisor/Team Name</Label>
+                            <Input 
+                              id="advisorName" 
+                              placeholder="Enter advisor or team name" 
+                              className="mt-1"
+                              value={additionalFormData.advisorName || ""}
+                              onChange={(e) => setAdditionalFormData(prev => ({ ...prev, advisorName: e.target.value }))}
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="iarRepCode" className="text-sm font-medium">IAR Rep Code (Optional)</Label>
+                            <Input 
+                              id="iarRepCode" 
+                              placeholder="Enter IAR Rep Code" 
+                              className="mt-1"
+                              value={additionalFormData.iarRepCode || ""}
+                              onChange={(e) => setAdditionalFormData(prev => ({ ...prev, iarRepCode: e.target.value }))}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Step 9: Agreement Details */}
+                    {currentStep === 9 && (
                       <div className="space-y-6">
                         <div className="grid grid-cols-2 gap-4">
                           <FormField
@@ -1726,14 +1803,15 @@ export default function ClientAgreementsPage() {
                         )}
                       </div>
                       <div className="flex space-x-2">
-                        {currentStep < 8 ? (
+                        {currentStep < 9 ? (
                           <Button 
                             type="button" 
                             onClick={handleNext}
                             disabled={
                               (currentStep === 1 && !form.watch("businessLine")) ||
-                              (currentStep === 2 && !form.watch("householdId")) ||
-                              (currentStep === 6 && selectedAccounts.length === 0)
+                              (currentStep === 2 && !form.watch("templateId")) ||
+                              (currentStep === 3 && !form.watch("householdId")) ||
+                              (currentStep === 7 && selectedAccounts.length === 0)
                             }
                           >
                             Next

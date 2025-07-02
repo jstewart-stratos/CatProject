@@ -48,7 +48,7 @@ export class PDFService {
     }
   }
 
-  static async fillClientAgreement(data: ClientAgreementData): Promise<Buffer> {
+  static async fillClientAgreement(data: ClientAgreementData, templateId?: number): Promise<Buffer> {
     try {
       const templatePath = this.getTemplatePath(data.businessLine);
       console.log(`Using template: ${templatePath}`);
@@ -75,51 +75,43 @@ export class PDFService {
         return Buffer.from(existingPdfBytes);
       }
 
-      // Basic field mapping
-      const fieldMappings = {
-        'Household Name': data.householdName,
-        'HouseholdName': data.householdName,
-        'household_name': data.householdName,
-        'Advisor/Team Name': data.advisorName || '',
-        'AdvisorName': data.advisorName || '',
-        'advisor_name': data.advisorName || '',
-        'Date': data.agreementDate,
-        'agreement_date': data.agreementDate,
-        'Version': data.version.toString(),
-        'version': data.version.toString()
-      };
-
-      // Populate client information if available
-      if (data.clients && data.clients.length > 0) {
-        const primaryClient = data.clients[0];
-        Object.assign(fieldMappings, {
-          'Client Name': `${primaryClient.firstName} ${primaryClient.lastName}`,
-          'ClientName': `${primaryClient.firstName} ${primaryClient.lastName}`,
-          'client_name': `${primaryClient.firstName} ${primaryClient.lastName}`,
-          'First Name': primaryClient.firstName,
-          'FirstName': primaryClient.firstName,
-          'first_name': primaryClient.firstName,
-          'Last Name': primaryClient.lastName,
-          'LastName': primaryClient.lastName,
-          'last_name': primaryClient.lastName,
-          'Email': primaryClient.email,
-          'email': primaryClient.email,
-          'Phone': primaryClient.phone,
-          'phone': primaryClient.phone,
-          'Address': primaryClient.address,
-          'address': primaryClient.address,
-          'City': primaryClient.city,
-          'city': primaryClient.city,
-          'State': primaryClient.state,
-          'state': primaryClient.state,
-          'Zip Code': primaryClient.zipCode,
-          'ZipCode': primaryClient.zipCode,
-          'zip_code': primaryClient.zipCode
-        });
+      // Get field mappings from database
+      let fieldMappings = {};
+      
+      if (templateId) {
+        try {
+          const { storage } = await import('./storage');
+          const mappings = await storage.getTemplateMappings(templateId);
+          console.log(`Found ${mappings.length} field mappings for template ${templateId}`);
+          
+          // Build data context
+          const dataContext = this.buildDataContext(data);
+          
+          // Create field mappings from database
+          for (const mapping of mappings) {
+            const value = this.resolveDataSource(mapping.dataSource, dataContext);
+            if (value !== null && value !== undefined && value !== '') {
+              fieldMappings[mapping.pdfFieldName] = String(value);
+            }
+          }
+        } catch (error) {
+          console.warn('Failed to load template field mappings:', error);
+        }
+      }
+      
+      // Fallback basic mappings if no database mappings found
+      if (Object.keys(fieldMappings).length === 0) {
+        fieldMappings = {
+          'Household Name': data.householdName,
+          'Date': data.agreementDate,
+          'Advisor/Team Name': data.advisorName || ''
+        };
       }
 
-      // Fill form fields
 
+
+      // Fill form fields
+      let filledCount = 0;
       fields.forEach(field => {
         const fieldName = field.getName();
         const fieldValue = fieldMappings[fieldName as keyof typeof fieldMappings];
@@ -129,16 +121,19 @@ export class PDFService {
             if (field instanceof PDFTextField) {
               field.setText(fieldValue);
               console.log(`Filled text field '${fieldName}' with '${fieldValue}'`);
+              filledCount++;
             } else if (field instanceof PDFCheckBox) {
               // Handle checkboxes if needed
               field.check();
               console.log(`Checked field '${fieldName}'`);
+              filledCount++;
             } else if (field instanceof PDFDropdown) {
               // Handle dropdowns if the value is in options
               const options = field.getOptions();
               if (options.includes(fieldValue)) {
                 field.select(fieldValue);
                 console.log(`Selected '${fieldValue}' in dropdown '${fieldName}'`);
+                filledCount++;
               }
             }
           } catch (error) {
@@ -146,6 +141,8 @@ export class PDFService {
           }
         }
       });
+
+      console.log(`Successfully filled ${filledCount} out of ${fields.length} fields`);
 
       // Generate the filled PDF
       const pdfBytes = await pdfDoc.save();
@@ -163,6 +160,96 @@ export class PDFService {
         throw new Error(`Failed to generate ${data.businessLine} client agreement: PDF template is corrupted and cannot be processed`);
       }
     }
+  }
+
+  private buildDataContext(data: any): any {
+    const context = {
+      // Agreement data
+      householdName: data.householdName,
+      agreementDate: data.agreementDate,
+      advisorName: data.advisorName,
+      iarRepCode: data.iarRepCode,
+      version: data.version,
+      businessLine: data.businessLine,
+      
+      // Primary client data
+      firstName: '',
+      middleName: '',
+      lastName: '',
+      fullName: '',
+      ssn: '',
+      dateOfBirth: '',
+      homePhone: '',
+      businessPhone: '',
+      mobilePhone: '',
+      emailAddress: '',
+      legalAddress1: '',
+      city: '',
+      state: '',
+      zipCode: '',
+      
+      // Account data
+      accountNumber: '',
+      registrationType: '',
+      accountType: '',
+      programType: '',
+      annualAdvisorFee: '',
+      liquidityNeeds: '',
+      transactionCharges: '',
+      custodian: '',
+      typeOfLiquidityNeeded: '',
+      investmentObjective: '',
+      timeHorizon: ''
+    };
+
+    // Populate primary client data
+    if (data.primaryClient) {
+      const client = data.primaryClient;
+      context.firstName = client.firstName || '';
+      context.middleName = client.middleName || '';
+      context.lastName = client.lastName || '';
+      context.fullName = `${client.firstName || ''} ${client.middleName || ''} ${client.lastName || ''}`.trim();
+      context.ssn = client.ssn || '';
+      context.dateOfBirth = client.dateOfBirth || '';
+      context.homePhone = client.homePhone || '';
+      context.businessPhone = client.businessPhone || '';
+      context.mobilePhone = client.mobilePhone || '';
+      context.emailAddress = client.emailAddress || '';
+      context.legalAddress1 = client.legalAddress1 || '';
+      context.city = client.city || '';
+      context.state = client.state || '';
+      context.zipCode = client.zipCode || '';
+    }
+
+    // Populate account data (use first account if multiple)
+    if (data.accounts && data.accounts.length > 0) {
+      const account = data.accounts[0];
+      context.accountNumber = account.accountNumber || '';
+      context.registrationType = account.registrationType || '';
+      context.accountType = account.accountType || '';
+      context.programType = account.programType || '';
+      context.annualAdvisorFee = account.annualAdvisorFee || '';
+      context.liquidityNeeds = account.liquidityNeeds || '';
+      context.transactionCharges = account.transactionCharges || '';
+      context.custodian = account.custodian || '';
+      context.typeOfLiquidityNeeded = account.typeOfLiquidityNeeded || '';
+      context.investmentObjective = account.investmentObjective || '';
+      context.timeHorizon = account.timeHorizon || '';
+    }
+
+    return context;
+  }
+
+  private resolveDataSource(dataSource: string, context: any): string {
+    // Handle comma-separated field combinations
+    if (dataSource.includes(',')) {
+      const fields = dataSource.split(',').map(f => f.trim());
+      const values = fields.map(field => context[field] || '').filter(v => v !== '');
+      return values.join(' ');
+    }
+
+    // Handle single field
+    return context[dataSource] || '';
   }
 
   static generateFileName(data: ClientAgreementData): string {

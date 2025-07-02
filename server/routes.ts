@@ -2205,8 +2205,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }))
         };
         
+        // Get the template ID for the business line
+        const templates = await storage.getActiveTemplates();
+        const template = templates.find(t => t.businessLine === agreement.businessLine);
+        
+        if (!template) {
+          throw new Error(`No template found for business line: ${agreement.businessLine}`);
+        }
+        
         // Generate the PDF
-        const pdfBuffer = await PDFService.fillClientAgreement(pdfData);
+        const pdfBuffer = await PDFService.fillClientAgreement(pdfData, template.id);
         const fileName = PDFService.generateFileName(pdfData);
         
         // Save PDF to uploads directory
@@ -2365,6 +2373,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching templates:", error);
       res.status(500).json({ message: "Failed to fetch templates" });
+    }
+  });
+
+  app.get('/api/templates/active', isAuthenticated, async (req, res) => {
+    try {
+      const templates = await storage.getActiveTemplates();
+      res.json(templates);
+    } catch (error) {
+      console.error("Error fetching active templates:", error);
+      res.status(500).json({ message: "Failed to fetch active templates" });
     }
   });
 
