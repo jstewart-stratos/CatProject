@@ -2167,6 +2167,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/client-agreements', isAuthenticated, async (req, res) => {
     try {
       const userId = req.user?.claims?.sub;
+      
+      // Store the original form data before parsing
+      const originalFormData = req.body;
+      
       const agreementData = insertClientAgreementSchema.parse({
         ...req.body,
         createdBy: userId
@@ -2186,10 +2190,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Get household clients
         const clients = await storage.getHouseholdClients(agreement.householdId);
         
-        // Prepare PDF data - merge form data with database values
+        // Prepare PDF data - use original form data with database overrides
         const pdfData = {
-          // Include all form data from the request first
-          ...req.body,
+          // Include all original form data from the request
+          ...originalFormData,
           // Override with database values where appropriate
           businessLine: agreement.businessLine as 'SWP' | 'SWA',
           householdName: household.name,
