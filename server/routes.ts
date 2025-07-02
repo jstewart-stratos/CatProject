@@ -2266,7 +2266,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Check if file exists
       try {
-        await fs.access(agreement.pdfPath);
+        await fsPromises.access(agreement.pdfPath);
       } catch {
         return res.status(404).json({ message: "PDF file not found on disk" });
       }
@@ -2276,7 +2276,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.setHeader('Content-Disposition', `attachment; filename="${agreement.pdfFileName}"`);
       
       // Stream the file
-      const fileBuffer = await fs.readFile(agreement.pdfPath);
+      const fileBuffer = await fsPromises.readFile(agreement.pdfPath);
       res.send(fileBuffer);
     } catch (error) {
       console.error("Error downloading client agreement PDF:", error);
