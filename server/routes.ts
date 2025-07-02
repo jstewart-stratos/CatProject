@@ -2186,16 +2186,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Get household clients
         const clients = await storage.getHouseholdClients(agreement.householdId);
         
-        // Prepare PDF data - pass the complete form data from req.body
+        // Prepare PDF data - merge form data with database values
         const pdfData = {
+          // Include all form data from the request first
+          ...req.body,
+          // Override with database values where appropriate
           businessLine: agreement.businessLine as 'SWP' | 'SWA',
           householdName: household.name,
           agreementDate: agreement.agreementDate,
           version: agreement.version,
-          // Include all form data from the request
-          ...req.body,
-          // Override with database values where appropriate
-          householdName: household.name,
           clients: clients.map(client => ({
             firstName: client.firstName || '',
             lastName: client.lastName || '',

@@ -97,7 +97,15 @@ export class PDFService {
           console.log('Raw input data structure:', {
             advisorName: data.advisorName,
             primaryClient: data.primaryClient ? 'exists' : 'missing',
-            accounts: data.accounts ? `${data.accounts.length} accounts` : 'missing'
+            accounts: data.accounts ? `${data.accounts.length} accounts` : 'missing',
+            dataKeys: Object.keys(data)
+          });
+          console.log('Full data object sample:', {
+            businessLine: data.businessLine,
+            advisorName: data.advisorName,
+            primaryClientName: data.primaryClientName,
+            hasTemplateId: !!data.templateId,
+            hasHouseholdId: !!data.householdId
           });
           
           // Create field mappings from database
