@@ -94,6 +94,11 @@ export class PDFService {
             firstName: dataContext.firstName,
             lastName: dataContext.lastName
           });
+          console.log('Raw input data structure:', {
+            advisorName: data.advisorName,
+            primaryClient: data.primaryClient ? 'exists' : 'missing',
+            accounts: data.accounts ? `${data.accounts.length} accounts` : 'missing'
+          });
           
           // Create field mappings from database
           for (const mapping of mappings) {
