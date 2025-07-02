@@ -42,46 +42,79 @@ export default function PDFFieldVisualSelector({
 
   // Set PDF.js worker
   useEffect(() => {
-    pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js`;
+    // Use the same version as our installed package
+    pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js`;
   }, []);
 
   // Load PDF when component mounts
   useEffect(() => {
-    loadPDF();
+    if (pdfUrl) {
+      loadPDF();
+    }
   }, [pdfUrl]);
 
   const loadPDF = async () => {
     try {
       setIsLoading(true);
-      const loadingTask = pdfjsLib.getDocument(pdfUrl);
+      console.log('Loading PDF from:', pdfUrl);
+      
+      // Ensure we have a full URL for PDF.js
+      const fullPdfUrl = pdfUrl.startsWith('http') ? pdfUrl : `${window.location.origin}${pdfUrl}`;
+      console.log('Full PDF URL:', fullPdfUrl);
+      
+      // Configure PDF.js loading task with authentication
+      const loadingTask = pdfjsLib.getDocument({
+        url: fullPdfUrl,
+        httpHeaders: {
+          'Accept': 'application/pdf',
+          'Cache-Control': 'no-cache'
+        },
+        withCredentials: true,
+        // Use fetch with credentials for authentication
+        standardFontDataUrl: `https://unpkg.com/pdfjs-dist@3.11.174/standard_fonts/`
+      });
+      
       const pdf = await loadingTask.promise;
+      console.log('PDF loaded successfully, pages:', pdf.numPages);
       setPdfDoc(pdf);
       setTotalPages(pdf.numPages);
       await renderPage(pdf, 1);
       setIsLoading(false);
     } catch (error) {
       console.error('Error loading PDF:', error);
+      console.error('PDF URL:', pdfUrl);
       setIsLoading(false);
     }
   };
 
   const renderPage = async (pdf: any, pageNumber: number) => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas || !pdf) return;
 
-    const page = await pdf.getPage(pageNumber);
-    const context = canvas.getContext('2d');
-    
-    const viewport = page.getViewport({ scale: zoom });
-    canvas.height = viewport.height;
-    canvas.width = viewport.width;
+    try {
+      const page = await pdf.getPage(pageNumber);
+      const context = canvas.getContext('2d');
+      
+      if (!context) {
+        console.error('Could not get canvas context');
+        return;
+      }
+      
+      const viewport = page.getViewport({ scale: zoom });
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
 
-    const renderContext = {
-      canvasContext: context,
-      viewport: viewport
-    };
+      const renderContext = {
+        canvasContext: context,
+        viewport: viewport
+      };
 
-    await page.render(renderContext).promise;
+      console.log('Rendering page', pageNumber, 'with dimensions:', viewport.width, 'x', viewport.height);
+      await page.render(renderContext).promise;
+      console.log('Page rendered successfully');
+    } catch (error) {
+      console.error('Error rendering page:', error);
+    }
   };
 
   // Re-render when zoom or page changes
@@ -213,7 +246,7 @@ export default function PDFFieldVisualSelector({
                     <p className="text-sm text-gray-600 dark:text-gray-400">Loading PDF...</p>
                   </div>
                 </div>
-              ) : (
+              ) : pdfDoc ? (
                 <div className="flex items-center justify-center p-4 min-h-full">
                   <div 
                     className="relative border border-gray-300 dark:border-gray-600 bg-white shadow-lg"
@@ -249,6 +282,39 @@ export default function PDFFieldVisualSelector({
                         <X className="h-3 w-3 inline ml-1" />
                       </div>
                     ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col h-full">
+                  {/* PDF Preview using iframe */}
+                  <div className="flex-1 border border-gray-300 dark:border-gray-600 bg-white mb-4 relative">
+                    <iframe 
+                      src={pdfUrl}
+                      className="w-full h-full"
+                      title="PDF Preview"
+                      style={{ minHeight: '500px' }}
+                    />
+                    <div className="absolute top-2 right-2">
+                      <Button 
+                        size="sm"
+                        onClick={() => window.open(pdfUrl, '_blank')}
+                        variant="secondary"
+                      >
+                        Open in New Tab
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  {/* Manual Field Mapping Instructions */}
+                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                    <p className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">Manual Field Mapping</p>
+                    <p className="text-xs text-blue-700 dark:text-blue-200 mb-2">Use the controls above to add field mappings manually:</p>
+                    <ol className="text-xs text-blue-600 dark:text-blue-300 list-decimal list-inside space-y-1">
+                      <li>Click "Add New Field" to create a mapping</li>
+                      <li>Enter field name and coordinates (if known)</li>
+                      <li>Select data source from 160+ options</li>
+                      <li>Save to complete mapping</li>
+                    </ol>
                   </div>
                 </div>
               )}
