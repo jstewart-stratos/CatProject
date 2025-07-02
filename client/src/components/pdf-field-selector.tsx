@@ -250,6 +250,57 @@ export function PDFFieldSelector({ templateId, templateName }: PDFFieldSelectorP
     // Account Status
     { value: "status", label: "Account Status" },
     { value: "notes", label: "Account Notes" },
+    
+    // Client Agreement Data
+    { value: "businessLine", label: "Business Line" },
+    { value: "version", label: "Agreement Version" },
+    { value: "agreementStatus", label: "Agreement Status" },
+    { value: "pdfFileName", label: "PDF File Name" },
+    
+    // Client Agreement Account Configuration
+    { value: "accountNumber", label: "Account Number" },
+    { value: "subAdvisorName", label: "Sub Advisor Name" },
+    { value: "annualStratosInvestmentManagementFee", label: "Annual SIM Fee" },
+    { value: "annualAdvisorFeePercent", label: "Annual Advisor Fee %" },
+    { value: "annualAdvisorFeeDollar", label: "Annual Advisor Fee $" },
+    { value: "transactionChargeType", label: "Transaction Charge Type" },
+    { value: "transactionChargePercent", label: "Transaction Charge %" },
+    { value: "hasAnnualLiquidityNeeds", label: "Has Annual Liquidity Needs" },
+    { value: "accountCustodian", label: "Account Custodian" },
+    { value: "otherCustodianName", label: "Other Custodian Name" },
+    { value: "sourceOfFunds", label: "Source of Funds" },
+    { value: "hasAssetManagementServices", label: "Has Asset Management Services" },
+    { value: "hasFinancialPlanningServices", label: "Has Financial Planning Services" },
+    { value: "isSolicitorReferred", label: "Is Solicitor Referred" },
+    { value: "solicitorDisclosureAttached", label: "Solicitor Disclosure Attached" },
+    
+    // Client Signature Data (from Client Agreements form)
+    { value: "primaryClientSignatureName", label: "Primary Client Name (Signature)" },
+    { value: "secondaryClientSignatureName", label: "Secondary Client Name (Signature)" },
+    { value: "primaryClientDriverLicense", label: "Primary Client Driver License" },
+    { value: "primaryClientIssuingState", label: "Primary Client License State" },
+    { value: "primaryClientLicenseExpiration", label: "Primary Client License Expiration" },
+    { value: "secondaryClientDriverLicense", label: "Secondary Client Driver License" },
+    { value: "secondaryClientIssuingState", label: "Secondary Client License State" },
+    { value: "secondaryClientLicenseExpiration", label: "Secondary Client License Expiration" },
+    
+    // Additional Client Agreement Address Fields
+    { value: "primaryClientMailingAddress", label: "Primary Client Mailing Address" },
+    { value: "primaryClientMailingCity", label: "Primary Client Mailing City" },
+    { value: "primaryClientMailingState", label: "Primary Client Mailing State" },
+    { value: "primaryClientMailingZip", label: "Primary Client Mailing ZIP" },
+    { value: "secondaryClientMailingAddress", label: "Secondary Client Mailing Address" },
+    { value: "secondaryClientMailingCity", label: "Secondary Client Mailing City" },
+    { value: "secondaryClientMailingState", label: "Secondary Client Mailing State" },
+    { value: "secondaryClientMailingZip", label: "Secondary Client Mailing ZIP" },
+    
+    // Additional Agreement Context
+    { value: "selectedAccountIds", label: "Selected Account IDs" },
+    { value: "selectedAccountTypes", label: "Selected Account Types" },
+    { value: "totalAccountsSelected", label: "Total Accounts Selected" },
+    { value: "agreementCreatedBy", label: "Agreement Created By" },
+    { value: "agreementCreatedDate", label: "Agreement Created Date" },
+    { value: "agreementLastUpdated", label: "Agreement Last Updated" },
   ];
 
   const handleFieldToggle = (fieldName: string, checked: boolean) => {

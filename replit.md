@@ -172,12 +172,13 @@ Preferred communication style: Simple, everyday language.
 ## Recent Changes
 
 - **July 2, 2025**: Expanded PDF field mapping data sources to include all form fields
-  - ✅ **Enhanced data source options** - Expanded from 15 basic fields to 120+ comprehensive mapping options
+  - ✅ **Enhanced data source options** - Expanded from 15 basic fields to 160+ comprehensive mapping options
   - ✅ **Added all client form fields** - Includes personal info, contact details, employment, suitability, investment experience, and trusted contact data
   - ✅ **Added all account form fields** - Includes account details, investment settings, trading options, power of attorney, and trust information
+  - ✅ **Added Client Agreements form fields** - Includes agreement data, account configurations, client signatures, mailing addresses, and agreement metadata
   - ✅ **Enhanced field combinations** - Added smart combinations like "firstName,middleName,lastName" and complete address mappings
-  - ✅ **Organized by category** - Data sources grouped by Agreement Data, Personal Info, Contact Info, Employment, etc. for easier selection
-  - ✅ **Comprehensive coverage** - All database fields from clients and accounts tables now available for PDF field mapping
+  - ✅ **Organized by category** - Data sources grouped by Agreement Data, Personal Info, Contact Info, Employment, Client Agreements, etc. for easier selection
+  - ✅ **Comprehensive coverage** - All database fields from clients, accounts, and client agreements tables now available for PDF field mapping
 - **July 1, 2025**: Fixed template management API endpoint connectivity and PDF preview blocking issue
   - ✅ **Resolved API endpoint mismatch** - Updated frontend to use correct `/api/templates` endpoint instead of `/api/pdf-templates`
   - ✅ **Fixed template loading and display** - Templates now properly load and display in Template Management interface
