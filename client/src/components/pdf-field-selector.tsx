@@ -75,11 +75,11 @@ export function PDFFieldSelector({ templateId, templateName }: PDFFieldSelectorP
   const createMappingsMutation = useMutation({
     mutationFn: async (mappings: Array<Omit<FieldMapping, 'id'>>) => {
       // Delete existing mappings first
-      await apiRequest(`/api/templates/${templateId}/mappings`, "DELETE");
+      await apiRequest("DELETE", `/api/templates/${templateId}/mappings`);
       
       // Create new mappings
       const promises = mappings.map(mapping => 
-        apiRequest("/api/templates/mappings", "POST", mapping)
+        apiRequest("POST", "/api/templates/mappings", mapping)
       );
       return Promise.all(promises);
     },
