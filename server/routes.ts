@@ -19,6 +19,7 @@ import multer from "multer";
 import { z } from "zod";
 import path from "path";
 import fs from "fs";
+import { promises as fsPromises } from "fs";
 import csvParser from "csv-parser";
 
 const upload = multer({
@@ -2210,7 +2211,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // Save PDF to uploads directory
         const pdfPath = path.join('uploads', fileName);
-        await fs.writeFile(pdfPath, pdfBuffer);
+        await fsPromises.writeFile(pdfPath, pdfBuffer);
         
         // Update agreement with PDF info
         await storage.updateClientAgreement(agreement.id, {
