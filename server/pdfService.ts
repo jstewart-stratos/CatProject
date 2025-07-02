@@ -34,7 +34,7 @@ export class PDFService {
     try {
       const templatePath = this.getTemplatePath(businessLine);
       const existingPdfBytes = fs.readFileSync(templatePath);
-      const pdfDoc = await PDFDocument.load(existingPdfBytes);
+      const pdfDoc = await PDFDocument.load(existingPdfBytes, { ignoreEncryption: true });
       const form = pdfDoc.getForm();
       
       const fields = form.getFields();
@@ -54,7 +54,7 @@ export class PDFService {
       console.log(`Using template: ${templatePath}`);
       
       const existingPdfBytes = fs.readFileSync(templatePath);
-      const pdfDoc = await PDFDocument.load(existingPdfBytes);
+      const pdfDoc = await PDFDocument.load(existingPdfBytes, { ignoreEncryption: true });
       const form = pdfDoc.getForm();
 
       // Basic field mapping
