@@ -2424,32 +2424,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Serve PDF files for visual field selection
-  app.get('/api/templates/:id/pdf', isAuthenticated, async (req, res) => {
-    try {
-      const { id } = req.params;
-      const template = await storage.getTemplate(parseInt(id));
-      
-      if (!template) {
-        return res.status(404).json({ message: "Template not found" });
-      }
 
-      const filePath = path.resolve(template.filePath);
-      
-      if (!fs.existsSync(filePath)) {
-        return res.status(404).json({ message: "PDF file not found" });
-      }
-
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `inline; filename="${template.fileName}"`);
-      
-      const fileStream = fs.createReadStream(filePath);
-      fileStream.pipe(res);
-    } catch (error) {
-      console.error("Error serving PDF file:", error);
-      res.status(500).json({ message: "Failed to serve PDF file" });
-    }
-  });
 
   app.post('/api/templates/mappings', isAuthenticated, async (req, res) => {
     try {
