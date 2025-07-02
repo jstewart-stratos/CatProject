@@ -86,14 +86,25 @@ export class PDFService {
           
           // Build data context
           const dataContext = PDFService.buildDataContext(data);
+          console.log('Data context keys:', Object.keys(dataContext));
+          console.log('Sample dataContext values:', {
+            householdName: dataContext.householdName,
+            agreementDate: dataContext.agreementDate,
+            advisorName: dataContext.advisorName,
+            firstName: dataContext.firstName,
+            lastName: dataContext.lastName
+          });
           
           // Create field mappings from database
           for (const mapping of mappings) {
             const value = PDFService.resolveDataSource(mapping.dataSource, dataContext);
+            console.log(`Mapping ${mapping.pdfFieldName} (${mapping.dataSource}):`, value);
             if (value !== null && value !== undefined && value !== '') {
               fieldMappings[mapping.pdfFieldName] = String(value);
             }
           }
+          
+          console.log('Final fieldMappings:', Object.keys(fieldMappings));
         } catch (error) {
           console.warn('Failed to load template field mappings:', error);
         }
