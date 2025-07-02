@@ -2424,6 +2424,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.delete('/api/templates/:id/mappings', isAuthenticated, async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteTemplateMappings(parseInt(id));
+      res.json({ message: "Template mappings deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting template mappings:", error);
+      res.status(500).json({ message: "Failed to delete template mappings" });
+    }
+  });
+
 
 
   app.post('/api/templates/mappings', isAuthenticated, async (req, res) => {

@@ -202,6 +202,7 @@ export interface IStorage {
   getTemplateMappings(templateId: number): Promise<TemplateFieldMapping[]>;
   updateFieldMapping(id: number, data: Partial<TemplateFieldMapping>): Promise<TemplateFieldMapping>;
   deleteFieldMapping(id: number): Promise<void>;
+  deleteTemplateMappings(templateId: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1715,6 +1716,10 @@ export class DatabaseStorage implements IStorage {
 
   async deleteFieldMapping(id: number): Promise<void> {
     await db.delete(templateFieldMappings).where(eq(templateFieldMappings.id, id));
+  }
+
+  async deleteTemplateMappings(templateId: number): Promise<void> {
+    await db.delete(templateFieldMappings).where(eq(templateFieldMappings.templateId, templateId));
   }
 
 }
