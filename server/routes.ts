@@ -2434,14 +2434,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Template not found" });
       }
 
-      const filePath = template.filePath;
-      if (!filePath || !require('fs').existsSync(filePath)) {
+      const filePath = path.resolve(template.filePath);
+      
+      if (!fs.existsSync(filePath)) {
         return res.status(404).json({ message: "PDF file not found" });
       }
 
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', `inline; filename="${template.fileName}"`);
-      res.sendFile(require('path').resolve(filePath));
+      
+      const fileStream = fs.createReadStream(filePath);
+      fileStream.pipe(res);
     } catch (error) {
       console.error("Error serving PDF file:", error);
       res.status(500).json({ message: "Failed to serve PDF file" });
