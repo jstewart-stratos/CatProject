@@ -85,11 +85,11 @@ export class PDFService {
           console.log(`Found ${mappings.length} field mappings for template ${templateId}`);
           
           // Build data context
-          const dataContext = this.buildDataContext(data);
+          const dataContext = PDFService.buildDataContext(data);
           
           // Create field mappings from database
           for (const mapping of mappings) {
-            const value = this.resolveDataSource(mapping.dataSource, dataContext);
+            const value = PDFService.resolveDataSource(mapping.dataSource, dataContext);
             if (value !== null && value !== undefined && value !== '') {
               fieldMappings[mapping.pdfFieldName] = String(value);
             }
@@ -162,7 +162,7 @@ export class PDFService {
     }
   }
 
-  private buildDataContext(data: any): any {
+  private static buildDataContext(data: any): any {
     const context = {
       // Agreement data
       householdName: data.householdName,
@@ -240,7 +240,7 @@ export class PDFService {
     return context;
   }
 
-  private resolveDataSource(dataSource: string, context: any): string {
+  private static resolveDataSource(dataSource: string, context: any): string {
     // Handle comma-separated field combinations
     if (dataSource.includes(',')) {
       const fields = dataSource.split(',').map(f => f.trim());
