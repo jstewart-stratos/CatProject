@@ -1852,12 +1852,12 @@ export default function ClientAgreementsPage() {
                           <Button 
                             type="submit" 
                             disabled={
-                              createMutation.isPending ||
+                              directPdfMutation.isPending ||
                               !additionalFormData.advisorName ||
                               !additionalFormData.primaryClientName
                             }
                           >
-                            {createMutation.isPending ? "Creating..." : "Create Agreement"}
+                            {directPdfMutation.isPending ? "Generating PDF..." : "Create Agreement"}
                           </Button>
                         )}
                       </div>
