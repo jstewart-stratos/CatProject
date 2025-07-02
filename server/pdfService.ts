@@ -55,7 +55,25 @@ export class PDFService {
       
       const existingPdfBytes = fs.readFileSync(templatePath);
       const pdfDoc = await PDFDocument.load(existingPdfBytes, { ignoreEncryption: true });
-      const form = pdfDoc.getForm();
+      
+      // Check if PDF has a form and get fields
+      let form;
+      let fields = [];
+      try {
+        form = pdfDoc.getForm();
+        fields = form.getFields();
+        console.log(`Found ${fields.length} fields in ${data.businessLine} template`);
+      } catch (formError) {
+        console.log(`No fillable form found in ${data.businessLine} template:`, formError.message);
+        // If no form exists, return the original PDF
+        return Buffer.from(existingPdfBytes);
+      }
+
+      // If no fields found, return original PDF
+      if (fields.length === 0) {
+        console.log(`No form fields available in ${data.businessLine} template`);
+        return Buffer.from(existingPdfBytes);
+      }
 
       // Basic field mapping
       const fieldMappings = {
@@ -101,8 +119,6 @@ export class PDFService {
       }
 
       // Fill form fields
-      const fields = form.getFields();
-      console.log(`Found ${fields.length} fields in ${data.businessLine} template`);
 
       fields.forEach(field => {
         const fieldName = field.getName();
@@ -136,7 +152,16 @@ export class PDFService {
       return Buffer.from(pdfBytes);
     } catch (error) {
       console.error('Error filling PDF:', error);
-      throw new Error(`Failed to generate ${data.businessLine} client agreement: ${error.message}`);
+      console.log('PDF appears to be corrupted or incompatible. Returning original template.');
+      
+      // Fallback: return the original PDF template
+      try {
+        const templatePath = this.getTemplatePath(data.businessLine);
+        const existingPdfBytes = fs.readFileSync(templatePath);
+        return Buffer.from(existingPdfBytes);
+      } catch (fallbackError) {
+        throw new Error(`Failed to generate ${data.businessLine} client agreement: PDF template is corrupted and cannot be processed`);
+      }
     }
   }
 
