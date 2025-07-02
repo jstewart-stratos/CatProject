@@ -15,6 +15,7 @@ import { apiRequest } from "@/lib/queryClient";
 import Sidebar from "@/components/sidebar";
 import TopBar from "@/components/top-bar";
 import { PDFFieldSelector } from "@/components/pdf-field-selector";
+import PDFFieldVisualSelector from "@/components/pdf-field-visual-selector";
 
 interface Template {
   id: number;
@@ -40,6 +41,8 @@ export default function TemplateManagement() {
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
+  const [isVisualSelectorOpen, setIsVisualSelectorOpen] = useState(false);
+  const [visualSelectorTemplate, setVisualSelectorTemplate] = useState<Template | null>(null);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -85,9 +88,7 @@ export default function TemplateManagement() {
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      return apiRequest(`/api/templates/${id}`, {
-        method: "DELETE",
-      });
+      return apiRequest("DELETE", `/api/templates/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/templates"] });
@@ -104,6 +105,42 @@ export default function TemplateManagement() {
       });
     },
   });
+
+  // Visual PDF selector handlers
+  const openVisualSelector = (template: Template) => {
+    setVisualSelectorTemplate(template);
+    setIsVisualSelectorOpen(true);
+  };
+
+  const handleVisualFieldSelect = (fieldName: string, coordinates: { x: number; y: number }) => {
+    // Create a new field mapping when user clicks on PDF
+    if (visualSelectorTemplate) {
+      const newMapping = {
+        templateId: visualSelectorTemplate.id,
+        pdfFieldName: fieldName,
+        dataSource: '',
+        fieldType: 'text',
+        isRequired: false
+      };
+
+      // Add the field mapping via API
+      apiRequest("POST", "/api/templates/mappings", newMapping)
+        .then(() => {
+          toast({
+            title: "Field Added",
+            description: `Field "${fieldName}" added at position (${Math.round(coordinates.x)}, ${Math.round(coordinates.y)})`,
+          });
+          queryClient.invalidateQueries({ queryKey: [`/api/templates/${visualSelectorTemplate.id}/mappings`] });
+        })
+        .catch((error) => {
+          toast({
+            title: "Error",
+            description: "Failed to add field mapping",
+            variant: "destructive",
+          });
+        });
+    }
+  };
 
   const handleUpload = () => {
     if (!uploadFile) return;
@@ -244,10 +281,19 @@ export default function TemplateManagement() {
                             <Button 
                               variant="outline" 
                               size="sm"
+                              onClick={() => openVisualSelector(template)}
+                              title="Visual PDF Field Selector"
+                            >
+                              <Eye className="h-3 w-3 mr-1" />
+                              Visual Map
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
                               onClick={() => setSelectedTemplate(template)}
                             >
                               <Settings className="h-3 w-3 mr-1" />
-                              Configure Fields
+                              Configure
                             </Button>
                             <Button 
                               variant="outline" 
@@ -268,6 +314,17 @@ export default function TemplateManagement() {
           </Card>
         </main>
       </div>
+      
+      {/* Visual PDF Field Selector */}
+      {isVisualSelectorOpen && visualSelectorTemplate && (
+        <PDFFieldVisualSelector
+          templateId={visualSelectorTemplate.id}
+          pdfUrl={`/api/templates/${visualSelectorTemplate.id}/pdf`}
+          onFieldSelect={handleVisualFieldSelect}
+          onClose={() => setIsVisualSelectorOpen(false)}
+          selectedFields={[]}
+        />
+      )}
     </>
   );
 }

@@ -171,14 +171,16 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
-- **July 2, 2025**: Expanded PDF field mapping data sources to include all form fields
-  - ✅ **Enhanced data source options** - Expanded from 15 basic fields to 160+ comprehensive mapping options
-  - ✅ **Added all client form fields** - Includes personal info, contact details, employment, suitability, investment experience, and trusted contact data
-  - ✅ **Added all account form fields** - Includes account details, investment settings, trading options, power of attorney, and trust information
-  - ✅ **Added Client Agreements form fields** - Includes agreement data, account configurations, client signatures, mailing addresses, and agreement metadata
-  - ✅ **Enhanced field combinations** - Added smart combinations like "firstName,middleName,lastName" and complete address mappings
-  - ✅ **Organized by category** - Data sources grouped by Agreement Data, Personal Info, Contact Info, Employment, Client Agreements, etc. for easier selection
-  - ✅ **Comprehensive coverage** - All database fields from clients, accounts, and client agreements tables now available for PDF field mapping
+- **July 2, 2025**: Implemented visual PDF field selector to address PDF analyzer limitations
+  - ✅ **Created visual PDF field selector component** - Built comprehensive PDF.js-based viewer with clickable field mapping capabilities
+  - ✅ **Added PDF rendering with PDF.js** - Proper PDF display with zoom controls, page navigation, and loading states for multi-page documents
+  - ✅ **Implemented visual field placement** - Users can click directly on PDF fields to create mappings with coordinate tracking
+  - ✅ **Enhanced Template Management interface** - Added "Visual Map" button for each template to open interactive PDF field selector
+  - ✅ **Created PDF serving endpoint** - Added `/api/templates/:id/pdf` route to serve PDF files for visual selection interface
+  - ✅ **Added field mapping creation API** - Implemented POST `/api/templates/mappings` endpoint for creating new field mappings from visual selector
+  - ✅ **Comprehensive data source options** - Expanded from 15 basic fields to 160+ mapping options including all Client Agreements form fields
+  - ✅ **Organized by workflow categories** - Data sources grouped by Agreement Data, Personal Info, Contact Info, Employment, Client Agreements, etc.
+  - ✅ **Smart field combinations** - Enhanced with combinations like "firstName,middleName,lastName" and complete address mappings for complex field population
 - **July 1, 2025**: Fixed template management API endpoint connectivity and PDF preview blocking issue
   - ✅ **Resolved API endpoint mismatch** - Updated frontend to use correct `/api/templates` endpoint instead of `/api/pdf-templates`
   - ✅ **Fixed template loading and display** - Templates now properly load and display in Template Management interface
