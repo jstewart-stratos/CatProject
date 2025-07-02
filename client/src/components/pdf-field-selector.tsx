@@ -105,21 +105,151 @@ export function PDFFieldSelector({ templateId, templateName }: PDFFieldSelectorP
   }, [pdfAnalysis, existingMappings]);
 
   const dataSourceOptions = [
-    { value: "firstName", label: "First Name" },
-    { value: "lastName", label: "Last Name" },
-    { value: "firstName,lastName", label: "Full Name" },
+    // Agreement Data
     { value: "householdName", label: "Household Name" },
     { value: "agreementDate", label: "Agreement Date" },
     { value: "advisorName", label: "Advisor Name" },
     { value: "iarRepCode", label: "IAR Rep Code" },
+    
+    // Client Personal Information
+    { value: "firstName", label: "First Name" },
+    { value: "middleName", label: "Middle Name" },
+    { value: "lastName", label: "Last Name" },
+    { value: "firstName,lastName", label: "Full Name" },
+    { value: "firstName,middleName,lastName", label: "Full Name with Middle" },
+    { value: "clientType", label: "Client Type" },
+    { value: "entityType", label: "Entity Type" },
+    { value: "entityName", label: "Entity Name" },
+    { value: "decedentName", label: "Decedent Name" },
+    { value: "tin", label: "TIN/EIN" },
+    { value: "ssn", label: "SSN" },
+    { value: "alias", label: "Alias" },
+    { value: "dateOfBirth", label: "Date of Birth" },
+    { value: "signingMethod", label: "Signing Method" },
+    { value: "citizenship", label: "Citizenship" },
+    { value: "residencyStatus", label: "Residency Status" },
+    
+    // Client Contact Information
     { value: "emailAddress", label: "Email Address" },
     { value: "homePhone", label: "Home Phone" },
+    { value: "mobilePhone", label: "Mobile Phone" },
+    { value: "businessPhone", label: "Business Phone" },
     { value: "legalAddress1", label: "Legal Address Line 1" },
+    { value: "legalAddress2", label: "Legal Address Line 2" },
     { value: "city", label: "City" },
     { value: "state", label: "State" },
     { value: "zipCode", label: "ZIP Code" },
-    { value: "ssn", label: "SSN" },
-    { value: "dateOfBirth", label: "Date of Birth" },
+    { value: "legalAddress1,city,state,zipCode", label: "Complete Legal Address" },
+    { value: "mailingAddress1", label: "Mailing Address Line 1" },
+    { value: "mailingAddress2", label: "Mailing Address Line 2" },
+    { value: "mailingCity", label: "Mailing City" },
+    { value: "mailingState", label: "Mailing State" },
+    { value: "mailingZipCode", label: "Mailing ZIP Code" },
+    { value: "mailingAddress1,mailingCity,mailingState,mailingZipCode", label: "Complete Mailing Address" },
+    
+    // Client Employment Information
+    { value: "employmentStatus", label: "Employment Status" },
+    { value: "employerName", label: "Employer Name" },
+    { value: "industry", label: "Industry" },
+    { value: "industryOther", label: "Other Industry" },
+    { value: "occupation", label: "Occupation" },
+    { value: "affiliationType", label: "Affiliation Type" },
+    
+    // Client Suitability Information
+    { value: "riskScore", label: "Risk Score" },
+    { value: "annualIncome", label: "Annual Income" },
+    { value: "netWorth", label: "Net Worth" },
+    { value: "liquidNetWorth", label: "Liquid Net Worth" },
+    { value: "sourceOfWealth", label: "Source of Wealth" },
+    { value: "sourceOfWealthOther", label: "Other Source of Wealth" },
+    { value: "taxBracket", label: "Tax Bracket" },
+    
+    // Trusted Contact Information
+    { value: "trustedContactFirstName", label: "Trusted Contact First Name" },
+    { value: "trustedContactLastName", label: "Trusted Contact Last Name" },
+    { value: "trustedContactFirstName,trustedContactLastName", label: "Trusted Contact Full Name" },
+    { value: "trustedContactRelationship", label: "Trusted Contact Relationship" },
+    { value: "trustedContactAddress1", label: "Trusted Contact Address" },
+    { value: "trustedContactCity", label: "Trusted Contact City" },
+    { value: "trustedContactState", label: "Trusted Contact State" },
+    { value: "trustedContactZipCode", label: "Trusted Contact ZIP" },
+    { value: "trustedContactEmail", label: "Trusted Contact Email" },
+    { value: "trustedContactPhone", label: "Trusted Contact Phone" },
+    
+    // Account Information
+    { value: "accountType", label: "Account Type" },
+    { value: "programType", label: "Program Type" },
+    { value: "registrationType", label: "Registration Type" },
+    { value: "advisorFee", label: "Advisor Fee" },
+    { value: "advisoryBillingCycle", label: "Advisory Billing Cycle" },
+    { value: "iraType", label: "IRA Type" },
+    
+    // Investment Details
+    { value: "investmentObjective", label: "Investment Objective" },
+    { value: "approximateAccountValue", label: "Approximate Account Value" },
+    { value: "expectedAccountValue", label: "Expected Account Value" },
+    { value: "investmentTimeHorizon", label: "Investment Time Horizon" },
+    { value: "fundsNeededIn", label: "Funds Needed In" },
+    
+    // Account Features
+    { value: "checkwriting", label: "Checkwriting" },
+    { value: "checkwritingAccountType", label: "Checkwriting Account Type" },
+    { value: "debitCard", label: "Debit Card" },
+    { value: "costBasisReporting", label: "Cost Basis Reporting" },
+    
+    // Power of Attorney
+    { value: "powerOfAttorney", label: "Power of Attorney" },
+    { value: "poaAuthorizedAgentName", label: "POA Authorized Agent Name" },
+    { value: "grantPowerOfAttorney", label: "Grant Power of Attorney" },
+    { value: "authorizedAgentName", label: "Authorized Agent Name" },
+    
+    // Trading Authority
+    { value: "tradingAuthority", label: "Trading Authority" },
+    { value: "taAuthorizedAgentName", label: "Trading Authority Agent Name" },
+    { value: "tradingAuthorizationType", label: "Trading Authorization Type" },
+    { value: "grantTradingAuthority", label: "Grant Trading Authority" },
+    { value: "tradingAuthorizedAgentName", label: "Trading Authorized Agent Name" },
+    { value: "newTradingAuthorizationType", label: "New Trading Authorization Type" },
+    
+    // Trading Options
+    { value: "fullDiscretionaryTrading", label: "Full Discretionary Trading" },
+    { value: "addMargin", label: "Add Margin" },
+    { value: "structuredProductTrading", label: "Structured Product Trading" },
+    { value: "complexEtpTrading", label: "Complex ETP Trading" },
+    { value: "optionsTrading", label: "Options Trading" },
+    { value: "optionsLevel", label: "Options Level" },
+    { value: "addFullDiscretionaryTrading", label: "Add Full Discretionary Trading" },
+    { value: "addStructuredProductTrading", label: "Add Structured Product Trading" },
+    { value: "tradeComplexETPs", label: "Trade Complex ETPs" },
+    { value: "addOptionsTrading", label: "Add Options Trading" },
+    
+    // Transfer Details
+    { value: "deliveringFirm", label: "Delivering Firm" },
+    { value: "contraAccountNumber", label: "Contra Account Number" },
+    { value: "transferOnDeath", label: "Transfer on Death" },
+    
+    // IRA Beneficiary Details
+    { value: "beneficiaryIraDecedentName", label: "Beneficiary IRA Decedent Name" },
+    { value: "beneficiaryIraDateOfDeath", label: "Beneficiary IRA Date of Death" },
+    { value: "beneficiaryIraDistributionTypes", label: "Beneficiary IRA Distribution Types" },
+    
+    // 529 Plan Details
+    { value: "productSponsorAnd529Plan", label: "Product Sponsor and 529 Plan" },
+    { value: "investmentPortfolioOptionChosen", label: "Investment Portfolio Option" },
+    { value: "ownerStateOfResidence", label: "Owner State of Residence" },
+    { value: "sourceOfFunds", label: "Source of Funds" },
+    { value: "shareClass", label: "Share Class" },
+    { value: "planAdministrator", label: "Plan Administrator" },
+    
+    // Trust Details
+    { value: "trustFormationState", label: "Trust Formation State" },
+    { value: "trustType", label: "Trust Type" },
+    { value: "grantorDecedentNames", label: "Grantor/Decedent Names" },
+    { value: "trustDate", label: "Trust Date" },
+    
+    // Account Status
+    { value: "status", label: "Account Status" },
+    { value: "notes", label: "Account Notes" },
   ];
 
   const handleFieldToggle = (fieldName: string, checked: boolean) => {
