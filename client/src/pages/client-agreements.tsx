@@ -334,6 +334,36 @@ export default function ClientAgreementsPage() {
     },
   });
 
+  // Direct PDF generation mutation - bypasses database complexity
+  const directPdfMutation = useMutation({
+    mutationFn: (completeData: any) => {
+      return apiRequest("POST", "/api/generate-agreement-pdf", completeData);
+    },
+    onSuccess: (response: any) => {
+      setIsCreateDialogOpen(false);
+      form.reset();
+      toast({
+        title: "Success", 
+        description: `PDF generated successfully: ${response.fileName}`,
+      });
+      
+      // Optionally refresh agreements list
+      queryClient.invalidateQueries({ queryKey: ["/api/client-agreements"] });
+      
+      // Trigger download
+      if (response.fileName) {
+        window.open(`/api/download-generated-pdf/${response.fileName}`, '_blank');
+      }
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to generate PDF",
+        variant: "destructive",
+      });
+    },
+  });
+
   const deleteMutation = useMutation({
     mutationFn: (id: number) => apiRequest("DELETE", `/api/client-agreements/${id}`),
     onSuccess: () => {
@@ -359,7 +389,9 @@ export default function ClientAgreementsPage() {
       ...additionalFormData
     };
     console.log('Submitting complete form data:', completeData);
-    createMutation.mutate(data); // For now, just send basic data to prevent server errors
+    
+    // Use direct PDF generation instead of database flow
+    directPdfMutation.mutate(completeData);
   };
 
   const handleDelete = (id: number) => {

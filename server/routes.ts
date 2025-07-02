@@ -2264,6 +2264,99 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Direct PDF generation endpoint - receives complete form data
+  app.post('/api/generate-agreement-pdf', isAuthenticated, async (req, res) => {
+    try {
+      console.log('Direct PDF generation request received');
+      console.log('Form data keys:', Object.keys(req.body));
+      console.log('Advisor name from form:', req.body.advisorName);
+      console.log('Primary client exists:', !!req.body.primaryClient);
+      console.log('Accounts count:', req.body.accounts?.length || 0);
+      
+      // Validate required fields
+      if (!req.body.businessLine) {
+        return res.status(400).json({ message: 'Business line is required' });
+      }
+      
+      if (!req.body.templateId) {
+        return res.status(400).json({ message: 'Template ID is required' });
+      }
+      
+      // Get household name if householdId is provided
+      let householdName = req.body.householdName || 'Unknown Household';
+      if (req.body.householdId) {
+        try {
+          const household = await storage.getHousehold(req.body.householdId);
+          if (household) {
+            householdName = household.name;
+          }
+        } catch (error) {
+          console.log('Could not fetch household name, using default');
+        }
+      }
+      
+      // Prepare complete PDF data from form
+      const pdfData = {
+        ...req.body,
+        householdName: householdName
+      };
+      
+      console.log('PDF data prepared with household name:', householdName);
+      
+      // Generate the PDF using the template
+      const pdfBuffer = await PDFService.fillClientAgreement(pdfData, req.body.templateId);
+      const fileName = PDFService.generateFileName(pdfData);
+      
+      // Save PDF to uploads directory
+      const pdfPath = path.join('uploads', fileName);
+      await fsPromises.writeFile(pdfPath, pdfBuffer);
+      
+      console.log(`Direct PDF generated: ${fileName}`);
+      
+      // Return the PDF file info
+      res.json({
+        success: true,
+        fileName: fileName,
+        pdfPath: pdfPath,
+        message: 'PDF generated successfully'
+      });
+      
+    } catch (error) {
+      console.error('Error in direct PDF generation:', error);
+      res.status(500).json({ 
+        message: 'Failed to generate PDF', 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      });
+    }
+  });
+
+  // Download generated PDF
+  app.get('/api/download-generated-pdf/:fileName', isAuthenticated, async (req, res) => {
+    try {
+      const { fileName } = req.params;
+      const pdfPath = path.join('uploads', fileName);
+      
+      // Check if file exists
+      try {
+        await fsPromises.access(pdfPath);
+      } catch {
+        return res.status(404).json({ message: 'PDF file not found' });
+      }
+      
+      // Set headers for PDF download
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+      
+      // Stream the file
+      const fileBuffer = await fsPromises.readFile(pdfPath);
+      res.send(fileBuffer);
+      
+    } catch (error) {
+      console.error('Error downloading generated PDF:', error);
+      res.status(500).json({ message: 'Failed to download PDF' });
+    }
+  });
+
   // Download PDF route
   app.get('/api/client-agreements/:id/download', isAuthenticated, async (req, res) => {
     try {
