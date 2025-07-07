@@ -707,17 +707,6 @@ export default function ClientOnboardingFull() {
           {/* Header */}
           <div className="mb-6">
             <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start space-y-4 lg:space-y-0">
-              <div>
-                <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 mb-2">
-                  {editClientId ? "Edit Client" : "Full Client Onboarding"}
-                </h1>
-                <p className="text-slate-600 text-sm lg:text-base">
-                  {editClientId 
-                    ? "Update client information across all steps" 
-                    : "Complete 7-step client information collection process"
-                  }
-                </p>
-              </div>
               <div className="flex flex-col sm:flex-row gap-2">
                 <Button 
                   variant="outline" 
