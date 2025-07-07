@@ -468,16 +468,7 @@ export default function ClientAgreementsPage() {
         />
         
         <main className="p-6">
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                Client Agreements
-              </h1>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">
-                Create and manage client agreements for households
-              </p>
-            </div>
-            
+          <div className="flex justify-end items-center mb-6">
             <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
               <DialogTrigger asChild>
                 <Button onClick={handleNewAgreement}>
