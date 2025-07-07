@@ -468,14 +468,7 @@ export default function ClientAgreementsPage() {
         />
         
         <main className="p-6">
-          <div className="flex justify-end items-center mb-6">
-            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-              <DialogTrigger asChild>
-                <Button onClick={handleNewAgreement}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  New Agreement
-                </Button>
-              </DialogTrigger>
+          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
               <DialogContent className="sm:max-w-[600px]">
                 <DialogHeader>
                   <DialogTitle>Create New Client Agreement</DialogTitle>
@@ -1857,14 +1850,23 @@ export default function ClientAgreementsPage() {
                 </Form>
               </DialogContent>
             </Dialog>
-          </div>
 
           <Card>
             <CardHeader>
-              <CardTitle>All Client Agreements</CardTitle>
-              <CardDescription>
-                View and manage all client agreements across households
-              </CardDescription>
+              <div className="flex justify-between items-start">
+                <div>
+                  <CardTitle>All Client Agreements</CardTitle>
+                  <CardDescription>
+                    View and manage all client agreements across households
+                  </CardDescription>
+                </div>
+                <DialogTrigger asChild>
+                  <Button onClick={handleNewAgreement}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    New Agreement
+                  </Button>
+                </DialogTrigger>
+              </div>
             </CardHeader>
             <CardContent>
               {isLoading ? (
