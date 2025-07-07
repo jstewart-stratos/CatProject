@@ -89,7 +89,7 @@ export default function Sidebar({ currentView }: SidebarProps) {
         lg:translate-x-0
         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col h-full max-h-screen">
           {/* Desktop Header */}
           <div className="hidden lg:flex items-center px-6 py-4 border-b border-slate-200">
             <div className="w-10 h-10 flex items-center justify-center">
@@ -122,7 +122,7 @@ export default function Sidebar({ currentView }: SidebarProps) {
             </Button>
           </div>
           
-          <nav className="flex-1 px-4 py-6">
+          <nav className="flex-1 px-4 py-6 overflow-y-auto">
             <div className="space-y-2">
               {menuItems.map((item) => {
                 const Icon = item.icon;
@@ -148,16 +148,16 @@ export default function Sidebar({ currentView }: SidebarProps) {
             </div>
           </nav>
           
-          <div className="px-4 py-4 border-t border-slate-200">
-            <div className="flex items-center mb-4">
-              <div className="w-10 h-10 bg-slate-400 rounded-full flex items-center justify-center">
-                <Users className="h-5 w-5 text-white" />
+          <div className="px-4 py-3 border-t border-slate-200 bg-slate-50 shrink-0">
+            <div className="flex items-center">
+              <div className="w-8 h-8 bg-slate-400 rounded-full flex items-center justify-center shrink-0">
+                <Users className="h-4 w-4 text-white" />
               </div>
-              <div className="ml-3 flex-1">
-                <p className="text-sm font-medium text-slate-800">
+              <div className="ml-3 flex-1 min-w-0">
+                <p className="text-sm font-medium text-slate-800 truncate">
                   {user ? `${(user as any).firstName || ''} ${(user as any).lastName || ''}`.trim() || (user as any).username || 'User' : 'Loading...'}
                 </p>
-                <p className="text-xs text-slate-600">
+                <p className="text-xs text-slate-600 truncate">
                   {user ? ((user as any).role === 'admin' ? 'Administrator' : 
                           (user as any).role === 'transition_specialist' ? 'Transition Specialist' : 
                           (user as any).role === 'user' ? 'User' : 
@@ -165,7 +165,13 @@ export default function Sidebar({ currentView }: SidebarProps) {
                           (user as any).role) : ''}
                 </p>
               </div>
-              <Button variant="ghost" size="sm" onClick={handleLogout}>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={handleLogout}
+                className="ml-2 shrink-0 p-2"
+                title="Logout"
+              >
                 <LogOut className="h-4 w-4" />
               </Button>
             </div>
