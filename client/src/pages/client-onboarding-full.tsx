@@ -704,92 +704,92 @@ export default function ClientOnboardingFull() {
         />
         <div className="p-4 lg:p-6">
         <div className="max-w-4xl mx-auto">
-          {/* Header */}
-          <div className="mb-6">
-            <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start space-y-4 lg:space-y-0">
-              <div className="flex flex-col sm:flex-row gap-2">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={handleSaveDraft}
-                  disabled={saveDraftMutation.isPending}
-                >
-                  <Save className="w-4 h-4 mr-2" />
-                  {saveDraftMutation.isPending ? "Saving..." : "Save Progress"}
-                </Button>
 
-                <Dialog open={showLoadDialog} onOpenChange={setShowLoadDialog}>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" size="sm">
-                      <FileText className="w-4 h-4 mr-2" />
-                      Load Draft
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-md">
-                    <DialogHeader>
-                      <DialogTitle>Load Draft</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                      {userDrafts && userDrafts.length > 0 ? (
-                        <div className="space-y-2">
-                          {userDrafts.map((draft: any) => {
-                            const completionPercentage = calculateCompletionPercentage(draft.formData || {});
-                            return (
-                              <div key={draft.id} className="flex items-center justify-between p-3 border rounded-lg">
-                                <div className="flex-1">
-                                  <p className="font-medium">{draft.title}</p>
-                                  <div className="flex items-center gap-2 mt-1">
-                                    <div className="flex-1 bg-gray-200 rounded-full h-2">
-                                      <div 
-                                        className="bg-blue-600 h-2 rounded-full" 
-                                        style={{ width: `${completionPercentage}%` }}
-                                      ></div>
-                                    </div>
-                                    <span className="text-sm text-gray-500">{completionPercentage}%</span>
-                                  </div>
-                                  <p className="text-sm text-gray-500 mt-1">
-                                    Step {draft.currentStep || 1} of 7 • {new Date(draft.createdAt).toLocaleDateString()}
-                                  </p>
-                                </div>
-                                <div className="flex gap-1 ml-4">
-                                  <Button
-                                    size="sm"
-                                    onClick={() => handleLoadDraft(draft)}
-                                  >
-                                    Continue
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => deleteDraftMutation.mutate(draft.id)}
-                                    disabled={deleteDraftMutation.isPending}
-                                  >
-                                    Delete
-                                  </Button>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      ) : (
-                        <p className="text-gray-500 text-center py-4">No saved progress found</p>
-                      )}
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              </div>
-            </div>
-          </div>
           
       <Card>
         <CardHeader>
-          <CardTitle>Client Information Form</CardTitle>
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm text-gray-600">
-              <span>Step {currentStep} of {steps.length}: {steps[currentStep - 1].title}</span>
-              <span>{Math.round((currentStep / steps.length) * 100)}% Complete</span>
+          <div className="flex justify-between items-start">
+            <div className="flex-1">
+              <CardTitle>Client Information Form</CardTitle>
+              <div className="space-y-2 mt-2">
+                <div className="flex justify-between text-sm text-gray-600">
+                  <span>Step {currentStep} of {steps.length}: {steps[currentStep - 1].title}</span>
+                  <span>{Math.round((currentStep / steps.length) * 100)}% Complete</span>
+                </div>
+                <Progress value={(currentStep / steps.length) * 100} className="h-2" />
+              </div>
             </div>
-            <Progress value={(currentStep / steps.length) * 100} className="h-2" />
+            <div className="flex flex-col sm:flex-row gap-2 ml-4">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleSaveDraft}
+                disabled={saveDraftMutation.isPending}
+              >
+                <Save className="w-4 h-4 mr-2" />
+                {saveDraftMutation.isPending ? "Saving..." : "Save Progress"}
+              </Button>
+
+              <Dialog open={showLoadDialog} onOpenChange={setShowLoadDialog}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <FileText className="w-4 h-4 mr-2" />
+                    Load Draft
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Load Draft</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    {userDrafts && userDrafts.length > 0 ? (
+                      <div className="space-y-2">
+                        {userDrafts.map((draft: any) => {
+                          const completionPercentage = calculateCompletionPercentage(draft.formData || {});
+                          return (
+                            <div key={draft.id} className="flex items-center justify-between p-3 border rounded-lg">
+                              <div className="flex-1">
+                                <p className="font-medium">{draft.title}</p>
+                                <div className="flex items-center gap-2 mt-1">
+                                  <div className="flex-1 bg-gray-200 rounded-full h-2">
+                                    <div 
+                                      className="bg-blue-600 h-2 rounded-full" 
+                                      style={{ width: `${completionPercentage}%` }}
+                                    ></div>
+                                  </div>
+                                  <span className="text-sm text-gray-500">{completionPercentage}%</span>
+                                </div>
+                                <p className="text-sm text-gray-500 mt-1">
+                                  Step {draft.currentStep || 1} of 7 • {new Date(draft.createdAt).toLocaleDateString()}
+                                </p>
+                              </div>
+                              <div className="flex gap-1 ml-4">
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleLoadDraft(draft)}
+                                >
+                                  Continue
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => deleteDraftMutation.mutate(draft.id)}
+                                  disabled={deleteDraftMutation.isPending}
+                                >
+                                  Delete
+                                </Button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <p className="text-gray-500 text-center py-4">No saved progress found</p>
+                    )}
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
