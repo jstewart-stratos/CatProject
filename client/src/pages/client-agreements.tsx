@@ -469,7 +469,7 @@ export default function ClientAgreementsPage() {
         
         <main className="p-6">
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-              <DialogContent className="sm:max-w-[600px]">
+            <DialogContent className="sm:max-w-[600px]">
                 <DialogHeader>
                   <DialogTitle>Create New Client Agreement</DialogTitle>
                   <DialogDescription>
@@ -1849,9 +1849,8 @@ export default function ClientAgreementsPage() {
                   </form>
                 </Form>
               </DialogContent>
-            </Dialog>
-
-          <Card>
+            
+            <Card>
             <CardHeader>
               <div className="flex justify-between items-start">
                 <div>
@@ -1942,6 +1941,7 @@ export default function ClientAgreementsPage() {
               )}
             </CardContent>
           </Card>
+          </Dialog>
         </main>
       </div>
     </div>
